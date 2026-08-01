@@ -213,5 +213,33 @@ namespace Business
                 TestTypeID
             );
         }
+
+        
+        public static bool GetLastTestByPersonAndTestTypeAndLicenseClass(
+            int PersonID,
+            int TestTypeID,
+            int LicenseClassID,
+            ref int TestID,
+            ref int TestAppointmentID,
+            ref bool TestResult,
+            ref string Notes,
+            ref int CreatedByUserID,
+            ref DateTime AppointmentDate
+        )
+        {
+            return DataAccess.clsTests.GetLastTestByPersonAndTestTypeAndLicenseClass(
+                PersonID,
+                TestTypeID,
+                LicenseClassID,
+                ref TestID,
+                ref TestAppointmentID,
+                ref TestResult,
+                ref Notes,
+                ref CreatedByUserID,
+                ref AppointmentDate
+            );
+        }
+
+        
     }
 }

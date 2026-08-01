@@ -461,7 +461,8 @@ namespace DVLD.Tests.Controls
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Anchor = AnchorStyles.Bottom
+                Anchor = AnchorStyles.Bottom,
+                Visible = true
             };
             btnSave.FlatAppearance.BorderSize = 0;
 
@@ -1108,7 +1109,10 @@ namespace DVLD.Tests.Controls
                 cbTestType.Items.Add("Practical Test");
             }
 
-            int indexToSelect = _TestTypeID - 1;
+            // Find the correct index by matching the test type name in the ComboBox items
+            string currentTestTypeName = _TestType.ToString().Replace("Test", "") + " Test";
+            int indexToSelect = cbTestType.Items.IndexOf(currentTestTypeName);
+            
             if (indexToSelect < 0 || indexToSelect >= cbTestType.Items.Count)
             {
                 indexToSelect = 0;

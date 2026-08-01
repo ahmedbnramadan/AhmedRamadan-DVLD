@@ -24,6 +24,9 @@ namespace DataAccess
                             (testappointmentid, testresult, notes, createdbyuserid)
                             VALUES 
                             (@TestAppointmentID, @TestResult, @Notes, @CreatedByUserID);
+                            UPDATE testappointments
+                            SET islocked = 1 where testappointmentid = @TestAppointmentID
+
                             SELECT SCOPE_IDENTITY();";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -717,5 +720,67 @@ namespace DataAccess
             }
             return isPassed;
         }
+
+        
+        // Get the last test by person and test type and license class
+        public static bool GetLastTestByPersonAndTestTypeAndLicenseClass(
+            int PersonID,
+            int TestTypeID,
+            int LicenseClassID,
+            ref int TestID,
+            ref int TestAppointmentID,
+            ref bool TestResult,
+            ref string Notes,
+            ref int CreatedByUserID,
+            ref DateTime AppointmentDate)
+        {
+            bool isFound = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TOP 1 t.TestID, t.TestAppointmentID, t.TestResult, t.Notes, t.CreatedByUserID, ta.AppointmentDate
+                                FROM Tests t
+                                INNER JOIN TestAppointments ta ON t.TestAppointmentID = ta.TestAppointmentID
+                                INNER JOIN LocalDrivingLicenseApplications lda ON ta.LocalDrivingLicenseApplicationID = lda.LocalDrivingLicenseApplicationID
+                                INNER JOIN Applications a ON lda.ApplicationID = a.ApplicationID
+                                WHERE a.ApplicantPersonID = @PersonID
+                                AND ta.TestTypeID = @TestTypeID
+                                AND lda.LicenseClassID = @LicenseClassID
+                                ORDER BY ta.AppointmentDate DESC, t.TestID DESC";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@PersonID", PersonID);
+                    command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
+                    command.Parameters.AddWithValue("@LicenseClassID", LicenseClassID);
+
+                    try
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                isFound = true;
+                                TestID = (int)reader["TestID"];
+                                TestAppointmentID = (int)reader["TestAppointmentID"];
+                                TestResult = (bool)reader["TestResult"];
+                                Notes = reader["Notes"] != DBNull.Value ? (string)reader["Notes"] : "";
+                                CreatedByUserID = (int)reader["CreatedByUserID"];
+                                AppointmentDate = (DateTime)reader["AppointmentDate"];
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error getting last test by person and test type and license class: " + ex.Message;
+                    }
+                }
+            }
+            return isFound;
+        }
+
+        
     }
 }
