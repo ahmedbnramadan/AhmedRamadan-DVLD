@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "DVLD: Run Console UI",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/DVLD_ConsoleUI/bin/Debug/net5.0/DVLD_ConsoleUI.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/DVLD_ConsoleUI",
+            "console": "externalTerminal",
+            "stopAtEntry": false
+        }
+    ]
+}
