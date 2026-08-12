@@ -55,7 +55,7 @@ namespace DVLD
         private void _InitializeComponents()
         {
             // ── Form ────────────────────────────────────────────────
-            this.Text               = "Menage Users";
+            this.Text               = "Manage Users";
             this.Size               = new Size(1260, 700);
             this.StartPosition      = FormStartPosition.CenterScreen;
             this.FormBorderStyle    = FormBorderStyle.FixedDialog;

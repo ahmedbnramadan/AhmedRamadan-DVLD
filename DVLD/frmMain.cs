@@ -1,14 +1,13 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Business; // طبقة البزنس التي ربطناها
+using Business;
 
 namespace DVLD
 {
-    // حذفنا partial لأنك ستكتب كل شيء هنا
     public class frmMain : Form
     {
-        // --- العظام: تعريف المكونات التي ستظهر على الشاشة ---
+        // Main form controls
         private MenuStrip _msMain;
         private ToolStripMenuItem _menuApplications;
         private ToolStripMenuItem _menuPeople;
@@ -20,77 +19,82 @@ namespace DVLD
 
         public frmMain()
         {
-            // 1. إعدادات النافذة الأم
-            this.Text = "DVLD - System Dashboard";
-            this.IsMdiContainer = true; // ضروري جداً لفتح النوافذ الأخرى بداخله
-            this.WindowState = FormWindowState.Maximized;
-            this.MainMenuStrip = _msMain;
+            // Main form settings
+            Text = "DVLD - System Dashboard";
+            IsMdiContainer = true;
+            WindowState = FormWindowState.Maximized;
+            StartPosition = FormStartPosition.CenterScreen;
 
-            // 2. استدعاء دوال البناء اليدوي
+            // Build the menu and status bar
             _InitializeMainMenu();
             _InitializeStatusBar();
 
-            // foreach (Control control in this.Controls)
-            // {
-            //     // إذا وجدنا الكائن المسؤول عن مساحة العمل الداخلية
-            //     if (control is MdiClient)
-            //     {
-            //         control.BackColor = Color.Black; // اجعلها سوداء
-            //         break; // توقف عن البحث بمجرد إيجاده
-            //     }
-            // }
+            MainMenuStrip = _msMain;
         }
 
-        // --- الرسم اليدوي: شريط القوائم ---
+        // Main menu
         private void _InitializeMainMenu()
         {
             _msMain = new MenuStrip();
 
-            // _msMain.BackColor = Color.FromArgb(45, 45, 48); // لون رمادي غامق جداً (Dark Theme)
-            // _msMain.ForeColor = Color.White; // الخط أبيض ليظهر فوق الغامق
+            _msMain.BackColor = Color.FromArgb(45, 45, 48);
+            _msMain.ForeColor = Color.White;
 
-
-            // main menu
-
+            // Main menu items
             _menuApplications = new ToolStripMenuItem("Applications");
 
             _menuPeople = new ToolStripMenuItem("People");
-            _menuPeople.Click += new EventHandler(_OpenPeopleForm);
+            _menuPeople.Click += _OpenPeopleForm;
 
             _menuDrivers = new ToolStripMenuItem("Drivers");
-            _menuDrivers.Click += new EventHandler(_OpenDriversForm);
+            _menuDrivers.Click += _OpenDriversForm;
 
             _menuUsers = new ToolStripMenuItem("Users");
-            _menuUsers.Click += new EventHandler(_OpenUsersForm);
+            _menuUsers.Click += _OpenUsersForm;
 
             _menuAccountSettings = new ToolStripMenuItem("Account Setting");
 
+            // Applications menu
+            ToolStripMenuItem menuDrivingLicensesServices =
+                new ToolStripMenuItem("Driving Licenses Services");
 
+            ToolStripMenuItem menuManageApplications =
+                new ToolStripMenuItem("Manage Applications");
 
-            // Applicatins menu:
-            ToolStripMenuItem menuDrivingLicensesServices = new ToolStripMenuItem("Driving Licenses Services");
-            ToolStripMenuItem menuManageApllications = new ToolStripMenuItem("Manage Apllications");
-            ToolStripMenuItem menuDetainLicenses = new ToolStripMenuItem("Detain Licenses");
-            ToolStripMenuItem menuManageApplicationTypes = new ToolStripMenuItem("Manage Application Types");
-            ToolStripMenuItem menuMenageTestTypes = new ToolStripMenuItem("Menage Test Types");
+            ToolStripMenuItem menuDetainLicenses =
+                new ToolStripMenuItem("Detain Licenses");
+
+            ToolStripMenuItem menuManageApplicationTypes =
+                new ToolStripMenuItem("Manage Application Types");
+
+            ToolStripMenuItem menuManageTestTypes =
+                new ToolStripMenuItem("Manage Test Types");
 
             _menuApplications.DropDownItems.Add(menuDrivingLicensesServices);
-            _menuApplications.DropDownItems.Add(menuManageApllications);
+            _menuApplications.DropDownItems.Add(menuManageApplications);
             _menuApplications.DropDownItems.Add(menuDetainLicenses);
             _menuApplications.DropDownItems.Add(menuManageApplicationTypes);
-            _menuApplications.DropDownItems.Add(menuMenageTestTypes);
+            _menuApplications.DropDownItems.Add(menuManageTestTypes);
 
-            // Application Forms:
-            menuManageApplicationTypes.Click += new EventHandler(_ManageApplicationTypes);
-            menuMenageTestTypes.Click += new EventHandler(_MenageTestTypes);
+            // Application forms
+            menuManageApplicationTypes.Click += _ManageApplicationTypes;
+            menuManageTestTypes.Click += _ManageTestTypes;
 
+            // Driving Licenses Services
+            ToolStripMenuItem menuNewDrivingLicense =
+                new ToolStripMenuItem("New Driving License");
 
-            // Applications::DrivingLicensesServicesMenu:
-            ToolStripMenuItem menuNewDrivingLicense = new ToolStripMenuItem("New Driving License");
-            ToolStripMenuItem menuRenewDrivingLicense = new ToolStripMenuItem("Renew Driving License");
-            ToolStripMenuItem menuReplacementForLostorDamagedLicense = new ToolStripMenuItem("Replacement For Lost or Damaged License");
-            ToolStripMenuItem menuReleaseDetainedDrivingLicense = new ToolStripMenuItem("Release Detained Driving License");
-            ToolStripMenuItem menuRetakeTest = new ToolStripMenuItem("Retake Test");
+            ToolStripMenuItem menuRenewDrivingLicense =
+                new ToolStripMenuItem("Renew Driving License");
+
+            ToolStripMenuItem menuReplacementForLostorDamagedLicense =
+                new ToolStripMenuItem("Replacement For Lost or Damaged License");
+
+            ToolStripMenuItem menuReleaseDetainedDrivingLicense =
+                new ToolStripMenuItem("Release Detained Driving License");
+
+            ToolStripMenuItem menuRetakeTest =
+                new ToolStripMenuItem("Retake Test");
 
             menuDrivingLicensesServices.DropDownItems.Add(menuNewDrivingLicense);
             menuDrivingLicensesServices.DropDownItems.Add(menuRenewDrivingLicense);
@@ -98,148 +102,170 @@ namespace DVLD
             menuDrivingLicensesServices.DropDownItems.Add(menuReleaseDetainedDrivingLicense);
             menuDrivingLicensesServices.DropDownItems.Add(menuRetakeTest);
 
-            // Applications::DrivingLicensesServicesForms:
-            menuRenewDrivingLicense.Click += new EventHandler(_RenewDrivingLicense);
-            menuReplacementForLostorDamagedLicense.Click += new EventHandler(_ReplacementForLostorDamagedLicense);
-            menuReleaseDetainedDrivingLicense.Click += new EventHandler(_ReleaseDetainedDrivingLicense);
-            menuRetakeTest.Click += new EventHandler(_RetakeTest);
+            // Driving License Services forms
+            menuRenewDrivingLicense.Click += _RenewDrivingLicense;
+            menuReplacementForLostorDamagedLicense.Click += _ReplacementForLostorDamagedLicense;
+            menuReleaseDetainedDrivingLicense.Click += _ReleaseDetainedDrivingLicense;
+            menuRetakeTest.Click += _RetakeTest;
 
-            // Applications::ManageApplications:
-            ToolStripMenuItem menuLocalDrivingLicenseApplications = new ToolStripMenuItem("Local Driving License Applications");
-            ToolStripMenuItem menuInternationalDrivingLicenseApplications = new ToolStripMenuItem("International Driving License Applications");
+            // Manage Applications
+            ToolStripMenuItem menuLocalDrivingLicenseApplications =
+                new ToolStripMenuItem("Local Driving License Applications");
 
-            menuManageApllications.DropDownItems.Add(menuLocalDrivingLicenseApplications);
-            menuManageApllications.DropDownItems.Add(menuInternationalDrivingLicenseApplications);
+            ToolStripMenuItem menuInternationalDrivingLicenseApplications =
+                new ToolStripMenuItem("International Driving License Applications");
 
-            // Applications::ManageApplicationsForms:
-            menuLocalDrivingLicenseApplications.Click += new EventHandler(_LocalDrivingLicenseApplications);
-            menuInternationalDrivingLicenseApplications.Click += new EventHandler(_InternationalDrivingLicenseApplications);
+            menuManageApplications.DropDownItems.Add(menuLocalDrivingLicenseApplications);
+            menuManageApplications.DropDownItems.Add(menuInternationalDrivingLicenseApplications);
 
-            // Applications::DetainLicenses:
-            ToolStripMenuItem menuManageDetainedLicenses = new ToolStripMenuItem("Manage Detained Licenses");
-            ToolStripMenuItem menuDetainLicense = new ToolStripMenuItem("Detain License");
-            ToolStripMenuItem menuReleaseDetainedLicense = new ToolStripMenuItem("Release Detained License");
+            // Manage Applications forms
+            menuLocalDrivingLicenseApplications.Click += _LocalDrivingLicenseApplications;
+            menuInternationalDrivingLicenseApplications.Click += _InternationalDrivingLicenseApplications;
+
+            // Detained Licenses
+            ToolStripMenuItem menuManageDetainedLicenses =
+                new ToolStripMenuItem("Manage Detained Licenses");
+
+            ToolStripMenuItem menuDetainLicense =
+                new ToolStripMenuItem("Detain License");
+
+            ToolStripMenuItem menuReleaseDetainedLicense =
+                new ToolStripMenuItem("Release Detained License");
 
             menuDetainLicenses.DropDownItems.Add(menuManageDetainedLicenses);
             menuDetainLicenses.DropDownItems.Add(menuDetainLicense);
             menuDetainLicenses.DropDownItems.Add(menuReleaseDetainedLicense);
 
-            // Applications::DetainLicenses Forms:
-            menuManageDetainedLicenses.Click += new EventHandler(_ManageDetainedLicenses);
-            menuDetainLicense.Click += new EventHandler(_DetainLicense);
-            menuReleaseDetainedLicense.Click += new EventHandler(_ReleaseDetainedLicense);
+            // Detained Licenses forms
+            menuManageDetainedLicenses.Click += _ManageDetainedLicenses;
+            menuDetainLicense.Click += _DetainLicense;
+            menuReleaseDetainedLicense.Click += _ReleaseDetainedLicense;
 
+            // New Driving License
+            ToolStripMenuItem menuLocalLicense =
+                new ToolStripMenuItem("Local License");
 
-
-            // Applications::DrivingLicensesServicesMenu::NewDrivingLicense:
-            ToolStripMenuItem menuLocalLicense = new ToolStripMenuItem("Local License");
-            ToolStripMenuItem menuInternationalLicense = new ToolStripMenuItem("International License");
+            ToolStripMenuItem menuInternationalLicense =
+                new ToolStripMenuItem("International License");
 
             menuNewDrivingLicense.DropDownItems.Add(menuLocalLicense);
             menuNewDrivingLicense.DropDownItems.Add(menuInternationalLicense);
 
-            menuLocalLicense.Click += new EventHandler(_LocalLicense);
-            menuInternationalLicense.Click += new EventHandler(_InternationalLicense);
+            menuLocalLicense.Click += _LocalLicense;
+            menuInternationalLicense.Click += _InternationalLicense;
 
+            // Account Settings menu
+            ToolStripMenuItem menuCurrentUserInfo =
+                new ToolStripMenuItem("Current User Info");
 
+            ToolStripMenuItem menuChangePassword =
+                new ToolStripMenuItem("Change Password");
 
-            // Account setting menu:
-            ToolStripMenuItem menuCuurentUserInfo = new ToolStripMenuItem("Current User Info");
-            ToolStripMenuItem menuChangePassword = new ToolStripMenuItem("Change Password");
-            ToolStripMenuItem menuLogOut = new ToolStripMenuItem("Log Out");
+            ToolStripMenuItem menuLogOut =
+                new ToolStripMenuItem("Log Out");
 
-            menuCuurentUserInfo.Click += new EventHandler(_CurrnetUserInfo);
-            menuChangePassword.Click += new EventHandler(_ChangePassword);
-            menuLogOut.Click += new EventHandler(_LogOut);
+            menuCurrentUserInfo.Click += _CurrentUserInfo;
+            menuChangePassword.Click += _ChangePassword;
+            menuLogOut.Click += _LogOut;
 
-            _menuAccountSettings.DropDownItems.Add(menuCuurentUserInfo);
+            _menuAccountSettings.DropDownItems.Add(menuCurrentUserInfo);
             _menuAccountSettings.DropDownItems.Add(menuChangePassword);
             _menuAccountSettings.DropDownItems.Add(menuLogOut);
 
-
-            // Main Form Menu
+            // Add main menu items
             _msMain.Items.Add(_menuApplications);
             _msMain.Items.Add(_menuPeople);
             _msMain.Items.Add(_menuDrivers);
             _msMain.Items.Add(_menuUsers);
             _msMain.Items.Add(_menuAccountSettings);
 
-            this.Controls.Add(_msMain);
+            Controls.Add(_msMain);
         }
 
-        // --- الرسم اليدوي: شريط الحالة في الأسفل ---
+        // Status bar
         private void _InitializeStatusBar()
         {
             _ssFooter = new StatusStrip();
             _lblCurrentUser = new ToolStripStatusLabel("User: Admin");
 
             _ssFooter.Items.Add(_lblCurrentUser);
-            this.Controls.Add(_ssFooter);
+            Controls.Add(_ssFooter);
         }
 
-        // --- منطق الربط مع الملفات الأخرى ---
+        // Form navigation
 
-        // Main menu Froms:
+        // Opens an MDI child only once.
+        private void OpenMDIForm<T>() where T : Form, new()
+        {
+            foreach (Form frm in MdiChildren)
+            {
+                if (frm is T)
+                {
+                    frm.BringToFront();
+                    frm.Focus();
+                    return;
+                }
+            }
+
+            T newForm = new T
+            {
+                MdiParent = this,
+                WindowState = FormWindowState.Maximized
+            };
+
+            newForm.Show();
+        }
+
+        // Opens a parameterized MDI child only once.
+        private void OpenMDIForm<T>(Func<T> formFactory) where T : Form
+        {
+            foreach (Form frm in MdiChildren)
+            {
+                if (frm is T)
+                {
+                    frm.BringToFront();
+                    frm.Focus();
+                    return;
+                }
+            }
+
+            T newForm = formFactory();
+
+            newForm.MdiParent = this;
+            newForm.WindowState = FormWindowState.Maximized;
+            newForm.Show();
+        }
+
+        // Form opening handlers
+
         private void _OpenPeopleForm(object sender, EventArgs e)
         {
-            Form frmTemp = Application.OpenForms["frmListPeople"];
-
-            if (frmTemp != null)
-            {
-                frmTemp.BringToFront();
-                frmTemp.Focus();
-            }
-
-            else
-            {
-                frmListPeople frm = new frmListPeople();
-                frm.Name = "frmListPeople";
-                frm.MdiParent = this;
-                frm.WindowState = FormWindowState.Maximized;
-                frm.Show();
-            }
+            OpenMDIForm<frmListPeople>();
         }
 
         private void _OpenDriversForm(object sender, EventArgs e)
         {
-            frmListDrivers frm2 = new frmListDrivers();
-            frm2.Name = "frmListDrivers"; frm2.MdiParent = this;
-            frm2.WindowState = FormWindowState.Maximized; frm2.Show();
+            OpenMDIForm<frmListDrivers>();
         }
 
-        private void _OpenUsersForm(object senter, EventArgs e)
+        private void _OpenUsersForm(object sender, EventArgs e)
         {
-            Form frmTemp = Application.OpenForms["frmListUsers"];
-
-            if (frmTemp != null)
-            {
-                frmTemp.BringToFront();
-                frmTemp.Focus();
-            }
-
-            else
-            {
-                frmListUsers frm = new frmListUsers();
-                frm.Name = "frmListUsers";
-                frm.MdiParent = this;
-                frm.WindowState = FormWindowState.Maximized;
-                frm.Show();
-            }
+            OpenMDIForm<frmListUsers>();
         }
 
-        // MainMenu::Applications Driect Forms:
+        // Applications - Direct Forms
 
         private void _ManageApplicationTypes(object sender, EventArgs e)
         {
             new frmListApplicationTypes().ShowDialog();
         }
 
-        private void _MenageTestTypes(object sender, EventArgs e)
+        private void _ManageTestTypes(object sender, EventArgs e)
         {
-            MessageBox.Show("Comming Soon");
+            MessageBox.Show("Coming Soon");
         }
 
-        // Applications::DrivingLicensesServices Direct Forms:
+        // Driving Licenses Services
 
         private void _RenewDrivingLicense(object sender, EventArgs e)
         {
@@ -258,14 +284,14 @@ namespace DVLD
 
         private void _RetakeTest(object sender, EventArgs e)
         {
-            MessageBox.Show("Comming Soon");
+            MessageBox.Show("Coming Soon");
         }
 
-        // Applications::DrivingLicensesServicesMenu::NewDrivingLicense Direct Forms:
+        // New Driving License
 
         private void _LocalLicense(object sender, EventArgs e)
         {
-            new frmAddNewLocalDrivingLicenseApplication().ShowDialog();
+            MessageBox.Show("Coming Soon");
         }
 
         private void _InternationalLicense(object sender, EventArgs e)
@@ -273,25 +299,20 @@ namespace DVLD
             new frmAddNewInternationalLicense().ShowDialog();
         }
 
-        // Applications::DrivingLicensesServicesMenu::ManageApplications Forms:
+        // Manage Applications
+
         private void _LocalDrivingLicenseApplications(object sender, EventArgs e)
         {
-            Form t1 = Application.OpenForms["frmListLocalApps"];
-            if (t1 != null) { t1.BringToFront(); }
-            else
-            {
-                var f = new frmListLocalDrivingLicenseApplications();
-                f.Name = "frmListLocalApps"; f.MdiParent = this;
-                f.WindowState = FormWindowState.Maximized; f.Show();
-            }
+            OpenMDIForm<frmListLocalDrivingLicenseApplications>();
         }
 
         private void _InternationalDrivingLicenseApplications(object sender, EventArgs e)
         {
-            MessageBox.Show("Comming Soon");
+            MessageBox.Show("Coming Soon");
         }
 
-        // Applications::DrivingLicensesServicesMenu::DetainedLicenses Forms:
+        // Detained Licenses
+
         private void _ManageDetainedLicenses(object sender, EventArgs e)
         {
             new frmListDetainedLicenses().ShowDialog();
@@ -299,7 +320,7 @@ namespace DVLD
 
         private void _DetainLicense(object sender, EventArgs e)
         {
-            MessageBox.Show("Comming Soon");
+            MessageBox.Show("Coming Soon");
         }
 
         private void _ReleaseDetainedLicense(object sender, EventArgs e)
@@ -307,10 +328,9 @@ namespace DVLD
             new frmReleaseDetainedLicense().ShowDialog();
         }
 
+        // Account Settings
 
-
-        // Account Settings Menu:
-        private void _CurrnetUserInfo(object sender, EventArgs e)
+        private void _CurrentUserInfo(object sender, EventArgs e)
         {
             new frmShowUserInfo(clsGlobal.CurrentUserID).ShowDialog();
         }
@@ -322,19 +342,19 @@ namespace DVLD
 
         private void _LogOut(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to log out?", "Log Out",
-            MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (MessageBox.Show(
+                    "Are you sure you want to log out?",
+                    "Log Out",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                this.Hide();
+                Hide();
+
                 if (new frmLogin().ShowDialog() == DialogResult.OK)
-                    this.Show();
+                    Show();
                 else
                     Application.Exit();
             }
-
-
         }
     }
-
-
 }
