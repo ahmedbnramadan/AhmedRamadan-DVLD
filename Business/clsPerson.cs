@@ -23,7 +23,9 @@ namespace Business
         public int NationalityCountryID { get; set; }
         public string ImagePath { get; set; }
 
+
         public string FullName => FirstName + " " + SecondName + " " + ThirdName + " " + LastName;
+        public clsCountry CountryInfo;
 
 
 
@@ -74,6 +76,7 @@ namespace Business
             this.Email = Email;
             this.NationalityCountryID = NationalityCountryID;
             this.ImagePath = ImagePath;
+            this.CountryInfo = clsCountry.Find(NationalityCountryID);
 
             this.Mode = enMode.Update;
         }
@@ -99,8 +102,9 @@ namespace Business
 
         private bool _Update()
         {
-            return (DataAccess.clsPeople.UpdatePerson(this.ID, this.NationalNo, this.FirstName, this.SecondName, this.ThirdName, this.LastName, this.DateOfBirth,
-            this.Gender, this.Address, this.Phone, this.Email, this.NationalityCountryID, this.ImagePath));
+            return (DataAccess.clsPeople.UpdatePerson(this.ID, this.NationalNo, this.FirstName,this.SecondName,
+            this.ThirdName, this.LastName, this.DateOfBirth, this.Gender, this.Address, this.Phone,
+            this.Email, this.NationalityCountryID, this.ImagePath));
 
         }
 
