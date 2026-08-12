@@ -294,7 +294,28 @@ namespace DataAccess
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
 
-                string query = "SELECT * FROM people";
+                string query = @"
+                    SELECT
+                        people.personid,
+                        people.nationalno,
+                        people.firstname,
+                        people.secondname,
+                        people.thirdname,
+                        people.lastname,
+                        people.dateofbirth,
+                        CASE
+
+                            WHEN people.gender = 0 THEN 'Male'
+                            ELSE 'Female'
+                        END AS Gender,
+                        people.address,
+                        people.phone,
+                        people.email,
+                        countries.countryname,
+                        people.imagepath
+                    FROM people
+                    INNER JOIN countries
+                        ON people.nationalitycountryid = countries.countryid";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
 
