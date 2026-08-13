@@ -194,7 +194,6 @@ namespace DataAccess
                         {
                             if (reader.Read())
                             {
-                                isFound = true;
 
                                 NationalNO = (string)reader["nationalno"];
                                 FirstName = (string)reader["firstname"];
@@ -208,6 +207,8 @@ namespace DataAccess
                                 Email = (reader["email"] != DBNull.Value) ? (string)reader["email"] : "";
                                 NationalityCountryID = (int)reader["nationalitycountryid"];
                                 ImagePath = (reader["imagepath"] != DBNull.Value) ? (string)reader["imagepath"] : "";
+
+                                isFound = true;
 
                             }
                         }

@@ -428,7 +428,7 @@ namespace DVLD
             txtThirdName.Text   = _person.ThirdName;
             txtLastName.Text    = _person.LastName;
             txtNationalNo.Text  = _person.NationalNo;
-            dtpDateOfBirth.Value = _person.DateOfBirth < dtpDateOfBirth.MinDate
+            dtpDateOfBirth.Value= _person.DateOfBirth < dtpDateOfBirth.MinDate
                 ? dtpDateOfBirth.MinDate
                 : _person.DateOfBirth;
             txtPhone.Text       = _person.Phone;
