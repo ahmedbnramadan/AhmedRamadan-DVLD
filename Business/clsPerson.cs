@@ -69,7 +69,7 @@ namespace Business
             this.SecondName = SecondName;
             this.ThirdName = ThirdName;
             this.LastName = LastName;
-            this.DateOfBirth = DateOfBirth;
+            this.DateOfBirth = DateofBirth;
             this.Gender = Gender;
             this.Address = Address;
             this.Phone = Phone;
