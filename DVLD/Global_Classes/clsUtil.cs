@@ -48,6 +48,21 @@ namespace DVLD
         }
 
         /// <summary>
+        /// Loads an image file and returns it as an Image without locking the file on disk.
+        /// Returns <c>null</c> if the path is missing, empty, or the file does not exist.
+        /// </summary>
+        public static Image LoadImage(string imagePath)
+        {
+            if (!string.IsNullOrWhiteSpace(imagePath) && File.Exists(imagePath))
+            {
+                using (var ms = new MemoryStream(File.ReadAllBytes(imagePath)))
+                    return Image.FromStream(ms);
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Opens a file-picker for images and returns the chosen path,
         /// or <c>null</c> if the user cancelled.
         /// </summary>

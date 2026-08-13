@@ -34,6 +34,9 @@ namespace DVLD
         public static string ImagesFolder
             => Path.Combine(Application.StartupPath, "Images");
 
+        public static string IconsFolder
+            => Path.Combine(Application.StartupPath, "Icons");
+
         public static void CreateImagesFolderIfDoesNotExist()
         {
             // فحص هل المجلد غير موجود؟

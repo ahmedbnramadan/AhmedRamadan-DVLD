@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Business;
 
@@ -60,6 +61,9 @@ namespace DVLD
         private clsPerson _person    = null;
         private string    _imagePath = string.Empty;
 
+        private string    _maleDefaultImage;
+        private string    _femaleDefaultImage;
+
         #endregion
 
         // ── Constructors ────────────────────────────────────────────────────
@@ -69,6 +73,7 @@ namespace DVLD
         {
             _personID = -1;
             _InitializeComponents();
+            _InitializeDefaultImages();
             _LoadCountries();
             _SetModeAddNew();
         }
@@ -78,6 +83,7 @@ namespace DVLD
         {
             _personID = personID;
             _InitializeComponents();
+            _InitializeDefaultImages();
             _LoadCountries();
             _LoadPersonData();
             _SetModeUpdate();
@@ -204,6 +210,9 @@ namespace DVLD
                 Cursor   = Cursors.Hand
             };
 
+            rbMale.CheckedChanged += rbGender_CheckedChanged;
+            rbFemale.CheckedChanged += rbGender_CheckedChanged;
+
             // ── Phone ───────────────────────────────────────────────
             lblPhone = new Label
             {
@@ -297,6 +306,10 @@ namespace DVLD
             btnClose = _MakeButton("✖  Close", 755, 460, 180, Color.FromArgb(192, 50, 50));
             btnClose.Click += (s, e) => this.Close();
 
+
+            this.AcceptButton = btnSave;
+            this.CancelButton = btnClose;
+
             // ── Add all controls ────────────────────────────────────
             this.Controls.AddRange(new Control[]
             {
@@ -359,6 +372,8 @@ namespace DVLD
         {
             lblTitle.Text    = "Add New Person";
             lblPersonID.Text = "N/A";
+
+            _UpdateDefaultPersonImage();
         }
 
         private void _SetModeUpdate()
@@ -368,6 +383,33 @@ namespace DVLD
         }
 
         // ── Data helpers ────────────────────────────────────────────────────
+
+
+        private void _InitializeDefaultImages()
+        {
+            _maleDefaultImage = Path.Combine(
+                        clsGlobal.IconsFolder,
+                        "Male 512.png");
+
+            _femaleDefaultImage = Path.Combine(
+                        clsGlobal.IconsFolder,
+                        "Female 512.png");
+        }
+
+        private void _UpdateDefaultPersonImage()
+        {
+            if (!string.IsNullOrEmpty(_imagePath))
+                        return;
+
+            string defaultImage = rbMale.Checked
+                        ? _maleDefaultImage
+                        : _femaleDefaultImage;
+
+            Image image = clsUtil.LoadImage(defaultImage);
+
+            if (image != null)
+                        pbPersonImage.Image = image;
+        }
 
         private void _LoadCountries()
         {
@@ -399,7 +441,16 @@ namespace DVLD
             rbFemale.Checked = (_person.Gender != 0);
 
             _imagePath = _person.ImagePath;
-            clsUtil.LoadPersonImage(pbPersonImage, _imagePath);
+
+            if (!string.IsNullOrEmpty(_imagePath))
+            {
+                clsUtil.LoadPersonImage(pbPersonImage, _imagePath);
+            }
+            else
+            {
+                _UpdateDefaultPersonImage();
+            }
+
             llRemoveImage.Visible = !string.IsNullOrEmpty(_imagePath);
         }
 
@@ -433,7 +484,7 @@ namespace DVLD
         {
             if (string.IsNullOrWhiteSpace(txtNationalNo.Text)) return;
 
-            clsPerson found      = clsPerson.Find(txtNationalNo.Text.Trim());
+            clsPerson found       = clsPerson.Find(txtNationalNo.Text.Trim());
             bool      isDuplicate = (found != null && found.ID != _personID);
 
             lblNationalNoError.Visible = isDuplicate;
@@ -447,6 +498,11 @@ namespace DVLD
             _imagePath             = string.Empty;
             pbPersonImage.Image    = null;
             llRemoveImage.Visible  = false;
+        }
+
+        private void rbGender_CheckedChanged(object sender, EventArgs e)
+        {
+            _UpdateDefaultPersonImage();
         }
 
         private void btnSave_Click(object sender, EventArgs e)
