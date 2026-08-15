@@ -15,6 +15,7 @@ namespace DVLD
 
         // ── Business rules ────────────────────────────────────────────
         public const int MinimumDriverAge = 18;
+        public const int MaximumDriverAge = 100;
         public const int MaxImageSizeBytes = 2 * 1024 * 1024; // 2 MB
 
         // ── Logged-in user (set after successful login) ───────────────

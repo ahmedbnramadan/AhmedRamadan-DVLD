@@ -40,8 +40,8 @@ namespace DVLD
             => !string.IsNullOrWhiteSpace(nationalNo) &&
                nationalNo.Trim().Length >= 2;
 
-        public static bool IsValidAge(DateTime dob, int minAge = 18)
-            => dob <= DateTime.Now.AddYears(-minAge);
+        public static bool IsValidAge(DateTime dob, int minAge = 18, int maxAge = 100)
+            => dob <= DateTime.Now.AddYears(-minAge) && dob >= DateTime.Now.AddYears(-maxAge);
 
         public static bool IsValidName(string name)
             => !string.IsNullOrWhiteSpace(name) && name.Trim().Length >= 2;
@@ -98,10 +98,17 @@ namespace DVLD
             ok &= Highlight(cbCountry, cbCountry.SelectedIndex >= 0);
 
             // Age check
-            if (!IsValidAge(dtpDOB.Value))
+            if (dtpDOB.Value > DateTime.Now.AddYears(-clsGlobal.MinimumDriverAge))
             {
                 clsUtil.ShowWarning(
                     $"Person must be at least {clsGlobal.MinimumDriverAge} years old.",
+                    "Invalid Date of Birth");
+                ok = false;
+            }
+            else if (dtpDOB.Value < DateTime.Now.AddYears(-clsGlobal.MaximumDriverAge))
+            {
+                clsUtil.ShowWarning(
+                    $"Person cannot be older than {clsGlobal.MaximumDriverAge} years.",
                     "Invalid Date of Birth");
                 ok = false;
             }
