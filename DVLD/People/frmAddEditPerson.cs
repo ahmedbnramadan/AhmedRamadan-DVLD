@@ -387,28 +387,22 @@ namespace DVLD
 
         private void _InitializeDefaultImages()
         {
-            _maleDefaultImage = Path.Combine(
-                        clsGlobal.IconsFolder,
-                        "Male 512.png");
-
-            _femaleDefaultImage = Path.Combine(
-                        clsGlobal.IconsFolder,
-                        "Female 512.png");
+             _maleDefaultImage = clsGlobal.DefaultMaleImageFile;
+            _femaleDefaultImage = clsGlobal.DefaultFemaleImageFile;
         }
 
         private void _UpdateDefaultPersonImage()
         {
             if (!string.IsNullOrEmpty(_imagePath))
-                        return;
+                return;
 
-            string defaultImage = rbMale.Checked
-                        ? _maleDefaultImage
-                        : _femaleDefaultImage;
+            int? gender = rbMale.Checked ? 0 : 1;
+            string defaultImagePath = clsGlobal.GetDefaultPersonImagePath(gender);
 
-            Image image = clsUtil.LoadImage(defaultImage);
+            Image image = clsUtil.LoadImage(defaultImagePath);
 
             if (image != null)
-                        pbPersonImage.Image = image;
+                pbPersonImage.Image = image;
         }
 
         private void _LoadCountries()
@@ -519,6 +513,9 @@ namespace DVLD
             _imagePath             = string.Empty;
             pbPersonImage.Image    = null;
             llRemoveImage.Visible  = false;
+
+            // Show default gender-based image when photo is removed
+            _UpdateDefaultPersonImage();
         }
 
         private void rbGender_CheckedChanged(object sender, EventArgs e)
