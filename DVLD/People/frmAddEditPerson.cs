@@ -416,6 +416,27 @@ namespace DVLD
             cbCountry.DataSource    = clsCountry.GetAllCountries();
             cbCountry.DisplayMember = "CountryName";
             cbCountry.ValueMember   = "CountryID";
+            cbCountry.SelectedIndex = -1;
+
+            int defaultCountryID = -1;
+
+            // Priority 1: User's last selected country (if in Add mode)
+            if (_personID == -1 && clsGlobal.LastSelectedCountryID != -1)
+            {
+                defaultCountryID = clsGlobal.LastSelectedCountryID;
+            }
+            // Priority 2: Auto-detect from system locale
+            else
+            {
+                defaultCountryID = clsCountry.GetDefaultCountryIDBySystemLocale();
+            }
+
+            // Apply the default country if found
+            if (defaultCountryID != -1)
+            {
+                cbCountry.SelectedValue = defaultCountryID;
+            }
+            
         }
 
         private void _LoadPersonData()
@@ -533,6 +554,13 @@ namespace DVLD
             _person.Address              = txtAddress.Text.Trim();
             _person.NationalityCountryID = Convert.ToInt32(cbCountry.SelectedValue);
             _person.ImagePath            = _imagePath;
+
+            
+            // Remember user's country selection for next time (only in Add mode)
+            if (_personID == -1 && cbCountry.SelectedValue != null)
+            {
+                clsGlobal.LastSelectedCountryID = Convert.ToInt32(cbCountry.SelectedValue);
+            }
 
             if (_person.Save())
             {

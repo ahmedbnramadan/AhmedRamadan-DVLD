@@ -22,6 +22,9 @@ namespace DVLD
         public static int CurrentUserID { get; set; } = -1;
         public static string CurrentUsername { get; set; } = string.Empty;
 
+        // ── User preference: last selected country ────────────────────
+        public static int LastSelectedCountryID { get; set; } = -1;
+
         // ── Shared UI colours ─────────────────────────────────────────
         public static readonly Color PrimaryRed = Color.FromArgb(192, 0, 0);
         public static readonly Color InputError = Color.FromArgb(255, 204, 204);
