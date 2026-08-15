@@ -255,8 +255,9 @@ namespace DVLD
 
         private void llEdit_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            new frmAddEditPerson(_personID).ShowDialog();
-            _LoadPerson();   // refresh displayed data after edit
+            var frm = new frmAddEditPerson(_personID);
+            frm.DataBack += (s, personID) => _LoadPerson();
+            frm.ShowDialog();
         }
     }
 }

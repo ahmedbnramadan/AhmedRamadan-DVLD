@@ -66,7 +66,11 @@ namespace DVLD
 
         #endregion
 
-        // ── Constructors ────────────────────────────────────────────────────
+        // ── Events ────────────────────────────────────────────────────────
+
+        public event Action<object, int> DataBack;
+
+        // Constructors ───────────────────────────────────────────────
 
         /// <summary>Opens the form in Add-New mode.</summary>
         public frmAddEditPerson()
@@ -565,6 +569,10 @@ namespace DVLD
                 lblPersonID.Text = _person.ID.ToString();
                 lblTitle.Text    = "Update Person";         // switch to Update mode after first save
                 clsUtil.ShowInfo("Data Saved Successfully.", "Saved");
+
+                DataBack?.Invoke(this, _person.ID);
+                this.Close();
+
             }
             else
             {

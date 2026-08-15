@@ -202,6 +202,7 @@ namespace DVLD
         private void BtnAddNewPerson_Click(object sender, EventArgs e)
         {
             frmAddEditPerson frm = new frmAddEditPerson();
+            frm.DataBack += (s, personID) => { /* Handle saved person ID if needed */ };
             frm.ShowDialog();
         }
 
@@ -217,6 +218,7 @@ namespace DVLD
             if (int.TryParse(txtEditPersonID.Text.Trim(), out int personID))
             {
                 frmAddEditPerson frm = new frmAddEditPerson(personID);
+                frm.DataBack += (s, id) => { /* Handle saved person ID if needed */ };
                 frm.ShowDialog();
             }
             else

@@ -361,8 +361,9 @@ namespace DVLD
 
         private void _OpenAddNew()
         {
-            new frmAddEditPerson().ShowDialog();
-            _LoadPeople();     // refresh after dialog closes
+            var frm = new frmAddEditPerson();
+            frm.DataBack += (s, personID) => _LoadPeople();
+            frm.ShowDialog();
         }
 
         private void _OpenEdit()
@@ -370,8 +371,9 @@ namespace DVLD
             int id = _SelectedPersonID();
             if (id == -1) return;
 
-            new frmAddEditPerson(id).ShowDialog();
-            _LoadPeople();
+            var frm = new frmAddEditPerson(id);
+            frm.DataBack += (s, personID) => _LoadPeople();
+            frm.ShowDialog();
         }
 
         private void _DeleteSelected()

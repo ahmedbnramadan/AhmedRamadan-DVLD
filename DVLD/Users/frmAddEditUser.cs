@@ -569,11 +569,10 @@ namespace DVLD
         private void llEditPersonInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             if (_person == null) return;
-            new frmAddEditPerson(_person.ID).ShowDialog();
 
-            // Refresh after potential edit
-            _person = clsPerson.Find(_person.ID);
-            _FillPersonCard();
+            var frm = new frmAddEditPerson(_person.ID);
+            frm.DataBack += (s, personID) => { _person = clsPerson.Find(_person.ID); _FillPersonCard(); };
+            frm.ShowDialog();
         }
 
         private void btnSave_Click(object sender, EventArgs e)
