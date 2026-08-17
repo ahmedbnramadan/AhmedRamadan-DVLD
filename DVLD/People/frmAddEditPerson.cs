@@ -473,10 +473,20 @@ namespace DVLD
             llRemoveImage.Visible = !string.IsNullOrEmpty(_imagePath);
         }
 
+        // ── Image helpers ──────────────────────────────────────────────────────
+
+        /// <summary>Deletes the old image file if it exists and is not a default image.</summary>
+        private void _DeleteOldImageFile()
+        {
+            clsUtil.DeleteOldImageFile(_imagePath);
+        }
+
         private void _PickImage()
         {
             string path = clsUtil.PickImagePath();
             if (path == null) return;
+
+            _DeleteOldImageFile();
 
             _imagePath            = clsUtil.CopyImageToAppFolder(path);
             llRemoveImage.Visible = true;
@@ -514,6 +524,8 @@ namespace DVLD
 
         private void llRemoveImage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            _DeleteOldImageFile();
+
             _imagePath             = string.Empty;
             pbPersonImage.Image    = null;
             llRemoveImage.Visible  = false;

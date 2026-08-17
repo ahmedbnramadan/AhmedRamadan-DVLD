@@ -77,6 +77,29 @@ namespace DVLD
             }
         }
 
+        /// <summary>Deletes an old image file if it exists and is not a default image.</summary>
+        public static void DeleteOldImageFile(string imagePath)
+        {
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+
+            if (!File.Exists(imagePath))
+                return;
+
+            // Don't delete default gender images from Icons folder
+            if (imagePath.EndsWith("men-line.png") || imagePath.EndsWith("women-line.png"))
+                return;
+
+            try
+            {
+                File.Delete(imagePath);
+            }
+            catch
+            {
+                // Ignore delete errors.
+            }
+        }
+
         /// <summary>
         /// Copies an image into the application's Images/People folder and
         /// returns the new path. Creates the folder if it does not exist.
