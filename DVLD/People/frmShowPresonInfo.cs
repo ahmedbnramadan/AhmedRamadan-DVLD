@@ -248,9 +248,7 @@ namespace DVLD
             // clsUtil.LoadPersonImage(pbPersonImage, _person.ImagePath);
             // Determine gender-specific default image before loading
             Image defaultImage = null;
-            string fallbackPath = (_person.Gender == 0)
-                         ? clsGlobal.DefaultMalePath
-                         : clsGlobal.DefaultFemalePath;
+            string fallbackPath = clsGlobal.GetDefaultPersonImagePath(_person.Gender);
 
             if (File.Exists(fallbackPath))
             {
