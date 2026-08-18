@@ -70,6 +70,10 @@ namespace DVLD
 
         public event Action<object, int> DataBack;
 
+        
+        /// <summary>Gets the ID of the person after successful save.</summary>
+        public int PersonID => _personID;
+
         // Constructors ───────────────────────────────────────────────
 
         /// <summary>Opens the form in Add-New mode.</summary>

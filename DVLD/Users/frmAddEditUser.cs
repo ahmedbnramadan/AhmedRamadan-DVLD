@@ -65,6 +65,9 @@ namespace DVLD
 
         #endregion
 
+        /// <summary>Gets the ID of the user after successful save.</summary>
+        public int UserID => _user?.ID ?? _userID;
+
         // ── Constructors ────────────────────────────────────────────────────
 
         public frmAddEditUser(int userID = 0)
