@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using Business;
 
@@ -244,7 +245,24 @@ namespace DVLD
             lblCountry.Text   = _person.CountryName;
             lblAddress.Text   = string.IsNullOrWhiteSpace(_person.Address) ? "—" : _person.Address;
 
-            clsUtil.LoadPersonImage(pbPersonImage, _person.ImagePath);
+            // clsUtil.LoadPersonImage(pbPersonImage, _person.ImagePath);
+            // Determine gender-specific default image before loading
+            Image defaultImage = null;
+            string fallbackPath = (_person.Gender == 0)
+                         ? clsGlobal.DefaultMalePath
+                         : clsGlobal.DefaultFemalePath;
+
+            if (File.Exists(fallbackPath))
+            {
+                try
+                {
+                    using (var ms = new MemoryStream(File.ReadAllBytes(fallbackPath)))
+                        defaultImage = Image.FromStream(ms);
+                }
+                catch { /* ignore if fails */ }
+            }
+
+            clsUtil.LoadPersonImage(pbPersonImage, _person.ImagePath, defaultImage);
 
             // Hide action links if data is missing
             llSendEmail.Visible = !string.IsNullOrWhiteSpace(_person.Email);

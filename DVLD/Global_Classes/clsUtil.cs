@@ -34,7 +34,7 @@ namespace DVLD
                 // إذا لم يمرر المستخدم صورة مخصصة، نبحث عن الافتراضية
                 if (fallback == null)
                 {
-                    string defaultPath = Path.Combine(clsGlobal.ImagesFolder, "default.png");
+                    string defaultPath = clsGlobal.DefaultMalePath;
                     if (File.Exists(defaultPath))
                         pb.Image = Image.FromFile(defaultPath);
                     else
@@ -87,7 +87,7 @@ namespace DVLD
                 return;
 
             // Don't delete default gender images from Icons folder
-            if (imagePath.EndsWith("men-line.png") || imagePath.EndsWith("women-line.png"))
+            if (imagePath.EndsWith("Male 512.png") || imagePath.EndsWith("Female 512.png"))
                 return;
 
             try
