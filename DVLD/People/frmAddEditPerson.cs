@@ -391,8 +391,8 @@ namespace DVLD
 
         private void _InitializeDefaultImages()
         {
-             _maleDefaultImage = clsGlobal.DefaultMaleImageFile;
-            _femaleDefaultImage = clsGlobal.DefaultFemaleImageFile;
+             _maleDefaultImage = clsGlobal.DefaultMalePath;
+            _femaleDefaultImage = clsGlobal.DefaultFemalePath;
         }
 
         private void _UpdateDefaultPersonImage()

@@ -50,29 +50,24 @@ namespace DVLD
                 Directory.CreateDirectory(ImagesFolder);
             }
         }
-        public static string DefaultMalePath
-            => Path.Combine(ImagesFolder, "men-line.png");
-            
-        public static string DefaultFemalePath
-            => Path.Combine(ImagesFolder, "women-line.png");
-        
+
         public static string PeopleImagesFolder
             => Path.Combine(Application.StartupPath, "Images", "People");
 
-        public static string PeopleDefaultImagesFolder
+        public static string DefaultImagesFolder
             => Path.Combine(Application.StartupPath, "Icons");
-
-        public static string DefaultMaleImageFile
-            => Path.Combine(PeopleDefaultImagesFolder, "men-line.png");
-
-        public static string DefaultFemaleImageFile
-            => Path.Combine(PeopleDefaultImagesFolder, "women-line.png");
+        public static string DefaultMalePath
+            => Path.Combine(DefaultImagesFolder, "Male 512.png");
+            
+        public static string DefaultFemalePath
+            => Path.Combine(DefaultImagesFolder, "Female 512.png");
+        
 
         public static string GetDefaultPersonImagePath(int? gender)
         {
-            if (gender == null) return DefaultMaleImageFile; // fallback to male if unknown
+            if (gender == null) return DefaultMalePath; // fallback to male if unknown
 
-            return gender == 0 ? DefaultMaleImageFile : DefaultFemaleImageFile;
+            return gender == 0 ? DefaultMalePath : DefaultFemalePath;
         }
     }
 

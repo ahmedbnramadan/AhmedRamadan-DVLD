@@ -40,6 +40,24 @@ namespace DVLD
         public ctrlPersonCard()
         {
             InitializeComponents();
+            _SetupEvents();
+        }
+
+        private void _SetupEvents()
+        {
+            llEditPersonInfo.LinkClicked += LlEditPersonInfo_LinkClicked;
+        }
+
+        private void LlEditPersonInfo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (_PersonID == -1 || _Person == null)
+                return;
+
+            using (var frm = new frmAddEditPerson(_PersonID))
+            {
+                frm.DataBack += (s, personID) => LoadPersonInfo(personID);
+                frm.ShowDialog();
+            }
         }
 
         private void InitializeComponents()
@@ -100,9 +118,10 @@ namespace DVLD
                 Text = "Edit Person Info",
                 Location = new Point(680, 220),
                 AutoSize = true,
-                Visible = false // يظهر فقط عند تحميل بيانات شخص
+                Visible = false, // يظهر فقط عند تحميل بيانات شخص
+                LinkColor = Color.SteelBlue,
+                Font = new Font(this.Font, FontStyle.Underline)
             };
-            llEditPersonInfo.LinkClicked += (s, e) => { /* ارفع حدث للتعديل هنا */ };
 
             // Adding controls to GroupBox
             gbPersonInformation.Controls.AddRange(new Control[] {
@@ -162,14 +181,13 @@ namespace DVLD
 
         private void _LoadPersonImage()
         {
-            // 1. التأكد من وجود مجلد الصور أولاً (استدعاء دالتك)
+            // 1. Ensure the images folder exists
             clsGlobal.CreateImagesFolderIfDoesNotExist();
 
-            string fallbackPath = (_Person.Gender == 0)
-                         ? clsGlobal.DefaultMalePath
-                         : clsGlobal.DefaultFemalePath;
+            // 2. Determine the default image based on gender
+            string fallbackPath = clsGlobal.GetDefaultPersonImagePath(_Person.Gender);
 
-            // 3. تحويل المسار النصي إلى كائن Image ليمر للدالة
+            // 3. Load the default image without locking the file
             Image defaultImage = null;
             if (File.Exists(fallbackPath))
             {
@@ -178,10 +196,13 @@ namespace DVLD
                     using (var ms = new MemoryStream(File.ReadAllBytes(fallbackPath)))
                         defaultImage = Image.FromStream(ms);
                 }
-                catch { /* يمكن وضع صورة فارغة هنا في حال فشل القراءة */ }
+                catch 
+                {
+                    // If loading fails, keep defaultImage as null
+                }
             }
 
-            // 4. استدعاء دالة clsUtil الاحترافية
+            // 4. Use the professional clsUtil.LoadPersonImage method
             clsUtil.LoadPersonImage(pbPersonImage, _Person.ImagePath, defaultImage);
         }
 
