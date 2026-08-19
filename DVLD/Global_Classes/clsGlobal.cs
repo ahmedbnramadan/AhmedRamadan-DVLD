@@ -32,6 +32,8 @@ namespace DVLD
         public static readonly Color GridHeaderBack = Color.FromArgb(68, 114, 196);
         public static readonly Color GridHeaderFore = Color.White;
         public static readonly Color GridSelectionBack = Color.FromArgb(41, 128, 185);
+        public static Color LinkBlue = Color.SteelBlue;
+        public static Color DangerRed = Color.FromArgb(192, 50, 50);
 
         // ── Paths ─────────────────────────────────────────────────────
         /// <summary>Folder where person photos are stored on disk.</summary>

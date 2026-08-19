@@ -117,7 +117,7 @@ namespace DVLD
             // ── Add New button (top-right) ───────────────────────────
             btnAddNew = new Button
             {
-                Text      = "➕  Add New Person",
+                Text      = "Add New Person",
                 Location  = new Point(1075, 130),
                 Size      = new Size(155, 36),
                 Font      = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
