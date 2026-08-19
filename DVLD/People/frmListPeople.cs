@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Business;
 
@@ -260,13 +261,19 @@ namespace DVLD
             _RenameColumnIfExists("LastName",            "Last Name");
             _RenameColumnIfExists("Gendor",              "Gender");
             _RenameColumnIfExists("DateOfBirth",         "Date Of Birth");
-            _RenameColumnIfExists("NationalityCountryID","Nationality");
+            _RenameColumnIfExists("countryname",         "Nationality");
             _RenameColumnIfExists("Phone",               "Phone");
             _RenameColumnIfExists("Email",               "Email");
 
             // Hide internal columns the user doesn't need to see
             _HideColumnIfExists("ImagePath");
             _HideColumnIfExists("Address");
+
+            // Reorder columns: move Email to last position
+            _ReorderColumns();
+
+            // Auto-size columns to fit their content
+            _AutoSizeColumns();
         }
 
         private void _RenameColumnIfExists(string dataName, string displayName)
@@ -279,6 +286,21 @@ namespace DVLD
         {
             if (dgvPeople.Columns.Contains(name))
                 dgvPeople.Columns[name].Visible = false;
+        }
+
+        private void _ReorderColumns()
+        {
+            // Move Email column to the last position
+            if (dgvPeople.Columns.Contains("Email"))
+            {
+                dgvPeople.Columns["Email"].DisplayIndex = dgvPeople.Columns.Count - 1;
+            }
+        }
+
+        private void _AutoSizeColumns()
+        {
+            // Auto-size all columns to fit their content
+            dgvPeople.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
         }
 
         // ── Filter logic ─────────────────────────────────────────────────────
@@ -305,7 +327,7 @@ namespace DVLD
                 "Second Name"  => "SecondName",
                 "Third Name"   => "ThirdName",
                 "Last Name"    => "LastName",
-                "Nationality"  => "NationalityCountryID",
+                "Nationality"  => "countryname",
                 "Gender"       => "Gender",
                 "Phone"        => "Phone",
                 "Email"        => "Email",
@@ -317,7 +339,32 @@ namespace DVLD
             try
             {
                 DataView dv   = new DataView(_fullTable);
-                dv.RowFilter  = $"CONVERT([{dbCol}], System.String) LIKE '%{value}%'";
+                string escaped = value.Replace("[", "[[]").Replace("%", "[%]").Replace("'", "''");
+
+                // For Person ID, only allow digits
+                if (dbCol == "PersonID")
+                {
+                    // Validate that the filter value contains only digits
+                    if (!Regex.IsMatch(value, @"^\d+$"))
+                    {
+                        // If not all digits, show no results
+                        dv.RowFilter = "1 = 0";
+                    }
+                    else
+                    {
+                        dv.RowFilter = $"[{dbCol}] = {value}";
+                    }
+                }
+                // For Gender, use exact match to avoid partial matches (e.g., "male" matching "female")
+                else if (dbCol == "Gendor")
+                {
+                    dv.RowFilter = $"[{dbCol}] = '{value}'";
+                }
+                // For Nationality and other fields, use contains search
+                else
+                {
+                    dv.RowFilter = $"CONVERT([{dbCol}], System.String) LIKE '%{value}%'";
+                }
                 _BindGrid(dv.ToTable());
             }
             catch { /* ignore invalid filter expressions while user is still typing */ }
