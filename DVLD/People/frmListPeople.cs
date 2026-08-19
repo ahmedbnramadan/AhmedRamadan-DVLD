@@ -259,7 +259,7 @@ namespace DVLD
             _RenameColumnIfExists("SecondName",          "Second Name");
             _RenameColumnIfExists("ThirdName",           "Third Name");
             _RenameColumnIfExists("LastName",            "Last Name");
-            _RenameColumnIfExists("Gendor",              "Gender");
+            _RenameColumnIfExists("Gender",              "Gender");
             _RenameColumnIfExists("DateOfBirth",         "Date Of Birth");
             _RenameColumnIfExists("countryname",         "Nationality");
             _RenameColumnIfExists("Phone",               "Phone");
@@ -308,7 +308,7 @@ namespace DVLD
             _SetColumnWidth("ThirdName", 110);
             _SetColumnWidth("LastName", 110);
 
-            _SetColumnWidth("Gendor", 75);
+            _SetColumnWidth("Gender", 75);
             _SetColumnWidth("Gender", 75);
 
             _SetColumnWidth("DateOfBirth", 105);
@@ -387,7 +387,7 @@ namespace DVLD
                     }
                 }
                 // For Gender, use exact match to avoid partial matches (e.g., "male" matching "female")
-                else if (dbCol == "Gendor")
+                else if (dbCol == "Gender")
                 {
                     dv.RowFilter = $"[{dbCol}] = '{value}'";
                 }
