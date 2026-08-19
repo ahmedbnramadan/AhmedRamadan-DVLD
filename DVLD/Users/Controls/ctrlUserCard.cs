@@ -122,8 +122,8 @@ namespace DVLD
             // Fill User Info
             lblUserID.Text = _User.UserID.ToString();
             lblUserName.Text = _User.UserName;
-            lblIsActive.Text = _User.isActive ? "Yes" : "No";
-            lblIsActive.ForeColor = _User.isActive ? Color.Green : Color.Red;
+            lblIsActive.Text = _User.IsActive ? "Yes" : "No";
+            lblIsActive.ForeColor = _User.IsActive ? Color.Green : Color.Red;
 
             // Load Person Card
             if (_Person != null && ctrlPersonCard1 != null)

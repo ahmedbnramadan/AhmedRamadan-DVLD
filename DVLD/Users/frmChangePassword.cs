@@ -54,11 +54,11 @@ namespace DVLD
             var user = clsUser.Find(clsGlobal.CurrentUserID);
             if (user == null) { clsUtil.ShowError("Current user not found."); return; }
 
-            if (user.PassWord != txtCurrent.Text)
+            if (user.Password != txtCurrent.Text)
             { clsUtil.ShowWarning("Current password is incorrect."); txtCurrent.BackColor = clsGlobal.InputError; return; }
             txtCurrent.BackColor = clsGlobal.InputValid;
 
-            user.PassWord = txtNew.Text;
+            user.Password = txtNew.Text;
             if (user.Save())
             { clsUtil.ShowInfo("Password changed successfully."); this.Close(); }
             else clsUtil.ShowError("Failed to change password.");

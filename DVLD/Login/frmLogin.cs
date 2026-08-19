@@ -167,8 +167,8 @@ namespace DVLD
 
             clsUser user = clsUser.Find(txtUsername.Text.Trim());
 
-            if (user == null || !user.isActive ||
-                user.PassWord != txtPassword.Text)   // replace with hash compare if hashed
+            if (user == null || !user.IsActive ||
+                user.Password != txtPassword.Text)   // replace with hash compare if hashed
             {
                 lblError.Text = "Invalid username or password.";
                 lblError.Visible = true;

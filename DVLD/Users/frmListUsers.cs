@@ -256,7 +256,7 @@ namespace DVLD
             _RenameColumnIfExists("PersonID", "Person ID");
             _RenameColumnIfExists("Name", "Full Name");
             _RenameColumnIfExists("UserName", "UserName");
-            _RenameColumnIfExists("isActive", "is Active");
+            _RenameColumnIfExists("IsActive", "is Active");
 
             // Hide internal columns the user doesn't need to see
             _HideColumnIfExists("Password");
@@ -296,7 +296,7 @@ namespace DVLD
                 "Person ID"     => "PersonID",
                 "Name"          => "Name",
                 "UserName"      => "UserName",
-                "is Active"     => "isActive",
+                "is Active"     => "IsActive",
                 _               => null        
             };
 

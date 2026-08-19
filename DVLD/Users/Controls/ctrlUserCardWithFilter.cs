@@ -243,8 +243,8 @@ namespace DVLD
             lblUserID.Text = _user.UserID.ToString();
             lblUserName.Text = _user.UserName;
             lblGender.Text = (_person.Gender == 0) ? "Male" : "Female";
-            lblIsActive.Text = _user.isActive ? "Yes" : "No";
-            lblIsActive.ForeColor = _user.isActive ? Color.Green : Color.Red;
+            lblIsActive.Text = _user.IsActive ? "Yes" : "No";
+            lblIsActive.ForeColor = _user.IsActive ? Color.Green : Color.Red;
 
             clsUtil.LoadPersonImage(pbUserImage, _person.ImagePath);
         }

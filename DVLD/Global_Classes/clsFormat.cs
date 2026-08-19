@@ -58,7 +58,7 @@ namespace DVLD
             return age;
         }
 
-        public static string StatusText(bool isActive)
-            => isActive ? "Active" : "Inactive";
+        public static string StatusText(bool IsActive)
+            => IsActive ? "Active" : "Inactive";
     }
 }

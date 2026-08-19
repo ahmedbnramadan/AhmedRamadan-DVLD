@@ -13,7 +13,7 @@ namespace DataAccess
             int PersonID,
             string UserName,
             string Password,
-            bool isActive
+            bool IsActive
             )
         {
             int UserID = -1;
@@ -24,7 +24,7 @@ namespace DataAccess
 
                 string query = @"INSERT INTO users 
                             (personid, username, password, isactive)
-                            VALUES (@PersonID, @UserName, @Password, @isActive);
+                            VALUES (@PersonID, @UserName, @Password, @IsActive);
                             SELECT SCOPE_IDENTITY();";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -32,7 +32,7 @@ namespace DataAccess
                     command.Parameters.AddWithValue("@PersonID", PersonID);
                     command.Parameters.AddWithValue("@UserName", UserName);
                     command.Parameters.AddWithValue("@Password", Password);
-                    command.Parameters.AddWithValue("@isActive", isActive);
+                    command.Parameters.AddWithValue("@IsActive", IsActive);
 
                     try
                     {
@@ -92,12 +92,12 @@ namespace DataAccess
 
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = "SELECT 1 FROM users WHERE username = @UserName AND password = @PassWord";
+                string query = "SELECT 1 FROM users WHERE username = @UserName AND password = @Password";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserName", UserName);
-                    command.Parameters.AddWithValue("@PassWord", Password);
+                    command.Parameters.AddWithValue("@Password", Password);
 
                     try
                     {
@@ -208,7 +208,7 @@ namespace DataAccess
             ref int PersonID,
             ref string UserName,
             ref string Password,
-            ref bool isActive)
+            ref bool IsActive)
         {
             bool isFound = false;
             LastErrorMessage = "";
@@ -234,7 +234,7 @@ namespace DataAccess
                                 PersonID = (int)reader["personid"];
                                 UserName = (string)reader["username"];
                                 Password = (string)reader["password"];
-                                isActive = (bool)reader["isactive"];
+                                IsActive = (bool)reader["isactive"];
 
                             }
                         }
@@ -250,7 +250,7 @@ namespace DataAccess
             return isFound;
         }
 
-        public static bool GetUserInfoByUserName(ref int UserID, ref int PersonID, string UserName, ref string Password, ref bool isActive)
+        public static bool GetUserInfoByUserName(ref int UserID, ref int PersonID, string UserName, ref string Password, ref bool IsActive)
         {
             bool isFound = false;
             LastErrorMessage = "";
@@ -276,7 +276,7 @@ namespace DataAccess
                                 UserID = (int)reader["userid"];
                                 PersonID = (int)reader["personid"];
                                 Password = (string)reader["password"];
-                                isActive = (bool)reader["isactive"];
+                                IsActive = (bool)reader["isactive"];
 
                             }
                         }
@@ -292,7 +292,7 @@ namespace DataAccess
             return isFound;
         }
 
-        public static bool GetUserInfoByPersonID(ref int UserID, int PersonID, ref string UserName, ref string Password, ref bool isActive)
+        public static bool GetUserInfoByPersonID(ref int UserID, int PersonID, ref string UserName, ref string Password, ref bool IsActive)
         {
             bool isFound = false;
 
@@ -316,7 +316,7 @@ namespace DataAccess
                                 UserID = (int)reader["userid"];
                                 UserName = (string)reader["username"];
                                 Password = (string)reader["password"];
-                                isActive = (bool)reader["isactive"];
+                                IsActive = (bool)reader["isactive"];
                             }
                         }
                     }
@@ -329,7 +329,7 @@ namespace DataAccess
             }
             return isFound;
         }
-        public static bool GetUserInfoByUserNameAndPassword(ref int UserID, ref int PersonID, string UserName, string Password, ref bool isActive)
+        public static bool GetUserInfoByUserNameAndPassword(ref int UserID, ref int PersonID, string UserName, string Password, ref bool IsActive)
         {
             bool isFound = false;
             LastErrorMessage = "";
@@ -355,7 +355,7 @@ namespace DataAccess
 
                                 UserID = (int)reader["userid"];
                                 PersonID = (int)reader["personid"];
-                                isActive = (bool)reader["isactive"];
+                                IsActive = (bool)reader["isactive"];
 
                             }
                         }
@@ -363,7 +363,7 @@ namespace DataAccess
                     }
                     catch (Exception ex)
                     {
-                        LastErrorMessage = "Error getting user by id: " + ex.Message;
+                        LastErrorMessage = "Error in GetUserInfoByUserNameAndPassword: " + ex.Message;
                     }
                 }
             }
@@ -381,7 +381,7 @@ namespace DataAccess
             {
 
                 string query = @"SELECT users.UserID, users.PersonID, 
-                                 FullName = People.FirstName + ' ' + People.SecondName + ' ' + People.ThirdName + ' ' + People.LastName,
+                                 FullName = People.FirstName + ' ' + People.SecondName + ' ' +ISNULL(People.ThirdName, '') + ' ' + People.LastName,
                                  users.UserName, users.IsActive
                                  FROM users 
                                  INNER JOIN People ON users.PersonID = People.PersonID";
@@ -414,7 +414,7 @@ namespace DataAccess
             int PersonID,
             string UserName,
             string Password,
-            bool isActive)
+            bool IsActive)
         {
             LastErrorMessage = "";
             int rowAffected = 0;
@@ -426,7 +426,7 @@ namespace DataAccess
                 SET
                 username = @UserName,
                 password = @Password,
-                isactive = @isActive
+                isactive = @IsActive
                 WHERE userid = @UserID";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -435,7 +435,7 @@ namespace DataAccess
                     command.Parameters.AddWithValue("@PersonID", PersonID);
                     command.Parameters.AddWithValue("@UserName", UserName);
                     command.Parameters.AddWithValue("@Password", Password);
-                    command.Parameters.AddWithValue("@isActive", isActive);
+                    command.Parameters.AddWithValue("@IsActive", IsActive);
 
                     try
                     {

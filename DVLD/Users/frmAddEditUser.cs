@@ -438,7 +438,7 @@ namespace DVLD
             // Login info
             lblUserID.Text    = _user.UserID.ToString();
             txtUserName.Text  = _user.UserName;
-            chkIsActive.Checked = _user.isActive;
+            chkIsActive.Checked = _user.IsActive;
         }
 
         private void _FillPersonCard()
@@ -586,10 +586,10 @@ namespace DVLD
 
             _user.PersonID  = _person.ID;
             _user.UserName  = txtUserName.Text.Trim();
-            _user.isActive  = chkIsActive.Checked;
+            _user.IsActive  = chkIsActive.Checked;
 
             if (!string.IsNullOrWhiteSpace(txtPassword.Text))
-                _user.PassWord = txtPassword.Text;   // hashing should happen in Business layer
+                _user.Password = txtPassword.Text;   // hashing should happen in Business layer
 
             if (_user.Save())
             {
