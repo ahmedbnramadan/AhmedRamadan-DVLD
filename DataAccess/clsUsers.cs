@@ -381,10 +381,10 @@ namespace DataAccess
             {
 
                 string query = @"SELECT users.UserID, users.PersonID, 
-                                 FullName = People.FirstName + ' ' + People.SecondName + ' ' +ISNULL(People.ThirdName, '') + ' ' + People.LastName,
-                                 users.UserName, users.IsActive
-                                 FROM users 
-                                 INNER JOIN People ON users.PersonID = People.PersonID";
+                                FullName = CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName),
+                                users.UserName, users.IsActive
+                                FROM users 
+                                INNER JOIN People ON users.PersonID = People.PersonID";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
 
