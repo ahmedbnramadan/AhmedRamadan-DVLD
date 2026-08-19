@@ -299,8 +299,39 @@ namespace DVLD
 
         private void _AutoSizeColumns()
         {
-            // Auto-size all columns to fit their content
-            dgvPeople.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            // Start with fixed widths for columns that have predictable content.
+            _SetColumnWidth("PersonID", 75);
+            _SetColumnWidth("NationalNo", 105);
+
+            _SetColumnWidth("FirstName", 110);
+            _SetColumnWidth("SecondName", 110);
+            _SetColumnWidth("ThirdName", 110);
+            _SetColumnWidth("LastName", 110);
+
+            _SetColumnWidth("Gendor", 75);
+            _SetColumnWidth("Gender", 75);
+
+            _SetColumnWidth("DateOfBirth", 105);
+            _SetColumnWidth("countryname", 110);
+            _SetColumnWidth("Phone", 120);
+
+            // Let Email use whatever space is left.
+            if (dgvPeople.Columns.Contains("Email"))
+            {
+                dgvPeople.Columns["Email"].AutoSizeMode =
+                    DataGridViewAutoSizeColumnMode.Fill;
+            }
+        }
+
+        private void _SetColumnWidth(string columnName, int width)
+        {
+            if (!dgvPeople.Columns.Contains(columnName))
+                        return;
+
+            DataGridViewColumn column = dgvPeople.Columns[columnName];
+
+            column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            column.Width = width;
         }
 
         // ── Filter logic ─────────────────────────────────────────────────────
