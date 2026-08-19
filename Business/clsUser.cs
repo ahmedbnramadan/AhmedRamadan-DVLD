@@ -17,9 +17,12 @@ namespace Business
         public string PassWord { get; set; }
         public bool isActive { get; set; }
 
+        public clsPerson PersonInfo;
+
         public clsUser()
         {
             this.UserID = -1;
+            // the teacher didn't make personid
             this.PersonID = -1;
             this.UserName = "";
             this.PassWord = "";
@@ -39,6 +42,8 @@ namespace Business
             this.UserName = UserName;
             this.PassWord = PassWord;
             this.isActive = isActive;
+
+            this.PersonInfo = clsPerson.Find(PersonID);
 
             this.Mode = enMode.Update;
         }
@@ -113,6 +118,23 @@ namespace Business
                 PersonID,
                 ref UserName,
                 ref PassWord,
+                ref isActive))
+                return new clsUser(UserID, PersonID, UserName, PassWord, isActive);
+
+            else return null;
+        }
+
+        public static clsUser FindByUserNameAndPassWord(string UserName, string PassWord)
+        {
+            int UserID = -1;
+            int PersonID = -1;
+            bool isActive = true;
+
+            if (DataAccess.clsUsers.GetUserInfoByUserNameAndPassword(
+                ref UserID,
+                ref PersonID,
+                UserName,
+                PassWord,
                 ref isActive))
                 return new clsUser(UserID, PersonID, UserName, PassWord, isActive);
 

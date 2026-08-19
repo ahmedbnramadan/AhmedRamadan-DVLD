@@ -329,6 +329,50 @@ namespace DataAccess
             }
             return isFound;
         }
+        public static bool GetUserInfoByUserNameAndPassword(ref int UserID, ref int PersonID, string UserName, string Password, ref bool isActive)
+        {
+            bool isFound = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+
+                string query = "SELECT * FROM users WHERE username = @UserName and password = @Password";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserName", UserName);
+                    command.Parameters.AddWithValue("@Password", Password);
+
+                    try
+                    {
+                        connection.Open();
+
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                isFound = true;
+
+                                UserID = (int)reader["userid"];
+                                PersonID = (int)reader["personid"];
+                                isActive = (bool)reader["isactive"];
+
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error getting user by id: " + ex.Message;
+                    }
+                }
+            }
+
+            return isFound;
+        }
+
+
+
         public static DataTable GetAllUsers()
         {
             DataTable dt = new DataTable();
