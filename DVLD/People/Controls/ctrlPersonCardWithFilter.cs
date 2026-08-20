@@ -39,6 +39,14 @@ namespace DVLD
         /// <summary>Gets the currently selected person information.</summary>
         public clsPerson SelectedPersonInfo => ctrlPersonCard1.SelectedPersonInfo;
 
+
+        /// <summary>Gets or sets the visibility of the filter group box.</summary>
+        public bool FilterVisible
+        {
+            get => gbFilter.Visible;
+            set => gbFilter.Visible = value;
+        }
+
         #endregion
 
 
