@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Business;
 using System.IO;
+using System.Linq;
 
 namespace DVLD
 {
@@ -76,7 +77,7 @@ namespace DVLD
             // ── Page title ───────────────────────────────────────────
             lblTitle = new Label
             {
-                Text        = "Mange Users",
+                Text        = "Manage Users",
                 Font        = new Font("Arial", 20F, FontStyle.Bold),
                 ForeColor   = clsGlobal.PrimaryRed,
                 AutoSize    = true,
@@ -86,7 +87,7 @@ namespace DVLD
             // ── Filter row ───────────────────────────────────────────
             lblFilterBy = new Label
             {
-                Text     = "Filter By",
+                Text     = "Filter By:",
                 Font     = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold),
                 AutoSize = true,
                 Location = new Point(30, 140)
@@ -115,11 +116,13 @@ namespace DVLD
                 Visible  = false
             };
             txtFilterValue.TextChanged += txtFilterValue_TextChanged;
+            txtFilterValue.KeyPress += txtFilterValue_KeyPress;
+            _ConfigureFilterInput();
 
             // ── Add New button (top-right) ───────────────────────────
             btnAddNew = new Button
             {
-                Text = "➕ Add New User",
+                Text = "Add New User",
                 Location = new Point(1075, 130),
                 Size = new Size(155, 36),
                 Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
@@ -135,12 +138,12 @@ namespace DVLD
             ctxMenu = new ContextMenuStrip();
             ctxMenu.Font = new Font("Microsoft Sans Serif", 9.5F);
 
-            ctxShowDetails = new ToolStripMenuItem("👤  Show Details");
-            ctxAddNew      = new ToolStripMenuItem("➕  Add New User");
-            ctxEdit        = new ToolStripMenuItem("✏️  Edit");
-            ctxDelete      = new ToolStripMenuItem("🗑  Delete");
-            ctxSendEmail   = new ToolStripMenuItem("📧  Send Email");
-            ctxPhoneCall   = new ToolStripMenuItem("📞  Phone Call");
+            ctxShowDetails = new ToolStripMenuItem("Show Details");
+            ctxAddNew      = new ToolStripMenuItem("Add New User");
+            ctxEdit        = new ToolStripMenuItem("Edit");
+            ctxDelete      = new ToolStripMenuItem("Delete");
+            ctxSendEmail   = new ToolStripMenuItem("Send Email");
+            ctxPhoneCall   = new ToolStripMenuItem("Phone Call");
 
             ctxShowDetails.Click += (s, e) => _ShowDetails();
             ctxAddNew.Click      += (s, e) => _OpenAddNew();
@@ -181,6 +184,7 @@ namespace DVLD
             dgvUsers.CellDoubleClick          += dgvUsers_CellDoubleClick;
             dgvUsers.MouseDown                += dgvUsers_MouseDown;
             dgvUsers.SelectionChanged         += dgvUsers_SelectionChanged;
+            dgvUsers.CellClick                += dgvUsers_CellClick;
 
 
             // ── Record-count label ───────────────────────────────────
@@ -260,6 +264,7 @@ namespace DVLD
 
             // Hide internal columns the user doesn't need to see
             _HideColumnIfExists("Password");
+            _HideColumnIfExists("PersonID");
         }
 
         private void _RenameColumnIfExists(string dataName, string displayName)
@@ -272,6 +277,41 @@ namespace DVLD
         {
             if (dgvUsers.Columns.Contains(name))
                 dgvUsers.Columns[name].Visible = false;
+        }
+
+        private void _ConfigureFilterInput()
+        {
+            // Set appropriate MaxLength and placeholder based on filter type
+            string filterType = cbFilterBy.Text;
+
+            txtFilterValue.MaxLength = filterType switch
+            {
+                "User ID"     => 10,
+                "Person ID"   => 10,
+                "Name"        => 50,
+                "UserName"    => 50,
+                "is Active"   => 10,
+                _             => 50
+            };
+
+            // Add placeholder text for better UX
+            txtFilterValue.ForeColor = Color.Gray;
+            txtFilterValue.Tag = "placeholder";
+        }
+
+        private void txtFilterValue_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Only allow numeric input for User ID and Person ID filters
+            string filterType = cbFilterBy.Text;
+
+            if (filterType == "User ID" || filterType == "Person ID")
+            {
+                // Allow digits, backspace, and control characters
+                if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+                {
+                    e.Handled = true;
+                }
+            }
         }
 
 
@@ -305,7 +345,25 @@ namespace DVLD
             try
             {
                 DataView dv   = new DataView(_fullTable);
-                dv.RowFilter  = $"CONVERT([{dbCol}], System.String) LIKE '%{Value}%'";
+
+                // Handle boolean filter for "is Active"
+                if (dbCol == "IsActive")
+                {
+                    bool isActive;
+                    if (bool.TryParse(Value, out isActive))
+                        dv.RowFilter = $"IsActive = {isActive.ToString().ToLower()}";
+                    else if (Value.Equals("yes", StringComparison.OrdinalIgnoreCase) ||
+                             Value.Equals("true", StringComparison.OrdinalIgnoreCase))
+                        dv.RowFilter = "IsActive = true";
+                    else if (Value.Equals("no", StringComparison.OrdinalIgnoreCase) ||
+                             Value.Equals("false", StringComparison.OrdinalIgnoreCase))
+                        dv.RowFilter = "IsActive = false";
+                }
+                else
+                {
+                    dv.RowFilter  = $"CONVERT([{dbCol}], System.String) LIKE '%{Value}%'";
+                }
+
                 _BindGrid(dv.ToTable());
             }
             catch { /* ignore invalid filter expressions while user is still typing */ }
@@ -408,6 +466,12 @@ namespace DVLD
 
             if (!hasFilter)
                 _BindGrid(_fullTable);   // restore full list immediately
+            
+            else
+            {
+                txtFilterValue.Focus();
+                _ConfigureFilterInput();
+            }
         }
 
         private void txtFilterValue_TextChanged(object sender, EventArgs e)
@@ -437,8 +501,33 @@ namespace DVLD
             ctxShowDetails.Enabled = hasSelection;
             ctxEdit.Enabled        = hasSelection;
             ctxDelete.Enabled      = hasSelection;
-            ctxSendEmail.Enabled   = hasSelection;
-            ctxPhoneCall.Enabled   = hasSelection;
+            
+            // Smart enable/disable for contact actions
+            string email = _SelectedEmail();
+            string phone = _SelectedPhone();
+            ctxSendEmail.Enabled   = hasSelection && !string.IsNullOrWhiteSpace(email);
+            ctxPhoneCall.Enabled   = hasSelection && !string.IsNullOrWhiteSpace(phone);
+
+            // Update context menu text with user name
+            if (hasSelection && dgvUsers.SelectedRows[0].Cells["Full Name"]?.Value != null)
+            {
+                string userName = dgvUsers.SelectedRows[0].Cells["Full Name"].Value.ToString();
+                ctxShowDetails.Text = $"Show Details ({userName})";
+            }
+            else
+            {
+                ctxShowDetails.Text = "Show Details";
+            }
+        }
+
+        private void dgvUsers_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Ensure row selection on left-click for better UX
+            if (e.RowIndex >= 0)
+            {
+                dgvUsers.ClearSelection();
+                dgvUsers.Rows[e.RowIndex].Selected = true;
+            }
         }
 
         private void btnAddNew_Click(object sender, EventArgs e)
