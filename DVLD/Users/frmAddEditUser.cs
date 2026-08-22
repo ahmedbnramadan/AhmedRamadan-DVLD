@@ -77,7 +77,7 @@ namespace DVLD
         {
             // ── Form ────────────────────────────────────────────────
             this.Text            = _isEditMode ? "Update User" : "Add New User";
-            this.Size            = new Size(990, 700);
+            this.Size            = new Size(990, 750);
             this.StartPosition   = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox     = false;
@@ -126,7 +126,7 @@ namespace DVLD
                 Cursor    = Cursors.Hand
             };
             btnNext.FlatAppearance.BorderSize = 0;
-            btnNext.Click += (s, e) => tcMain.SelectedTab = tpLoginInfo;
+            btnNext.Click += btnNext_Click;
 
             // ── Save button (only shown on tab 2) ───────────────────
             btnSave = new Button
@@ -287,22 +287,67 @@ namespace DVLD
 
         private void _LoadData()
         {
-            if (!_isEditMode) return;
-
-            _user = clsUser.Find(_userID);
-            if (_user == null) return;
-
-            _person = clsPerson.Find(_user.PersonID);
-
-            // Load person into the ctrlPersonCardWithFilter
-            if (_person != null)
+            if (!_isEditMode)
             {
-                ctrlPersonCardWithFilter1.LoadPersonInfo(_person.ID);
+                // Add mode: initialize form for new user
+                _InitializeForAddMode();
+                return;
             }
-            // Login info
-            lblUserID.Text    = _user.UserID.ToString();
-            txtUserName.Text  = _user.UserName;
-            chkIsActive.Checked = _user.IsActive;
+
+            // Edit mode: load existing user data
+            try
+            {
+                _user = clsUser.Find(_userID);
+
+                if (_user == null)
+                {
+                    clsUtil.ShowError($"User with ID {_userID} not found.", "User Not Found");
+                    this.DialogResult = DialogResult.Cancel;
+                    this.Close();
+                    return;
+                }
+
+                _person = clsPerson.Find(_user.PersonID);
+                // Load person into the ctrlPersonCardWithFilter
+                if (_person != null)
+                {
+                    ctrlPersonCardWithFilter1.LoadPersonInfo(_person.ID);
+                }
+
+                // Populate login info fields
+                lblUserID.Text    = _user.UserID.ToString();
+                txtUserName.Text  = _user.UserName;
+                chkIsActive.Checked = _user.IsActive;
+
+                // Disable person filter in edit mode since we're editing existing user
+                ctrlPersonCardWithFilter1.FilterVisible = false;
+
+                // Set focus to username field for quick editing
+                txtUserName.Focus();
+            }
+            catch (Exception ex)
+            {
+                clsUtil.ShowError($"Failed to load user data: {ex.Message}", "Load Error");
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
+            }
+
+        }
+
+        private void _InitializeForAddMode()
+        {
+            // Reset all fields for adding a new user
+            lblUserID.Text = "New";
+            txtUserName.Clear();
+            txtPassword.Clear();
+            txtConfirmPassword.Clear();
+            chkIsActive.Checked = true;
+
+            // Ensure filter is visible in add mode
+            ctrlPersonCardWithFilter1.FilterVisible = true;
+
+            // Set focus to the filter for quick person lookup
+            ctrlPersonCardWithFilter1.FocusOnFilter();
         }
 
         private void CtrlPersonCardWithFilter1_PersonLoaded(object sender, clsPerson person)
@@ -312,43 +357,126 @@ namespace DVLD
 
         // ── Validation ───────────────────────────────────────────────────────
 
-        private bool _ValidateLoginInfo()
+        /// <summary>
+        /// Validates that a person is selected and checks if a user already exists for that person.
+        /// If validation fails, shows appropriate warning and resets to Personal Info tab.
+        /// Returns true if validation failed, false if validation passed.
+        /// </summary>
+        private bool _ValidatePersonSelectionAndUserExistence()
         {
-            if (_person == null)
+            // Check if person is selected
+            if (_person == null || _person.ID == -1)
             {
                 clsUtil.ShowWarning("Please find and select a person first.", "No Person Selected");
                 tcMain.SelectedTab = tpPersonalInfo;
-                return false;
+                ctrlPersonCardWithFilter1.FocusOnFilter();
+                return true;
             }
 
+            // Check if user already exists for this person (only in Add mode)
+            if (!_isEditMode && clsUser.IsExistsByPersonID(_person.ID))
+            {
+                clsUtil.ShowWarning(
+                    $"The person '{_person.FullName}' already has a user account.\n\nPlease select a different person.",
+                    "User Already Exists");
+                tcMain.SelectedTab = tpPersonalInfo;
+                ctrlPersonCardWithFilter1.Clear();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Validates all login information fields before saving.
+        /// Returns true if all validations pass, false otherwise.
+        /// </summary>
+        private bool _ValidateLoginInfo()
+        {
+            // Validate username
             if (string.IsNullOrWhiteSpace(txtUserName.Text))
             {
-                clsUtil.ShowWarning("Username is required.");
+                clsUtil.ShowWarning("Username is required.", "Validation Error");
                 txtUserName.BackColor = clsGlobal.InputError;
+                txtUserName.Focus();
                 return false;
             }
             txtUserName.BackColor = clsGlobal.InputValid;
 
+            // Check if user already exists for this person (only in Add mode)
+            if (!_isEditMode && clsUser.IsExistsByPersonID(_person.ID))
+            {
+                if (clsUser.IsExists(txtUserName.Text.Trim()))
+                {
+                    clsUtil.ShowWarning(
+                        $"The person '{_person.FullName}' already has a user account.\n\nPlease select a different person.",
+                        "User Already Exists");
+                    tcMain.SelectedTab = tpPersonalInfo;
+                    ctrlPersonCardWithFilter1.Clear();
+                    return true;
+                }
+
+                return false;
+            }
+
             // In Add mode a password is required; in Edit mode it's optional
             if (!_isEditMode && string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                clsUtil.ShowWarning("Password is required.");
+                clsUtil.ShowWarning("Password is required for new users.", "Validation Error");
                 txtPassword.BackColor = clsGlobal.InputError;
+                txtPassword.Focus();
                 return false;
             }
             txtPassword.BackColor = clsGlobal.InputValid;
 
-            if (!string.IsNullOrWhiteSpace(txtPassword.Text) &&
-                txtPassword.Text != txtConfirmPassword.Text)
+            // Validate password confirmation only if password is entered
+            if (!string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                clsUtil.ShowWarning("Passwords do not match.");
-                txtConfirmPassword.BackColor = clsGlobal.InputError;
-                return false;
+                if (txtPassword.Text != txtConfirmPassword.Text)
+                {
+                    clsUtil.ShowWarning("Passwords do not match.", "Validation Error");
+                    txtConfirmPassword.BackColor = clsGlobal.InputError;
+                    txtConfirmPassword.Focus();
+                    return false;
+                }
+                txtConfirmPassword.BackColor = clsGlobal.InputValid;
+
+                // Optional: Validate password strength
+                if (!_IsPasswordStrongEnough(txtPassword.Text))
+                {
+                    clsUtil.ShowWarning(
+                        "Password must be at least 6 characters long.\n\nFor better security, consider using a mix of letters, numbers, and symbols.",
+                        "Weak Password");
+                    txtPassword.BackColor = Color.FromArgb(255, 200, 100); // Warning color
+                    // Continue anyway, just warn the user
+                }
             }
-            txtConfirmPassword.BackColor = clsGlobal.InputValid;
 
             return true;
         }
+
+
+        /// <summary>
+        /// Checks if the password meets minimum security requirements.
+        /// </summary>
+        private bool _IsPasswordStrongEnough(string password)
+        {
+            if (string.IsNullOrEmpty(password) || password.Length < 6)
+                return false;
+
+            // At least one letter and one digit recommended
+            bool hasLetter = false;
+            bool hasDigit = false;
+
+            foreach (char c in password)
+            {
+                if (char.IsLetter(c)) hasLetter = true;
+                if (char.IsDigit(c)) hasDigit = true;
+            }
+
+            return hasLetter && hasDigit;
+        }
+
 
         // ── Events ───────────────────────────────────────────────────────────
 
@@ -357,31 +485,66 @@ namespace DVLD
             bool onLoginTab = tcMain.SelectedTab == tpLoginInfo;
             btnNext.Visible = !onLoginTab;
             btnSave.Visible =  onLoginTab;
+
+            // Set appropriate focus when switching tabs
+            if (onLoginTab)
+            {
+                txtUserName.Focus();
+            }
         }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            // Validate person selection and check for existing user
+            if (_ValidatePersonSelectionAndUserExistence())
+            {
+                return; // Validation failed, stay on current tab
+            }
+
+            // All validations passed, navigate to Login Info tab
+            tcMain.SelectedTab = tpLoginInfo;
+        }
+
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (!_ValidateLoginInfo()) return;
-
-            _user ??= new clsUser();
-
-            _user.PersonID  = _person.ID;
-            _user.UserName  = txtUserName.Text.Trim();
-            _user.IsActive  = chkIsActive.Checked;
-
-            if (!string.IsNullOrWhiteSpace(txtPassword.Text))
-                _user.Password = txtPassword.Text;   // hashing should happen in Business layer
-
-            if (_user.Save())
+            // Final validation before saving
+            if (!_ValidateLoginInfo())
             {
-                lblUserID.Text = _user.UserID.ToString();
-                clsUtil.ShowInfo("User saved successfully.", "Saved");
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                return; // Validation failed
             }
-            else
+
+            try
             {
-                clsUtil.ShowError("Failed to save user. Please try again.");
+                // Prepare user object
+                _user ??= new clsUser();
+                _user.PersonID  = _person.ID;
+                _user.UserName  = txtUserName.Text.Trim();
+                _user.IsActive  = chkIsActive.Checked;
+
+                // Only set password if it's provided (required in Add mode, optional in Edit mode)
+                if (!string.IsNullOrWhiteSpace(txtPassword.Text))
+                {
+                    _user.Password = txtPassword.Text;   // hashing should happen in Business layer
+                }
+                // Save the user
+                if (_user.Save())
+                {
+                    lblUserID.Text = _user.UserID.ToString();
+                    clsUtil.ShowSuccess("User saved successfully!", "Saved");
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    clsUtil.ShowError("Failed to save user. Please check the data and try again.", "Save Failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                clsUtil.ShowError($"An error occurred while saving: {ex.Message}", "Save Error");
             }
         }
+
+
     }
 }

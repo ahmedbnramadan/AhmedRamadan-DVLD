@@ -156,6 +156,11 @@ namespace DVLD
             => MessageBox.Show(message, title,
                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
+        public static void ShowSuccess(string message, string title = "Success")
+            => MessageBox.Show(message, title,
+                               MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
+
         /// <summary>
         /// Asks the user to confirm a destructive action.
         /// Returns <c>true</c> only if the user clicks Yes.
