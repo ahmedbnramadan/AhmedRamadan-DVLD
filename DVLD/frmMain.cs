@@ -482,7 +482,7 @@ namespace DVLD
             object sender,
             EventArgs e)
         {
-            new frmChangePassword().ShowDialog();
+            new frmChangePassword(clsGlobal.CurrentUserID).ShowDialog();
         }
 
         private void _LogOut(
