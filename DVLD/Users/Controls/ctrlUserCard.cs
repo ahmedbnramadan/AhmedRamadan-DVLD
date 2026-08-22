@@ -11,12 +11,12 @@ namespace DVLD.Users.Controls
     public class ctrlUserCard : UserControl
     {
         #region Controls Declaration
+        private ctrlPersonCard ctrlPersonCard1;
         private GroupBox gbUserInformation;
+
         private Label lblUserIDTitle, lblUserID;
         private Label lblUserNameTitle, lblUserName;
         private Label lblIsActiveTitle, lblIsActive;
-
-        private ctrlPersonCard ctrlPersonCard1;
 
         private int _userID = -1;
         private clsUser _user;
@@ -30,8 +30,8 @@ namespace DVLD.Users.Controls
         public int UserID
         {
             get => _userID;
-            set 
-            { 
+            set
+            {
                 _userID = value;
                 if (_userID > 0)
                     LoadUserInfo(_userID);
@@ -59,48 +59,48 @@ namespace DVLD.Users.Controls
 
         private void InitializeComponents()
         {
-            this.Size = new Size(830, 300);
+            this.Size = new Size(870, 470);
             this.Font = new Font("Microsoft Sans Serif", 9F);
             this.AutoScroll = true;
+            this.Padding = new Padding(15);
 
-            // GroupBox
+            // Person Card (top section) - generous margin from the control's edges
+            ctrlPersonCard1 = new ctrlPersonCard
+            {
+                Location = new Point(20, 20),
+                Size = new Size(830, 300)
+            };
+
+            // User Info GroupBox (bottom section) - mirrors the person card's boxed look
             gbUserInformation = new GroupBox
             {
                 Text = "User Information",
-                Dock = DockStyle.Fill,
+                Location = new Point(20, 340),
+                Size = new Size(830, 90),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Regular)
             };
 
-            // User Info Labels
-            int y = 30;
-            _CreateLabelPair("User ID", 20, y, out lblUserIDTitle, out lblUserID);
-            y += 40;
+            // User Info Labels - evenly spaced, with breathing room inside the box
+            _CreateLabelPair("User ID", 30, 35, out lblUserIDTitle, out lblUserID);
+            _CreateLabelPair("User Name", 300, 35, out lblUserNameTitle, out lblUserName);
+            _CreateLabelPair("Is Active", 580, 35, out lblIsActiveTitle, out lblIsActive);
 
-            _CreateLabelPair("User Name", 20, y, out lblUserNameTitle, out lblUserName);
-            y += 40;
-
-            _CreateLabelPair("Is Active", 20, y, out lblIsActiveTitle, out lblIsActive);
-
-            // Person Card
-            ctrlPersonCard1 = new ctrlPersonCard
+            gbUserInformation.Controls.AddRange(new Control[]
             {
-                Location = new Point(380, 25),
-                Size = new Size(420, 240)
-            };
-
-            // Add Controls
-            gbUserInformation.Controls.AddRange(new Control[] 
-            { 
                 lblUserIDTitle, lblUserID,
                 lblUserNameTitle, lblUserName,
                 lblIsActiveTitle, lblIsActive,
-                ctrlPersonCard1 
             });
 
-            this.Controls.Add(gbUserInformation);
+            // Add Controls
+            this.Controls.AddRange(new Control[]
+            {
+                ctrlPersonCard1,
+                gbUserInformation,
+            });
         }
 
-        private void _CreateLabelPair(string title, int x, int y, 
+        private void _CreateLabelPair(string title, int x, int y,
             out Label titleLabel, out Label valueLabel)
         {
             titleLabel = new Label
@@ -114,9 +114,9 @@ namespace DVLD.Users.Controls
             valueLabel = new Label
             {
                 Text = "N/A",
-                Location = new Point(x + 110, y),
+                Location = new Point(x, y + 22),
                 AutoSize = true,
-                Font = new Font(this.Font, FontStyle.Bold),
+                Font = new Font(this.Font, FontStyle.Regular),
                 ForeColor = Color.FromArgb(30, 80, 160)
             };
         }
