@@ -3,8 +3,11 @@ using System.Drawing;
 using System.Windows.Forms;
 using Business;
 
-namespace DVLD
+namespace DVLD.Users.Controls
 {
+    /// <summary>
+    /// User control that displays comprehensive user information including person details.
+    /// </summary>
     public class ctrlUserCard : UserControl
     {
         #region Controls Declaration
@@ -15,27 +18,40 @@ namespace DVLD
 
         private ctrlPersonCard ctrlPersonCard1;
 
-        private int _UserID = -1;
-        private clsUser _User;
-        private clsPerson _Person;
+        private int _userID = -1;
+        private clsUser _user;
+        private clsPerson _person;
         #endregion
 
         #region Properties
+        /// <summary>
+        /// Gets or sets the user ID to display. Setting this property loads the user information.
+        /// </summary>
         public int UserID
         {
-            get { return _UserID; }
+            get => _userID;
             set 
             { 
-                _UserID = value;
-                if (_UserID > 0)
-                    LoadUserInfo(_UserID);
+                _userID = value;
+                if (_userID > 0)
+                    LoadUserInfo(_userID);
             }
         }
 
-        public clsUser SelectedUser => _User;
-        public clsPerson SelectedPerson => _Person;
+        /// <summary>
+        /// Gets the currently selected user object.
+        /// </summary>
+        public clsUser SelectedUser => _user;
+
+        /// <summary>
+        /// Gets the currently selected person object.
+        /// </summary>
+        public clsPerson SelectedPerson => _person;
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ctrlUserCard"/> class.
+        /// </summary>
         public ctrlUserCard()
         {
             InitializeComponents();
@@ -97,7 +113,7 @@ namespace DVLD
 
             valueLabel = new Label
             {
-                Text = "[???]",
+                Text = "N/A",
                 Location = new Point(x + 110, y),
                 AutoSize = true,
                 Font = new Font(this.Font, FontStyle.Bold),
@@ -105,42 +121,48 @@ namespace DVLD
             };
         }
 
-        // ── Main Load Method ─────────────────────────────────────
+        /// <summary>
+        /// Loads and displays user information for the specified user ID.
+        /// </summary>
+        /// <param name="userID">The user ID to load.</param>
         public void LoadUserInfo(int userID)
         {
-            _UserID = userID;
-            _User = clsUser.Find(userID);
+            _userID = userID;
+            _user = clsUser.Find(userID);
 
-            if (_User == null)
+            if (_user == null)
             {
                 clsUtil.ShowError($"User with ID {userID} not found.");
                 return;
             }
 
-            _Person = clsPerson.Find(_User.PersonID);
+            _person = clsPerson.Find(_user.PersonID);
 
             // Fill User Info
-            lblUserID.Text = _User.UserID.ToString();
-            lblUserName.Text = _User.UserName;
-            lblIsActive.Text = _User.IsActive ? "Yes" : "No";
-            lblIsActive.ForeColor = _User.IsActive ? Color.Green : Color.Red;
+            lblUserID.Text = _user.UserID.ToString();
+            lblUserName.Text = _user.UserName;
+            lblIsActive.Text = _user.IsActive ? "Yes" : "No";
+            lblIsActive.ForeColor = _user.IsActive ? Color.Green : Color.Red;
 
             // Load Person Card
-            if (_Person != null && ctrlPersonCard1 != null)
+            if (_person != null && ctrlPersonCard1 != null)
             {
-                ctrlPersonCard1.LoadPersonInfo(_Person.ID);
+                ctrlPersonCard1.LoadPersonInfo(_person.ID);
             }
         }
 
+        /// <summary>
+        /// Clears all displayed user information and resets the control to its default state.
+        /// </summary>
         public void Clear()
         {
-            _UserID = -1;
-            _User = null;
-            _Person = null;
+            _userID = -1;
+            _user = null;
+            _person = null;
 
-            lblUserID.Text = "[???]";
-            lblUserName.Text = "[???]";
-            lblIsActive.Text = "[???]";
+            lblUserID.Text = "N/A";
+            lblUserName.Text = "N/A";
+            lblIsActive.Text = "N/A";
             lblIsActive.ForeColor = Color.Black;
 
             ctrlPersonCard1?.ResetPersonInfo();
