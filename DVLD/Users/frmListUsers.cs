@@ -258,10 +258,12 @@ namespace DVLD
             // Friendly column headers (in case the SP uses raw column names)
             _RenameColumnIfExists("UserID", "User ID");
             _RenameColumnIfExists("PersonID", "Person ID");
-            _RenameColumnIfExists("Name", "Full Name");
+            _RenameColumnIfExists("FullName", "Full Name");
             _RenameColumnIfExists("UserName", "UserName");
             _RenameColumnIfExists("IsActive", "is Active");
-
+            _RenameColumnIfExists("Phone", "Phone");
+            _RenameColumnIfExists("Email", "Email");
+            
             // Hide internal columns the user doesn't need to see
             _HideColumnIfExists("Password");
             _HideColumnIfExists("PersonID");
@@ -334,7 +336,7 @@ namespace DVLD
             {
                 "User ID"       => "UserID",
                 "Person ID"     => "PersonID",
-                "Name"          => "Name",
+                "Name"          => "FullName",
                 "UserName"      => "UserName",
                 "is Active"     => "IsActive",
                 _               => null        
@@ -509,9 +511,9 @@ namespace DVLD
             ctxPhoneCall.Enabled   = hasSelection && !string.IsNullOrWhiteSpace(phone);
 
             // Update context menu text with user name
-            if (hasSelection && dgvUsers.SelectedRows[0].Cells["Full Name"]?.Value != null)
+            if (hasSelection && dgvUsers.SelectedRows[0].Cells["FullName"]?.Value != null)
             {
-                string userName = dgvUsers.SelectedRows[0].Cells["Full Name"].Value.ToString();
+                string userName = dgvUsers.SelectedRows[0].Cells["FullName"].Value.ToString();
                 ctxShowDetails.Text = $"Show Details ({userName})";
             }
             else
