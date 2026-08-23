@@ -25,7 +25,6 @@ namespace DVLD
             _id = id;
 
             _Build();
-            _LoadData();
         }
 
         private void _Build()
@@ -35,6 +34,7 @@ namespace DVLD
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.BackColor = Color.White;
             this.Font = new Font("Microsoft Sans Serif", 9.5F);
 
@@ -130,13 +130,23 @@ namespace DVLD
             });
         }
 
-        private void _LoadData()
+        // Loading data (and bailing out if the record is missing) is done
+        // here rather than in the constructor. Calling Close() from the
+        // constructor happens before the form has a window handle, so it
+        // does not reliably stop a subsequent ShowDialog() from displaying
+        // an empty form. OnLoad runs after the handle exists, so Close()
+        // here behaves correctly and the dialog never becomes visible.
+        protected override void OnLoad(EventArgs e)
         {
+            base.OnLoad(e);
+
             _testType = clsTestType.Find(_id);
 
             if (_testType == null)
             {
                 clsUtil.ShowError("Test type not found.");
+
+                this.DialogResult = DialogResult.Cancel;
                 this.Close();
                 return;
             }
