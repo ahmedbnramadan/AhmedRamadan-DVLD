@@ -9,7 +9,7 @@ namespace DVLD
     {
         private Label lblTitle;
         private Label lblIDTitle, lblID;
-        private Label lblTestTitle, lblDescription, lblFees;
+        private Label lblTitleLbl, lblDescription, lblFees;
 
         private TextBox txtTitle;
         private TextBox txtDescription;
@@ -31,29 +31,28 @@ namespace DVLD
         private void _Build()
         {
             this.Text = "Edit Test Type";
-            this.Size = new Size(560, 390);
+            this.Size = new Size(560, 420);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.BackColor = Color.White;
             this.Font = new Font("Microsoft Sans Serif", 9.5F);
 
-            lblTitle = _Title(
-                "Edit Test Type",
-                80,
-                18
-            );
+            lblTitle = new Label
+            {
+                Text = "Edit Test Type",
+                Font = new Font("Arial", 15F, FontStyle.Bold),
+                ForeColor = clsGlobal.PrimaryRed,
+                AutoSize = true,
+                Location = new Point(180, 18)
+            };
 
             lblIDTitle = new Label
             {
                 Text = "Test Type ID:",
                 AutoSize = true,
                 Location = new Point(40, 75),
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold
-                )
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold)
             };
 
             lblID = new Label
@@ -62,23 +61,15 @@ namespace DVLD
                 AutoSize = true,
                 Location = new Point(190, 75),
                 ForeColor = Color.SteelBlue,
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold
-                )
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold)
             };
 
-            lblTestTitle = new Label
+            lblTitleLbl = new Label
             {
                 Text = "Title:",
                 AutoSize = true,
                 Location = new Point(40, 118),
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold
-                )
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold)
             };
 
             txtTitle = new TextBox
@@ -92,17 +83,13 @@ namespace DVLD
                 Text = "Description:",
                 AutoSize = true,
                 Location = new Point(40, 160),
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold
-                )
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold)
             };
 
             txtDescription = new TextBox
             {
                 Location = new Point(190, 157),
-                Size = new Size(320, 70),
+                Size = new Size(320, 80),
                 Multiline = true,
                 ScrollBars = ScrollBars.Vertical
             };
@@ -111,33 +98,18 @@ namespace DVLD
             {
                 Text = "Fees (JD):",
                 AutoSize = true,
-                Location = new Point(40, 246),
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold
-                )
+                Location = new Point(40, 260),
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold)
             };
 
             txtFees = new TextBox
             {
-                Location = new Point(190, 243),
+                Location = new Point(190, 257),
                 Size = new Size(120, 23)
             };
 
-            btnSave = _Btn(
-                "Save",
-                230,
-                295,
-                Color.FromArgb(0, 120, 215)
-            );
-
-            btnClose = _Btn(
-                "Close",
-                360,
-                295,
-                Color.FromArgb(192, 50, 50)
-            );
+            btnSave = _Btn("Save", 230, 345, Color.FromArgb(0, 120, 215));
+            btnClose = _Btn("Close", 360, 345, Color.FromArgb(192, 50, 50));
 
             btnSave.Click += _Save;
             btnClose.Click += (s, e) => this.Close();
@@ -147,7 +119,7 @@ namespace DVLD
                 lblTitle,
                 lblIDTitle,
                 lblID,
-                lblTestTitle,
+                lblTitleLbl,
                 txtTitle,
                 lblDescription,
                 txtDescription,
@@ -200,13 +172,11 @@ namespace DVLD
 
             txtDescription.BackColor = clsGlobal.InputValid;
 
-            decimal fees;
 
-            if (!decimal.TryParse(txtFees.Text, out fees) || fees < 0)
+            if (!decimal.TryParse(txtFees.Text, out decimal fees) || fees < 0)
             {
-                clsUtil.ShowWarning(
-                    "Enter a valid fees amount."
-                );
+                clsUtil.ShowWarning("Enter a valid fees amount.");
+
 
                 txtFees.BackColor = clsGlobal.InputError;
                 txtFees.Focus();
@@ -218,14 +188,12 @@ namespace DVLD
 
             string newTitle = txtTitle.Text.Trim();
 
-            clsTestType existing =
-                clsTestType.Find(newTitle);
+            clsTestType existing = clsTestType.Find(newTitle);
+
 
             if (existing != null && existing.ID != _id)
             {
-                clsUtil.ShowWarning(
-                    "Another test type already uses this title."
-                );
+                clsUtil.ShowWarning("Another test type already uses this title.");
 
                 txtTitle.BackColor = clsGlobal.InputError;
                 txtTitle.Focus();
@@ -242,44 +210,22 @@ namespace DVLD
                 clsUtil.ShowInfo("Saved successfully.");
 
                 this.DialogResult = DialogResult.OK;
-                return;
+                                this.Close();
             }
-
-            clsUtil.ShowError("Save failed.");
-        }
-
-        private static Label _Title(string text, int x, int y)
-        {
-            return new Label
+            else
             {
-                Text = text,
-                Font = new Font(
-                    "Arial",
-                    15F,
-                    FontStyle.Bold
-                ),
-                ForeColor = clsGlobal.PrimaryRed,
-                AutoSize = true,
-                Location = new Point(x, y)
-            };
+                clsUtil.ShowError("Save failed.");
+            }
         }
-
-        private static Button _Btn(
-            string text,
-            int x,
-            int y,
-            Color back)
+        private static Button _Btn(string text, int x, int y, Color back)
         {
             var b = new Button
             {
                 Text = text,
                 Location = new Point(x, y),
                 Size = new Size(120, 34),
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold
-                ),
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold),
+
                 BackColor = back,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
