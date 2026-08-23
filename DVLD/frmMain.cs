@@ -380,7 +380,7 @@ namespace DVLD
             object sender,
             EventArgs e)
         {
-            MessageBox.Show("Coming Soon");
+            OpenMDIForm<frmListTestTypes>();
         }
 
         // Driving Licenses Services
