@@ -11,10 +11,10 @@ namespace DVLD
         #region Controls
         private Label            lblTitle;
         private DataGridView     dgv;
-        private Button           btnAddNew, btnClose;
+        private Button           btnClose;
         private Label            lblCount;
         private ContextMenuStrip ctxMenu;
-        private ToolStripMenuItem ctxEdit, ctxAddNew;
+        private ToolStripMenuItem ctxEdit;
         #endregion
 
         public frmListApplicationTypes()
@@ -41,16 +41,13 @@ namespace DVLD
                 AutoSize = true,
                 Location = new Point(220, 18)
             };
+            
 
             // Context menu
             ctxMenu  = new ContextMenuStrip { Font = new Font("Microsoft Sans Serif", 9.5F) };
-            ctxAddNew = new ToolStripMenuItem("➕  Add New");
-            ctxEdit   = new ToolStripMenuItem("✏️  Edit");
-            // ctxDelete = new ToolStripMenuItem("🗑  Delete");
-            ctxAddNew.Click += (s, e) => _OpenAddEdit(-1);
+            ctxEdit   = new ToolStripMenuItem("Edit");
             ctxEdit.Click   += (s, e) => _OpenAddEdit(_SelectedID());
-            // ctxDelete.Click += (s, e) => _Delete();
-            ctxMenu.Items.AddRange(new ToolStripItem[] { ctxAddNew, ctxEdit });
+            ctxMenu.Items.AddRange(new ToolStripItem[] { ctxEdit });
 
             dgv = new DataGridView
             {
@@ -66,17 +63,14 @@ namespace DVLD
             _StyleGrid(dgv);
             dgv.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0) _OpenAddEdit(_SelectedID()); };
             dgv.MouseDown       += _GridMouseDown;
-            dgv.SelectionChanged += (s, e) => { bool ok = dgv.SelectedRows.Count > 0; ctxEdit.Enabled = ok;/*ctxDelete.Enabled = ok; */  };
+            dgv.SelectionChanged += (s, e) => { bool ok = dgv.SelectedRows.Count > 0; ctxEdit.Enabled = ok; };
 
             lblCount = new Label { Text = "Records: 0", AutoSize = true, Location = new Point(20, 440), ForeColor = Color.Gray };
 
-            btnAddNew = _Btn("➕  Add New", 380, 438, Color.FromArgb(0, 120, 215));
-            btnAddNew.Click += (s, e) => _OpenAddEdit(-1);
-
-            btnClose = _Btn("✖  Close", 545, 438, Color.FromArgb(192, 50, 50));
+            btnClose = _Btn("✖  Close", 525, 438, Color.FromArgb(192, 50, 50));
             btnClose.Click += (s, e) => this.Close();
 
-            this.Controls.AddRange(new Control[] { lblTitle, dgv, lblCount, btnAddNew, btnClose });
+            this.Controls.AddRange(new Control[] { lblTitle, dgv, lblCount, btnClose });
         }
 
         private void _Load()
@@ -86,6 +80,23 @@ namespace DVLD
             _RenameCol("ApplicationTypeID",    "ID");
             _RenameCol("ApplicationTypeTitle", "Title");
             _RenameCol("ApplicationFees",      "Fees (JD)");
+
+            if (dgv.Columns.Contains("ApplicationTypeID"))
+            {
+                dgv.Columns["ApplicationTypeID"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                dgv.Columns["ApplicationTypeID"].Width = 80;
+            }
+
+            if (dgv.Columns.Contains("ApplicationFees"))
+            {
+                dgv.Columns["ApplicationFees"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                dgv.Columns["ApplicationFees"].Width = 150;
+            }
+
+            if (dgv.Columns.Contains("ApplicationTypeTitle"))
+            {
+                dgv.Columns["ApplicationTypeTitle"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
         }
 
         private int _SelectedID()
@@ -99,17 +110,6 @@ namespace DVLD
             new frmAddEditApplicationType(id).ShowDialog();
             _Load();
         }
-
-        // private void _Delete()
-        // {
-        //     int id = _SelectedID();
-        //     if (id == -1) return;
-        //     if (!clsUtil.ConfirmDelete("this application type")) return;
-        //     if (clsApplicationType.Delete(id))
-        //         _Load();
-        //     else
-        //         clsUtil.ShowError("Cannot delete — it may be linked to existing applications.");
-        // }
 
         private void _GridMouseDown(object sender, MouseEventArgs e)
         {
