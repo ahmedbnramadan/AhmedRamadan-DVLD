@@ -130,7 +130,7 @@ namespace Business
             else return null;
         }
 
-        public static clsUser FindByUserNameAndPassWord(string UserName, string Password)
+        public static clsUser Find(string UserName, string Password)
         {
             int UserID = -1;
             int PersonID = -1;

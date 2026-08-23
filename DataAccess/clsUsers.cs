@@ -382,7 +382,7 @@ namespace DataAccess
 
                 string query = @"SELECT users.UserID, users.PersonID, 
                                 FullName = CONCAT(People.FirstName, ' ', People.SecondName, ' ', People.ThirdName, ' ', People.LastName),
-                                users.UserName, users.IsActive
+                                users.UserName, users.IsActive, People.Phone, People.Email
                                 FROM users 
                                 INNER JOIN People ON users.PersonID = People.PersonID";
                 using (SqlCommand command = new SqlCommand(query, connection))

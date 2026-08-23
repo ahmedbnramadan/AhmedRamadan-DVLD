@@ -36,7 +36,7 @@ namespace DVLD
             _currentUserID = userID;
 
             this.Text = "Change Password";
-            this.Size = new Size(900, 680);
+            this.Size = new Size(900, 700);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;

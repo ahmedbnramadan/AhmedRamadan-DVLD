@@ -25,6 +25,8 @@ namespace DVLD
         {
             _Build();
             _LoadRemembered();
+
+            this.Shown += frmLogin_Shown;
         }
 
         private void _Build()
@@ -35,7 +37,6 @@ namespace DVLD
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.AcceptButton = btnLogin;   // set after button created below
 
             // ── Left dark panel ──────────────────────────────────────
             pnlLeft = new Panel
@@ -111,7 +112,7 @@ namespace DVLD
 
             btnLogin = new Button
             {
-                Text = "🔑  Login",
+                Text = "Login",
                 Location = new Point(195, 290),
                 Size = new Size(200, 40),
                 Font = new Font("Arial", 10F, FontStyle.Bold),
@@ -142,7 +143,6 @@ namespace DVLD
             {
                 txtUsername.Text = File.ReadAllText(_settingsFile).Trim();
                 chkRememberMe.Checked = !string.IsNullOrEmpty(txtUsername.Text);
-                if (chkRememberMe.Checked) txtPassword.Focus();
             }
         }
 
@@ -151,27 +151,54 @@ namespace DVLD
             File.WriteAllText(_settingsFile, chkRememberMe.Checked ? txtUsername.Text.Trim() : "");
         }
 
+
+        // ── Form Events ──────────────────────────────────────────────────────
+        private void frmLogin_Shown(object sender, EventArgs e)
+        {
+            if (chkRememberMe.Checked)
+                txtPassword.Focus();
+            else
+                txtUsername.Focus();
+        }
+
         // ── Login ─────────────────────────────────────────────────────────────
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
             lblError.Visible = false;
 
-            if (string.IsNullOrWhiteSpace(txtUsername.Text) ||
-                string.IsNullOrWhiteSpace(txtPassword.Text))
+            if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
-                lblError.Text = "Please enter username and password.";
+                lblError.Text = "Please enter username.";
                 lblError.Visible = true;
+                txtUsername.Focus();
                 return;
             }
 
-            clsUser user = clsUser.Find(txtUsername.Text.Trim());
+            if (string.IsNullOrWhiteSpace(txtPassword.Text))
+            {
+                lblError.Text = "Please enter password.";
+                lblError.Visible = true;
+                txtPassword.Focus();
+                return;
+            }
 
-            if (user == null || !user.IsActive ||
-                user.Password != txtPassword.Text)   // replace with hash compare if hashed
+            clsUser user = clsUser.Find(txtUsername.Text.Trim(),txtPassword.Text);
+
+            if (user == null)   // replace with hash compare if hashed
             {
                 lblError.Text = "Invalid username or password.";
                 lblError.Visible = true;
+                txtPassword.Clear();
+                txtPassword.Focus();
+                return;
+            }
+
+            if (!user.IsActive)
+            {
+                lblError.Text = "Your account is inactive.";
+                lblError.Visible = true;
+
                 txtPassword.Clear();
                 txtPassword.Focus();
                 return;
@@ -184,7 +211,6 @@ namespace DVLD
             _SaveRemembered();
 
             this.DialogResult = DialogResult.OK;
-            this.Close();
         }
     }
 }
