@@ -31,7 +31,7 @@ namespace DVLD
         private void _Build()
         {
             this.Text = "Edit Test Type";
-            this.Size = new Size(560, 420);
+            this.Size = new Size(560, 440);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -190,7 +190,6 @@ namespace DVLD
 
             clsTestType existing = clsTestType.Find(newTitle);
 
-
             if (existing != null && existing.ID != _id)
             {
                 clsUtil.ShowWarning("Another test type already uses this title.");
@@ -210,7 +209,7 @@ namespace DVLD
                 clsUtil.ShowInfo("Saved successfully.");
 
                 this.DialogResult = DialogResult.OK;
-                                this.Close();
+                this.Close();
             }
             else
             {
