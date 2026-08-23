@@ -5,7 +5,7 @@ using Business;
 
 namespace DVLD
 {
-    public class frmAddEditApplicationType : Form
+    public class frmEditApplicationType : Form
     {
         private Label    lblTitle, lblIDTitle, lblID, lblTitleLbl, lblFees;
         private TextBox  txtTitle, txtFees;
@@ -13,31 +13,30 @@ namespace DVLD
 
         private readonly int          _id;
         private clsApplicationType    _appType;
-        private bool _isEdit => _id > 0;
 
-        public frmAddEditApplicationType(int id = -1)
+        public frmEditApplicationType(int id)
         {
             _id = id;
             _Build();
-            if (_isEdit) _LoadData();
+            _LoadData();
         }
 
         private void _Build()
         {
-            this.Text = _isEdit ? "Edit Application Type" : "Add Application Type";
+            this.Text = "Edit Application Type";
             this.Size = new Size(480, 310);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false; this.BackColor = Color.White;
             this.Font = new Font("Microsoft Sans Serif", 9.5F);
 
-            lblTitle = new Label { Text = _isEdit ? "Edit Application Type" : "Add Application Type",
+            lblTitle = new Label { Text = "Edit Application Type",
                 Font = new Font("Arial", 15F, FontStyle.Bold), ForeColor = clsGlobal.PrimaryRed,
-                AutoSize = true, Location = new Point(80, 18) };
+                AutoSize = true, Location = new Point(130, 18) };
 
             lblIDTitle = new Label { Text = "Type ID:", AutoSize = true, Location = new Point(40, 75),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
-            lblID = new Label { Text = _isEdit ? _id.ToString() : "N/A", AutoSize = true,
+            lblID = new Label { Text =  _id.ToString(), AutoSize = true,
                 Location = new Point(170, 75), ForeColor = Color.SteelBlue,
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
 
@@ -45,12 +44,12 @@ namespace DVLD
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
             txtTitle = new TextBox { Location = new Point(170, 115), Size = new Size(260, 23) };
 
-            lblFees = new Label { Text = "Fees (JD):", AutoSize = true, Location = new Point(40, 160),
+            lblFees = new Label { Text = "Fees (US):", AutoSize = true, Location = new Point(40, 160),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
             txtFees = new TextBox { Location = new Point(170, 157), Size = new Size(120, 23) };
 
-            btnSave  = _Btn("💾  Save",  190, 215, Color.FromArgb(0, 120, 215));
-            btnClose = _Btn("✖  Close", 310, 215, Color.FromArgb(192, 50, 50));
+            btnSave  = _Btn("Save",  185, 215, Color.FromArgb(0, 120, 215));
+            btnClose = _Btn("Close", 315, 215, Color.FromArgb(192, 50, 50));
             btnSave.Click  += _Save;
             btnClose.Click += (s, e) => this.Close();
 
@@ -77,8 +76,7 @@ namespace DVLD
             { clsUtil.ShowWarning("Enter a valid fees amount."); txtFees.BackColor = clsGlobal.InputError; return; }
             txtFees.BackColor = clsGlobal.InputValid;
 
-            _appType = _isEdit ? clsApplicationType.Find(_id) ?? new clsApplicationType()
-                                : new clsApplicationType();
+            _appType = clsApplicationType.Find(_id);
 
             _appType.Title = txtTitle.Text.Trim();
             _appType.Fees      = fees;

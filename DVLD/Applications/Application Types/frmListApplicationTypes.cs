@@ -79,7 +79,7 @@ namespace DVLD
             lblCount.Text  = $"Records: {dgv.Rows.Count}";
             _RenameCol("ApplicationTypeID",    "ID");
             _RenameCol("ApplicationTypeTitle", "Title");
-            _RenameCol("ApplicationFees",      "Fees (JD)");
+            _RenameCol("ApplicationFees",      "Fees (US)");
 
             if (dgv.Columns.Contains("ApplicationTypeID"))
             {
@@ -107,7 +107,7 @@ namespace DVLD
 
         private void _OpenAddEdit(int id)
         {
-            new frmAddEditApplicationType(id).ShowDialog();
+            new frmEditApplicationType(id).ShowDialog();
             _Load();
         }
 
