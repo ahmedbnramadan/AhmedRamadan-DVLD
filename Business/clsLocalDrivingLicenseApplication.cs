@@ -17,14 +17,22 @@ namespace Business
         public int LocalDrivingLicenseApplicationID { get; set; }
         
         public int LicenseClassID { get; set; }
-
-        public clsLicenseClass LicenseClassInfo { get; set; }
+        private clsLicenseClass _LicenseClassInfo;
+        public clsLicenseClass LicenseClassInfo
+        {
+            get
+            {
+                if (_LicenseClassInfo == null)
+                    _LicenseClassInfo = clsLicenceClass.Find(this.LicenseClassID);
+                return _LicenseClassInfo;
+            }
+        }
 
         public string PersonFullName
         {
             get
             {
-                return clsPerson.Find(this.ApplicantPersonID).FullName;
+                return base.PersonInfo.FullName;
             }
         }
 
@@ -50,19 +58,15 @@ namespace Business
         )
         {
             this.LocalDrivingLicenseApplicationID = LocalDrivingLicenseApplicationID;
-            this.ApplicationID = ApplicationID;
-            this.ApplicantPersonID = ApplicantPersonID;
-            this.ApplicationDate = ApplicationDate;
-            this.ApplicationTypeID = ApplicationTypeID;
-            this.ApplicationStatus = ApplicationStatus;
-            this.LastStatusDate = LastStatusDate;
-            this.PaidFees = PaidFees;
-            this.CreatedByUserID = CreatedByUserID;
-            this.LicenseClassID = LicenseClassID;
-
-            this.LicenseClassInfo = clsLicenseClass.Find(
-                this.LicenseClassID
-            );
+            this.ApplicationID          = ApplicationID;
+            this.ApplicantPersonID      = ApplicantPersonID;
+            this.ApplicationDate        = ApplicationDate;
+            this.ApplicationTypeID      = ApplicationTypeID;
+            this.ApplicationStatus      = ApplicationStatus;
+            this.LastStatusDate         = LastStatusDate;
+            this.PaidFees               = PaidFees;
+            this.CreatedByUserID        = CreatedByUserID;
+            this.LicenseClassID         = LicenseClassID;
 
             this.Mode = enMode.Update;
         }
@@ -94,6 +98,40 @@ namespace Business
             if (DataAccess.clsLocalDrivingLicenseApplications.GetLocalDrivingLicenseApplicationByID(
                     LocalDrivingLicenseApplicationID,
                     ref ApplicationID,
+                    ref LicenseClassID
+                ))
+            {
+                clsApplication BaseApplication = clsApplication.FindBaseApplication(
+                    ApplicationID
+                );
+
+                return new clsLocalDrivingLicenseApplication(
+                    LocalDrivingLicenseApplicationID,
+                    BaseApplication.ApplicationID,
+                    BaseApplication.ApplicantPersonID,
+                    BaseApplication.ApplicationDate,
+                    BaseApplication.ApplicationTypeID,
+                    BaseApplication.ApplicationStatus,
+                    BaseApplication.LastStatusDate,
+                    BaseApplication.PaidFees,
+                    BaseApplication.CreatedByUserID,
+                    LicenseClassID
+                );
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static clsLocalDrivingLicenseApplication FindByApplicationID(int ApplicationID)
+        {
+            int LocalDrivingLicenseApplicationID = -1;
+            int LicenseClassID = -1;
+
+            if (DataAccess.clsLocalDrivingLicenseApplications.GetLocalDrivingLicenseApplicationByApplicationID(
+                    ApplicationID,
+                    ref LocalDrivingLicenseApplicationID,
                     ref LicenseClassID
                 ))
             {
