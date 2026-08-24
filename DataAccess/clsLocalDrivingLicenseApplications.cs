@@ -206,6 +206,14 @@ namespace DataAccess
             return (rowAffected > 0);
         }
 
+        #region Finding Methodd
+        // <summary> GetLocalDrivingLicenseApplicationByID,
+        // GetLocalDrivingLicenseApplicationByApplicationID,
+        // GetAllLocalDrivingLicenseApplications
+        // GetLocalDrivingLicenseApplicationsByPersonID
+        // GetLocalDrivingLicenseApplicationsByStatus
+        // GetLocalDrivingLicenseApplicationsByLicenseClass <summary>
+
         public static bool GetLocalDrivingLicenseApplicationByID(
             int LocalDrivingLicenseApplicationID,
             ref int ApplicationID,
@@ -292,44 +300,7 @@ namespace DataAccess
 
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = @"SELECT 
-                                    ldla.localdrivinglicenseapplicationid,
-                                    ldla.licenseclassid,
-                                    lc.classname,
-                                    lc.classfees,
-                                    a.applicationid,
-                                    a.applicantpersonid,
-                                    a.applicationdate,
-                                    a.applicationstatus,
-                                    a.laststatusdate,
-                                    a.paidfees,
-                                    a.createdbyuserid,
-                                    p.firstname + ' ' + p.lastname as applicantname,
-                                    p.nationalno,
-                                    p.dateofbirth,
-                                    p.gender,
-                                    p.phone,
-                                    p.email,
-                                    u.username as createdbyusername,
-                                    CASE 
-                                        WHEN a.applicationstatus = 1 THEN 'New'
-                                        WHEN a.applicationstatus = 2 THEN 'Cancelled'
-                                        WHEN a.applicationstatus = 3 THEN 'Completed'
-                                    END as statusname,
-                                    (SELECT COUNT(*) FROM tests t 
-                                     INNER JOIN testappointments ta ON t.testappointmentid = ta.testappointmentid
-                                     WHERE ta.localdrivinglicenseapplicationid = ldla.localdrivinglicenseapplicationid
-                                     AND t.testresult = 1) as passedtestscount,
-                                    (SELECT COUNT(*) FROM testappointments 
-                                     WHERE localdrivinglicenseapplicationid = ldla.localdrivinglicenseapplicationid) as totalappointments,
-                                    (SELECT licenseid FROM licenses l 
-                                     INNER JOIN applications app ON l.applicationid = app.applicationid
-                                     WHERE app.applicationid = a.applicationid) as issuedlicenseid
-                                FROM localdrivinglicenseapplications ldla
-                                INNER JOIN licenseclasses lc ON ldla.licenseclassid = lc.licenseclassid
-                                INNER JOIN applications a ON ldla.applicationid = a.applicationid
-                                INNER JOIN people p ON a.applicantpersonid = p.personid
-                                INNER JOIN users u ON a.createdbyuserid = u.userid
+                string query = @"SELECT * FROM localdrivinglicenseapplications_view   
                                 ORDER BY a.applicationdate DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -510,6 +481,7 @@ namespace DataAccess
             }
             return dt;
         }
+        #endregion
 
         public static bool UpdateLocalDrivingLicenseApplication(
             int LocalDrivingLicenseApplicationID,

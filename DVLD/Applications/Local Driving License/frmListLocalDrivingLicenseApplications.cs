@@ -116,14 +116,13 @@ namespace DVLD
         {
             dgv.DataSource  = dt;
             lblCount.Text   = $"Records: {dt.Rows.Count}";
-            _Rename("LocalDrivingLicenseApplicationID", "App ID");
-            _Rename("ApplicationDate",                  "Date");
-            _Rename("ApplicationStatus",                "Status");
-            _Rename("LicenseClassName",                 "License Class");
-            _Rename("FullName",                         "Applicant Name");
-            _Rename("NationalNo",                       "National No.");
-            _Rename("PaidFees",                         "Fees (JD)");
-            _Hide("PersonID"); _Hide("LicenseClassID"); _Hide("CreatedByUserID");
+            _Rename("localdrivinglicenseapplicationid", "App ID");
+            _Rename("classname",                 "License Class");
+            _Rename("nationalno",                       "National No.");
+            _Rename("fullname",                         "Full Name");
+            _Rename("applicationdate",                  "Date");
+            _Rename("passedtestscount",                 "Passed Tests");
+            _Rename("status",                           "Status");
         }
 
         private void _Filter()
@@ -132,12 +131,11 @@ namespace DVLD
             string col = cbFilterBy.Text, val = txtFilter.Text.Trim();
             if (col == "None" || string.IsNullOrEmpty(val)) { _BindGrid(_full); return; }
             string dbCol = col switch {
-                "Application ID" => "LocalDrivingLicenseApplicationID",
-                "Person ID"      => "PersonID",
-                "National No."   => "NationalNo",
-                "Full Name"      => "FullName",
-                "License Class"  => "LicenseClassName",
-                "Status"         => "ApplicationStatus",
+                "Application ID" => "localdrivinglicenseapplicationid",
+                "National No."   => "nationalno",
+                "Full Name"      => "fullname",
+                "License Class"  => "classname",
+                "Status"         => "status",
                 _                => null
             };
             if (dbCol == null) return;
@@ -184,8 +182,6 @@ namespace DVLD
         }
 
         private void _Rename(string d, string h) { if (dgv.Columns.Contains(d)) dgv.Columns[d].HeaderText = h; }
-        private void _Hide(string n)              { if (dgv.Columns.Contains(n)) dgv.Columns[n].Visible = false; }
-
         private static void _StyleGrid(DataGridView g)
         {
             g.ColumnHeadersDefaultCellStyle.BackColor = clsGlobal.GridHeaderBack;
