@@ -23,7 +23,7 @@ namespace Business
             get
             {
                 if (_LicenseClassInfo == null)
-                    _LicenseClassInfo = clsLicenceClass.Find(this.LicenseClassID);
+                    _LicenseClassInfo = clsLicenseClass.Find(this.LicenseClassID);
                 return _LicenseClassInfo;
             }
         }
@@ -205,6 +205,47 @@ namespace Business
             return base.Delete();
         }
 
+        // DoesPassTestType
+        public static bool DoesPassTestType(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            return DataAccess.clsLocalDrivingLicenseApplications.DoesPassTestType(
+                LocalDrivingLicenseApplicationID, 
+                TestTypeID
+            );
+        }
+
+        // DoesAttendTestType
+        public static bool DoesAttendTestType(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            return DataAccess.clsLocalDrivingLicenseApplications.DoesAttendTestType(
+                LocalDrivingLicenseApplicationID, 
+                TestTypeID
+            );
+        }
+
+        // TotalTrialsPerTest
+        public static int TotalTrialsPerTest(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            return DataAccess.clsLocalDrivingLicenseApplications.TotalTrialsPerTest(
+                LocalDrivingLicenseApplicationID, 
+                TestTypeID
+            );
+        }
+
+        // IsThereAnActiveScheduledTest
+        public static bool IsThereAnActiveScheduledTest(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            return DataAccess.clsLocalDrivingLicenseApplications.IsThereAnActiveScheduledTest(
+                LocalDrivingLicenseApplicationID, 
+                TestTypeID
+            );
+        }
+
+        // IsAllTestsPassed
+        public bool IsAllTestsPassed()
+        {
+            return (this.GetPassedTestCount() >= 3);
+        }
         public static bool DoesPersonHaveActiveApplication(int PersonID, int LicenseClassID)
         {
             return DataAccess.clsLocalDrivingLicenseApplications.DoesPersonHaveActiveApplication(

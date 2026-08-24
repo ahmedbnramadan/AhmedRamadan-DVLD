@@ -96,7 +96,7 @@ namespace DVLD
 
             lblFees = new Label
             {
-                Text = "Fees (JD):",
+                Text = "Fees (US):",
                 AutoSize = true,
                 Location = new Point(40, 260),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold)

@@ -96,7 +96,7 @@ namespace DVLD
             lblNNov.Text     = person?.NationalNo ?? "—";
             lblClassv.Text   = lc?.Name     ?? "—";
             lblDatev.Text    = clsFormat.DateLong(app.ApplicationDate);
-            lblFeesv.Text    = app.PaidFees.ToString("F2") + " JD";
+            lblFeesv.Text    = app.PaidFees.ToString("F2") + " US";
             lblStatusv.Text  = app.ApplicationStatus.ToString();
             lblCreatedv.Text = creator?.UserName ?? "—";
 

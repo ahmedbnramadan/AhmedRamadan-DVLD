@@ -57,7 +57,7 @@ namespace DVLD
             dtpDate = new DateTimePicker { Location = new Point(170,257), Size = new Size(190,24),
                 Format = DateTimePickerFormat.Short, Value = DateTime.Now };
 
-            lblFeesT = new Label { Text = "Fees (JD):", AutoSize = true, Location = new Point(30,305),
+            lblFeesT = new Label { Text = "Fees (US):", AutoSize = true, Location = new Point(30,305),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
             txtFees = new TextBox { Location = new Point(170,302), Size = new Size(100,23),
                 Text = clsApplicationType.Find(6)?.Fees.ToString("F2") ?? "50.00",

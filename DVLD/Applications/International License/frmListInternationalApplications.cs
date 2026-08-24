@@ -94,7 +94,7 @@ namespace DVLD
             _Rename("IssueDate",              "Issue Date");
             _Rename("ExpirationDate",         "Expiry Date");
             _Rename("IsActive",               "Active");
-            _Rename("PaidFees",               "Fees (JD)");
+            _Rename("PaidFees",               "Fees (US)");
             _Hide("DriverID"); _Hide("CreatedByUserID");
         }
 
