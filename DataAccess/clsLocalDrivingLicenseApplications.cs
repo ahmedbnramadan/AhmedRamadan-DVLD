@@ -47,6 +47,13 @@ namespace DataAccess
             return LocalDrivingLicenseApplicationID;
         }
 
+
+        #region Is Exits & Does have
+        // <summary>Is Exist?
+        // IsLocalDrivingLicenseApplicationExist
+        // DoesPersonHaveActiveApplication
+        // DoesPersonHaveActiveApplication
+        // DoesPersonHaveAnyActiveApplication  <summary>
         public static bool IsLocalDrivingLicenseApplicationExist(int LocalDrivingLicenseApplicationID)
         {
             bool isFound = false;
@@ -179,6 +186,8 @@ namespace DataAccess
             return isFound;
         }
 
+        #endregion
+
         public static bool DeleteLocalDrivingLicenseApplication(int LocalDrivingLicenseApplicationID)
         {
             LastErrorMessage = "";
@@ -186,7 +195,8 @@ namespace DataAccess
 
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = "DELETE FROM localdrivinglicenseapplications WHERE localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID";
+                string query = @"DELETE FROM localdrivinglicenseapplications
+                                WHERE localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -301,7 +311,7 @@ namespace DataAccess
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
                 string query = @"SELECT * FROM localdrivinglicenseapplications_view   
-                                ORDER BY a.applicationdate DESC";
+                                ORDER BY applicationdate DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -658,8 +668,87 @@ namespace DataAccess
             return totalFees;
         }
 
+        #region Test methods
+        // DoesPassTestType
+        // DoesAttendTestType
+        // TotalTrialsPerTest
+        // IsThereAnActiveScheduledTest
+        // IsAllTestsPassed
+
         // Get number of trials for a specific test type
-        public static int GetTestTrialsCount(int LocalDrivingLicenseApplicationID, int TestTypeID)
+
+
+        public static bool DoesPassTestType(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            bool Result = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TOP 1 t.TestResult
+                                FROM localdrivinglicenseapplications ldla INNER JOIN 
+                                TestAppointments ta ON ldla.localdrivinglicenseapplicationid = ta.localdrivinglicenseapplicationid INNER JOIN
+                                Tests t ON ta.testappointmentid = t.testappointmentid
+                                WHERE ldla.localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID
+                                AND ta.testtypeid = @TestTypeID
+                                AND t.testresult = 1
+                                ORDER BY ta.testappointmentid DESC";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
+                    command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
+
+                    try
+                    {
+                        connection.Open();
+                        object result = command.ExecuteScalar();
+                        Result = (result != null);
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error checking if test type is passed: " + ex.Message;
+                    }
+                }
+            }
+            return Result;
+        }
+
+        public static bool DoesAttendTestType(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            bool Result = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TOP 1 t.TestResult
+                                FROM localdrivinglicenseapplications ldla INNER JOIN 
+                                TestAppointments ta ON ldla.localdrivinglicenseapplicationid = ta.localdrivinglicenseapplicationid INNER JOIN
+                                Tests t ON ta.testappointmentid = t.testappointmentid
+                                WHERE ldla.localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID
+                                AND ta.testtypeid = @TestTypeID
+                                ORDER BY ta.testappointmentid DESC";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
+                    command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
+
+                    try
+                    {
+                        connection.Open();
+                        object result = command.ExecuteScalar();
+                        Result = (result != null);
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error checking if test type is attended: " + ex.Message;
+                    }
+                }
+            }
+            return Result;
+        }
+        public static int TotalTrialsPerTest(int LocalDrivingLicenseApplicationID, int TestTypeID)
         {
             int count = 0;
             LastErrorMessage = "";
@@ -694,6 +783,42 @@ namespace DataAccess
             }
             return count;
         }
+
+        public static bool IsThereAnActiveScheduledTest(int LocalDrivingLicenseApplicationID, int TestTypeID)
+        {
+            bool Result = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TOP 1 ta.testappointmentid
+                                FROM localdrivinglicenseapplications ldla INNER JOIN 
+                                TestAppointments ta ON ldla.localdrivinglicenseapplicationid = ta.localdrivinglicenseapplicationid
+                                WHERE ldla.localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID
+                                AND ta.testtypeid = @TestTypeID
+                                AND ta.islocked = 0
+                                ORDER BY ta.testappointmentid DESC";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
+                    command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
+
+                    try
+                    {
+                        connection.Open();
+                        object result = command.ExecuteScalar();
+                        Result = (result != null);
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error checking active scheduled test: " + ex.Message;
+                    }
+                }
+            }
+            return Result;
+        }
+
 
         // Check if all tests are passed
         public static bool IsAllTestsPassed(int LocalDrivingLicenseApplicationID)
@@ -733,6 +858,8 @@ namespace DataAccess
             }
             return allPassed;
         }
+
+        #endregion
 
         // Get application status text
         public static string GetStatusText(int LocalDrivingLicenseApplicationID)
