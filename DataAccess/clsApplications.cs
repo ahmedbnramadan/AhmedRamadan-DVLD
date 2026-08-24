@@ -111,7 +111,7 @@ namespace DataAccess
             return isFound;
         }
 
-        public static bool IsPersonHaveApplicationOfType(int PersonID, int ApplicationTypeID)
+        public static bool DoesPersonHaveApplicationOfType(int PersonID, int ApplicationTypeID)
         {
             bool isFound = false;
             LastErrorMessage = "";
@@ -142,7 +142,7 @@ namespace DataAccess
             return isFound;
         }
 
-        public static bool IsPersonHaveActiveApplication(int PersonID)
+        public static bool DoesPersonHaveActiveApplication(int PersonID)
         {
             bool isFound = false;
             LastErrorMessage = "";
@@ -170,6 +170,42 @@ namespace DataAccess
                     }
                 }
             }
+
+            return isFound;
+        }
+
+
+        public static bool DoesPersonHaveActiveApplication(int PersonID, int ApplicationTypeID)
+        {
+            bool isFound = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT 1 FROM applications 
+                                WHERE applicantpersonid = @ApplicantPersonID 
+                                AND applicationtypeid = @ApplicationTypeID
+                                AND applicationstatus = @ApplicationStatus";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@ApplicantPersonID", PersonID);
+                    command.Parameters.AddWithValue("@ApplicationTypeID", ApplicationTypeID);
+                    command.Parameters.AddWithValue("@ApplicationStatus", StatusNew);
+
+                    try
+                    {
+                        connection.Open();
+                        object result = command.ExecuteScalar();
+                        isFound = (result != null);
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error checking active application: " + ex.Message;
+                    }
+                }
+            }
+
             return isFound;
         }
 
