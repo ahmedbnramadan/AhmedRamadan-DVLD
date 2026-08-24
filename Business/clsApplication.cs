@@ -18,7 +18,7 @@ namespace Business
         public enMode Mode = enMode.AddNew;
 
         public int ApplicationID { get; set; }
-        public int ApplicantPersonID { get; set; } // تم تعديل الاسم ليتطابق مع المنطق
+        public int ApplicantPersonID { get; set; }
         public DateTime ApplicationDate { get; set; }
         public int ApplicationTypeID { get; set; }
         public enApplicationStatus ApplicationStatus { get; set; }
@@ -26,8 +26,39 @@ namespace Business
         public decimal PaidFees { get; set; }
         public int CreatedByUserID { get; set; }
 
-        public clsPerson PersonInfo;
+        private clsPerson _PersonInfo;
+        private clsUser _UserInfo;
+        private clsApplicationType _ApplicaitonTypeInfo;
 
+        public clsPerson PersonInfo
+        {
+            get
+            {
+                if (_PersonInfo == null)
+                    _PersonInfo = clsPerson.Find(this.ApplicantPersonID);
+                return _PersonInfo;
+            }
+        }
+
+        public clsUser UserInfo
+        {
+            get
+            {
+                if (_UserInfo == null)
+                    _UserInfo = clsUser.Find(this.CreatedByUserID);
+                return _UserInfo;
+            }
+        }
+
+        public clsApplicationType ApplicationTypeInfo
+        {
+            get
+            {
+                if (_ApplicaitonTypeInfo == null)
+                    _ApplicaitonTypeInfo = clsApplicationType.Find(this.ApplicationTypeID);
+                return _ApplicaitonTypeInfo;
+            }
+        }
         public clsApplication()
         {
             this.ApplicationID = -1;
@@ -52,16 +83,16 @@ namespace Business
             decimal PaidFees,
             int CreatedByUserID)
         {
-            this.ApplicationID = ApplicationID;
+            this.ApplicationID     = ApplicationID;
             this.ApplicantPersonID = ApplicantPersonID;
-            this.ApplicationDate = ApplicationDate;
+            this.ApplicationDate   = ApplicationDate;
             this.ApplicationTypeID = ApplicationTypeID;
             this.ApplicationStatus = ApplicationStatus;
-            this.LastStatusDate = LastStatusDate;
-            this.PaidFees = PaidFees;
-            this.CreatedByUserID = CreatedByUserID;
+            this.LastStatusDate    = LastStatusDate;
+            this.PaidFees          = PaidFees;
+            this.CreatedByUserID   = CreatedByUserID;
 
-            this.PersonInfo = clsPerson.Find(this.ApplicantPersonID);
+
             this.Mode = enMode.Update;
         }
 
@@ -169,6 +200,16 @@ namespace Business
         public static bool IsApplicationExist(int ApplicationID)
         {
             return DataAccess.clsApplications.IsApplicationExist(ApplicationID);
+        }
+
+        public static bool DoesPerosnHaveActiveApplication(int PersonID)
+        {
+            return DataAccess.clsApplications.DoesPersonHaveActiveApplication(PersonID);
+        }
+
+        public static bool DoesPerosnHaveActiveApplication(int PersonID, int ApplicationTypeID)
+        {
+            return DataAccess.clsApplications.DoesPersonHaveActiveApplication(PersonID, ApplicationTypeID);
         }
 
         public static int GetActiveApplicationIDForLicenseClass(int PersonID, int ApplicationTypeID, int LicenseClassID)
