@@ -161,14 +161,14 @@ namespace DVLD
 
         private void _OpenAddNew()
         {
-            new frmAddNewLocalDrivingLicenseApplication().ShowDialog();
+            new frmAddEditNewLocalDrivingLicenseApplication().ShowDialog();
             _LoadData();
         }
 
         private void _OpenEdit()
         {
             int id = _SelectedID(); if (id < 0) return;
-            new frmAddNewLocalDrivingLicenseApplication(id).ShowDialog();
+            new frmAddEditNewLocalDrivingLicenseApplication(id).ShowDialog();
             _LoadData();
         }
 

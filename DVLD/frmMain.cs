@@ -419,7 +419,7 @@ namespace DVLD
             object sender,
             EventArgs e)
         {
-            MessageBox.Show("Coming Soon");
+           new frmAddEditNewLocalDrivingLicenseApplication().ShowDialog();
         }
 
         private void _InternationalLicense(

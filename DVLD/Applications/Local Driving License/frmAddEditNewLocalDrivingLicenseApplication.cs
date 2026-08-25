@@ -5,8 +5,7 @@ using Business;
 
 namespace DVLD
 {
-    public enum enMode { AddNew = 0, Update = 1 }
-    public class frmAddEditUser : Form
+    public class frmAddEditNewLocalDrivingLicenseApplication : Form
     {
         #region Controls Declaration
 
@@ -15,18 +14,19 @@ namespace DVLD
         // ── Tab Control ──────────────────────────────────────────────
         private TabControl  tcMain;
         private TabPage     tpPersonalInfo;
-        private TabPage     tpLoginInfo;
+        private TabPage     tpAppInfo;
 
         private ctrlPersonCardWithFilter ctrlPersonCardWithFilter1;
-        // ── Tab 2: Login Info ────────────────────────────────────────
-        private Label       lblUserIDTitle,      lblUserID;
-        private Label       lblUserNameTitle;
-        private TextBox     txtUserName;
-        private Label       lblPasswordTitle;
-        private TextBox     txtPassword;
-        private Label       lblConfirmPassTitle;
-        private TextBox     txtConfirmPassword;
-        private CheckBox    chkIsActive;
+
+        // ── Tab 2: Application Info ──────────────────────────────────
+        private Label       lblAppIDTitle,     lblAppID;
+        private Label       lblAppDateTitle;
+        private DateTimePicker dtpApplicationDate;
+        private Label       lblLicClassTitle;
+        private ComboBox    cbLicClass;
+        private Label       lblFeesTitle;
+        private TextBox     txtFees;
+        private Label       lblCreatedByTitle, lblCreatedBy;
 
         // ── Bottom buttons (outside tabs) ────────────────────────────
         private Button      btnNext;
@@ -37,36 +37,34 @@ namespace DVLD
 
         #region State
 
-        private readonly int _userID;
-        private clsUser      _user;
+        private readonly int _appID;
+        private clsLocalDrivingLicenseApplication _application;
         private clsPerson    _person;
         private enMode       _mode;
-
 
         private bool _isEditMode => _mode == enMode.Update;
 
         #endregion
 
-        /// <summary>Gets the ID of the user after successful save.</summary>
-        // public int UserID => _user?.ID ?? _userID;
-
         // ── Constructors ────────────────────────────────────────────────────
 
         /// <summary>Opens the form in Add-New mode.</summary>
-        public frmAddEditUser()
+        public frmAddEditNewLocalDrivingLicenseApplication()
         {
-            _userID = -1;
-            _mode = enMode.AddNew;
+            _appID = -1;
+            _mode  = enMode.AddNew;
             _InitializeComponents();
+            _LoadLicenseClasses();
             _LoadData();
         }
 
-        /// <summary>Opens the form in Update mode for the given user.</summary>
-        public frmAddEditUser(int userID)
+        /// <summary>Opens the form in Update mode for the given application.</summary>
+        public frmAddEditNewLocalDrivingLicenseApplication(int appID)
         {
-            _userID = userID;
-            _mode = enMode.Update;
+            _appID = appID;
+            _mode  = enMode.Update;
             _InitializeComponents();
+            _LoadLicenseClasses();
             _LoadData();
         }
 
@@ -75,7 +73,7 @@ namespace DVLD
         private void _InitializeComponents()
         {
             // ── Form ────────────────────────────────────────────────
-            this.Text            = _isEditMode ? "Update User" : "Add New User";
+            this.Text            = _isEditMode ? "Edit Application" : "New Local Driving License Application";
             this.Size            = new Size(990, 750);
             this.StartPosition   = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -87,11 +85,11 @@ namespace DVLD
             // ── Page title ───────────────────────────────────────────
             lblTitle = new Label
             {
-                Text      = _isEditMode ? "Update User" : "Add New User",
+                Text      = _isEditMode ? "Edit Application" : "New Driving License Application",
                 Font      = new Font("Arial", 20F, FontStyle.Bold),
                 ForeColor = clsGlobal.PrimaryRed,
                 AutoSize  = true,
-                Location  = new Point(360, 18)
+                Location  = new Point(300, 18)
             };
 
             // ── Tab Control ──────────────────────────────────────────
@@ -103,14 +101,15 @@ namespace DVLD
             };
 
             tpPersonalInfo = new TabPage("  Personal Info  ");
-            tpLoginInfo    = new TabPage("  Login Info  ");
+            tpAppInfo      = new TabPage("  Application Info  ");
 
             tcMain.TabPages.Add(tpPersonalInfo);
-            tcMain.TabPages.Add(tpLoginInfo);
+            tcMain.TabPages.Add(tpAppInfo);
             tcMain.SelectedIndexChanged += tcMain_SelectedIndexChanged;
+            tcMain.Selecting            += tcMain_Selecting;
 
             _BuildPersonalInfoTab();
-            _BuildLoginInfoTab();
+            _BuildAppInfoTab();
 
             // ── Next button (only shown on tab 1) ───────────────────
             btnNext = new Button
@@ -131,7 +130,7 @@ namespace DVLD
             btnSave = new Button
             {
                 Text      = "Save",
-                Location  = new Point(650, 625),
+                Location  = new Point(810, 625),
                 Size      = new Size(150, 38),
                 Font      = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 BackColor = Color.FromArgb(0, 120, 215),
@@ -183,7 +182,7 @@ namespace DVLD
             // Handle person loaded event
             ctrlPersonCardWithFilter1.PersonLoaded += CtrlPersonCardWithFilter1_PersonLoaded;
 
-            // Hide filter in update mode (when loading existing user)
+            // Hide filter in update mode (when loading existing application)
             if (_isEditMode)
             {
                 ctrlPersonCardWithFilter1.FilterVisible = false;
@@ -192,14 +191,14 @@ namespace DVLD
             tpPersonalInfo.Controls.Add(ctrlPersonCardWithFilter1);
         }
 
-        // ── Tab 2: Login Info ────────────────────────────────────────────────
+        // ── Tab 2: Application Info ────────────────────────────────────────────
 
-        private void _BuildLoginInfoTab()
+        private void _BuildAppInfoTab()
         {
-            tpLoginInfo.BackColor = Color.White;
-            tpLoginInfo.Padding   = new Padding(10);
+            tpAppInfo.BackColor = Color.White;
+            tpAppInfo.Padding   = new Padding(10);
 
-            var pnlLogin = new Panel
+            var pnlAppInfo = new Panel
             {
                 Location    = new Point(10, 10),
                 Size        = new Size(900, 480),
@@ -210,9 +209,9 @@ namespace DVLD
             int y = 40; const int step = 55;
             const int lx = 130, fx = 295, fw = 260;
 
-            // User ID (read-only)
-            lblUserIDTitle = _MakeBoldLabel("User ID:", lx, y);
-            lblUserID      = new Label
+            // Application ID (read-only)
+            lblAppIDTitle = _MakeBoldLabel("Application ID:", lx, y);
+            lblAppID      = new Label
             {
                 Text      = "???",
                 Location  = new Point(fx, y),
@@ -222,44 +221,58 @@ namespace DVLD
             };
             y += step;
 
-            // Username
-            lblUserNameTitle = _MakeBoldLabel("UserName:", lx, y);
-            txtUserName      = _MakeLoginBox(fx, y - 3, fw);
-            y += step;
-
-            // Password
-            lblPasswordTitle = _MakeBoldLabel("Password:", lx, y);
-            txtPassword      = _MakeLoginBox(fx, y - 3, fw);
-            txtPassword.PasswordChar = '●';
-            y += step;
-
-            // Confirm Password
-            lblConfirmPassTitle = _MakeBoldLabel("Confirm Password:", lx, y);
-            txtConfirmPassword  = _MakeLoginBox(fx, y - 3, fw);
-            txtConfirmPassword.PasswordChar = '●';
-            y += step;
-
-            // Is Active
-            chkIsActive = new CheckBox
+            // Application Date
+            lblAppDateTitle    = _MakeBoldLabel("Application Date:", lx, y);
+            dtpApplicationDate = new DateTimePicker
             {
-                Text     = "Is Active",
-                Location = new Point(fx, y),
-                Font     = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
-                Checked  = true,
-                AutoSize = true,
-                Cursor   = Cursors.Hand
+                Location = new Point(fx, y - 3),
+                Size     = new Size(fw, 26),
+                Font     = new Font("Microsoft Sans Serif", 10F),
+                Format   = DateTimePickerFormat.Short
+            };
+            y += step;
+
+            // License Class
+            lblLicClassTitle = _MakeBoldLabel("License Class:", lx, y);
+            cbLicClass        = new ComboBox
+            {
+                Location      = new Point(fx, y - 3),
+                Size          = new Size(fw, 26),
+                Font          = new Font("Microsoft Sans Serif", 10F),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Cursor        = Cursors.Hand
+            };
+            cbLicClass.SelectedIndexChanged += cbLicClass_SelectedIndexChanged;
+            y += step;
+
+            // Application Fees (read-only, derived from License Class)
+            lblFeesTitle = _MakeBoldLabel("Application Fees:", lx, y);
+            txtFees      = _MakeInputBox(fx, y - 3, fw);
+            txtFees.ReadOnly  = true;
+            txtFees.BackColor = Color.FromArgb(245, 247, 252);
+            y += step;
+
+            // Created By (read-only)
+            lblCreatedByTitle = _MakeBoldLabel("Created By:", lx, y);
+            lblCreatedBy      = new Label
+            {
+                Text      = "???",
+                Location  = new Point(fx, y),
+                AutoSize  = true,
+                Font      = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
+                ForeColor = Color.SteelBlue
             };
 
-            pnlLogin.Controls.AddRange(new Control[]
+            pnlAppInfo.Controls.AddRange(new Control[]
             {
-                lblUserIDTitle,    lblUserID,
-                lblUserNameTitle,  txtUserName,
-                lblPasswordTitle,  txtPassword,
-                lblConfirmPassTitle, txtConfirmPassword,
-                chkIsActive
+                lblAppIDTitle,     lblAppID,
+                lblAppDateTitle,   dtpApplicationDate,
+                lblLicClassTitle,  cbLicClass,
+                lblFeesTitle,      txtFees,
+                lblCreatedByTitle, lblCreatedBy
             });
 
-            tpLoginInfo.Controls.Add(pnlLogin);
+            tpAppInfo.Controls.Add(pnlAppInfo);
         }
 
         // ── Factories ────────────────────────────────────────────────────────
@@ -274,7 +287,7 @@ namespace DVLD
                 ForeColor = Color.FromArgb(60, 60, 70)
             };
 
-        private static TextBox _MakeLoginBox(int x, int y, int width)
+        private static TextBox _MakeInputBox(int x, int y, int width)
             => new TextBox
             {
                 Location = new Point(x, y),
@@ -284,63 +297,72 @@ namespace DVLD
 
         // ── Data helpers ─────────────────────────────────────────────────────
 
+        private void _LoadLicenseClasses()
+        {
+            cbLicClass.DataSource    = clsLicenseClass.GetAllLicenseClasses();
+            cbLicClass.DisplayMember = "ClassName";
+            cbLicClass.ValueMember   = "LicenseClassID";
+        }
+
         private void _LoadData()
         {
             if (!_isEditMode)
             {
-                // Add mode: initialize form for new user
+                // Add mode: initialize form for new application
                 _InitializeForAddMode();
                 return;
             }
 
-            // Edit mode: load existing user data
+            // Edit mode: load existing application data
             try
             {
-                _user = clsUser.Find(_userID);
+                _application = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(_appID);
 
-                if (_user == null)
+                if (_application == null)
                 {
-                    clsUtil.ShowError($"User with ID {_userID} not found.", "User Not Found");
+                    clsUtil.ShowError($"Application with ID {_appID} not found.", "Application Not Found");
                     this.DialogResult = DialogResult.Cancel;
                     this.Close();
                     return;
                 }
 
-                _person = clsPerson.Find(_user.PersonID);
+                _person = clsPerson.Find(_application.ApplicantPersonID);
                 // Load person into the ctrlPersonCardWithFilter
                 if (_person != null)
                 {
                     ctrlPersonCardWithFilter1.LoadPersonInfo(_person.ID);
                 }
 
-                // Populate login info fields
-                lblUserID.Text    = _user.UserID.ToString();
-                txtUserName.Text  = _user.UserName;
-                chkIsActive.Checked = _user.IsActive;
+                // Populate application info fields
+                lblAppID.Text            = _application.LocalDrivingLicenseApplicationID.ToString();
+                dtpApplicationDate.Value = _application.ApplicationDate;
+                cbLicClass.SelectedValue = _application.LicenseClassID;
+                txtFees.Text             = _application.PaidFees.ToString("F2");
 
-                // Disable person filter in edit mode since we're editing existing user
+                var creator = clsUser.Find(_application.CreatedByUserID);
+                lblCreatedBy.Text = creator != null ? creator.UserName : _application.CreatedByUserID.ToString();
+
+                // Disable person filter in edit mode since we're editing existing application
                 ctrlPersonCardWithFilter1.FilterVisible = false;
-
-                // Set focus to username field for quick editing
-                txtUserName.Focus();
             }
             catch (Exception ex)
             {
-                clsUtil.ShowError($"Failed to load user data: {ex.Message}", "Load Error");
+                clsUtil.ShowError($"Failed to load application data: {ex.Message}", "Load Error");
                 this.DialogResult = DialogResult.Cancel;
                 this.Close();
             }
-
         }
 
         private void _InitializeForAddMode()
         {
-            // Reset all fields for adding a new user
-            lblUserID.Text = "New";
-            txtUserName.Clear();
-            txtPassword.Clear();
-            txtConfirmPassword.Clear();
-            chkIsActive.Checked = true;
+            // Reset all fields for adding a new application
+            lblAppID.Text            = "New";
+            dtpApplicationDate.Value = DateTime.Now;
+            if (cbLicClass.Items.Count > 0) cbLicClass.SelectedIndex = 0;
+            txtFees.Clear();
+
+            var creator = clsUser.Find(clsGlobal.CurrentUserID);
+            lblCreatedBy.Text = creator != null ? creator.UserName : "Current User";
 
             // Ensure filter is visible in add mode
             ctrlPersonCardWithFilter1.FilterVisible = true;
@@ -357,13 +379,12 @@ namespace DVLD
         // ── Validation ───────────────────────────────────────────────────────
 
         /// <summary>
-        /// Validates that a person is selected and checks if a user already exists for that person.
+        /// Validates that a person is selected.
         /// If validation fails, shows appropriate warning and resets to Personal Info tab.
         /// Returns true if validation failed, false if validation passed.
         /// </summary>
-        private bool _ValidatePersonSelectionAndUserExistence()
+        private bool _ValidatePersonSelection()
         {
-            // Check if person is selected
             if (_person == null || _person.ID == -1)
             {
                 clsUtil.ShowWarning("Please find and select a person first.", "No Person Selected");
@@ -372,170 +393,109 @@ namespace DVLD
                 return true;
             }
 
-            // Check if user already exists for this person (only in Add mode)
-            if (!_isEditMode && clsUser.IsExistsByPersonID(_person.ID))
-            {
-                clsUtil.ShowWarning(
-                    $"The person '{_person.FullName}' already has a user account.\n\nPlease select a different person.",
-                    "User Already Exists");
-                tcMain.SelectedTab = tpPersonalInfo;
-                ctrlPersonCardWithFilter1.Clear();
-                return true;
-            }
-
             return false;
         }
 
         /// <summary>
-        /// Validates all login information fields before saving.
+        /// Validates all application information fields before saving.
         /// Returns true if all validations pass, false otherwise.
         /// </summary>
-        private bool _ValidateLoginInfo()
+        private bool _ValidateAppInfo()
         {
-            // Validate username
-            if (string.IsNullOrWhiteSpace(txtUserName.Text))
+            // Validate license class
+            if (cbLicClass.SelectedValue == null)
             {
-                clsUtil.ShowWarning("Username is required.", "Validation Error");
-                txtUserName.BackColor = clsGlobal.InputError;
-                txtUserName.Focus();
+                clsUtil.ShowWarning("Please select a license class.", "Validation Error");
+                cbLicClass.BackColor = clsGlobal.InputError;
+                cbLicClass.Focus();
                 return false;
             }
-            txtUserName.BackColor = clsGlobal.InputValid;
+            cbLicClass.BackColor = clsGlobal.InputValid;
 
-            // Check if user already exists for this person (only in Add mode)
-            if (!_isEditMode && clsUser.IsExistsByPersonID(_person.ID))
+            // Validate application date
+            if (dtpApplicationDate.Value.Date > DateTime.Now.Date)
             {
-                if (clsUser.IsExists(txtUserName.Text.Trim()))
-                {
-                    clsUtil.ShowWarning(
-                        $"The person '{_person.FullName}' already has a user account.\n\nPlease select a different person.",
-                        "User Already Exists");
-                    tcMain.SelectedTab = tpPersonalInfo;
-                    ctrlPersonCardWithFilter1.Clear();
-                    return true;
-                }
-
+                clsUtil.ShowWarning("Application date cannot be in the future.", "Validation Error");
+                dtpApplicationDate.Focus();
                 return false;
-            }
-
-            // In Add mode a password is required; in Edit mode it's optional
-            if (!_isEditMode && string.IsNullOrWhiteSpace(txtPassword.Text))
-            {
-                clsUtil.ShowWarning("Password is required for new users.", "Validation Error");
-                txtPassword.BackColor = clsGlobal.InputError;
-                txtPassword.Focus();
-                return false;
-            }
-            txtPassword.BackColor = clsGlobal.InputValid;
-
-            // Validate password confirmation only if password is entered
-            if (!string.IsNullOrWhiteSpace(txtPassword.Text))
-            {
-                if (txtPassword.Text != txtConfirmPassword.Text)
-                {
-                    clsUtil.ShowWarning("Passwords do not match.", "Validation Error");
-                    txtConfirmPassword.BackColor = clsGlobal.InputError;
-                    txtConfirmPassword.Focus();
-                    return false;
-                }
-                txtConfirmPassword.BackColor = clsGlobal.InputValid;
-
-                // Optional: Validate password strength
-                if (!_IsPasswordStrongEnough(txtPassword.Text))
-                {
-                    clsUtil.ShowWarning(
-                        "Password must be at least 6 characters long.\n\nFor better security, consider using a mix of letters, numbers, and symbols.",
-                        "Weak Password");
-                    txtPassword.BackColor = Color.FromArgb(255, 200, 100); // Warning color
-                    // Continue anyway, just warn the user
-                }
             }
 
             return true;
         }
 
-
-        /// <summary>
-        /// Checks if the password meets minimum security requirements.
-        /// </summary>
-        private bool _IsPasswordStrongEnough(string password)
-        {
-            if (string.IsNullOrEmpty(password) || password.Length < 6)
-                return false;
-
-            // At least one letter and one digit recommended
-            bool hasLetter = false;
-            bool hasDigit = false;
-
-            foreach (char c in password)
-            {
-                if (char.IsLetter(c)) hasLetter = true;
-                if (char.IsDigit(c)) hasDigit = true;
-            }
-
-            return hasLetter && hasDigit;
-        }
-
-
         // ── Events ───────────────────────────────────────────────────────────
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e)
         {
-            bool onLoginTab = tcMain.SelectedTab == tpLoginInfo;
-            btnNext.Visible = !onLoginTab;
-            btnSave.Visible =  onLoginTab;
+            bool onAppInfoTab = tcMain.SelectedTab == tpAppInfo;
+            btnNext.Visible = !onAppInfoTab;
+            btnSave.Visible =  onAppInfoTab;
+        }
 
-            // Set appropriate focus when switching tabs
-            if (onLoginTab)
+        private void tcMain_Selecting(object sender, TabControlCancelEventArgs e)
+        {
+            // Block jumping to Application Info (via tab header or code) until a person is selected
+            if (e.TabPage == tpAppInfo && (_person == null || _person.ID == -1))
             {
-                txtUserName.Focus();
+                e.Cancel = true;
+                clsUtil.ShowWarning("Please find and select a person first.", "No Person Selected");
+                ctrlPersonCardWithFilter1.FocusOnFilter();
             }
+        }
+
+        private void cbLicClass_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cbLicClass.SelectedValue == null) return;
+            var licenseClass = clsLicenseClass.Find(Convert.ToInt32(cbLicClass.SelectedValue));
+            txtFees.Text = licenseClass != null ? licenseClass.Fees.ToString("F2") : "0.00";
         }
 
         private void btnNext_Click(object sender, EventArgs e)
         {
-            // Validate person selection and check for existing user
-            if (_ValidatePersonSelectionAndUserExistence())
+            // Validate person selection
+            if (_ValidatePersonSelection())
             {
                 return; // Validation failed, stay on current tab
             }
 
-            // All validations passed, navigate to Login Info tab
-            tcMain.SelectedTab = tpLoginInfo;
+            // All validations passed, navigate to Application Info tab
+            tcMain.SelectedTab = tpAppInfo;
         }
 
         private void btnSave_Click(object sender, EventArgs e)
         {
             // Final validation before saving
-            if (!_ValidateLoginInfo())
+            if (!_ValidateAppInfo())
             {
                 return; // Validation failed
             }
 
             try
             {
-                // Prepare user object
-                _user ??= new clsUser();
-                _user.PersonID  = _person.ID;
-                _user.UserName  = txtUserName.Text.Trim();
-                _user.IsActive  = chkIsActive.Checked;
+                // Prepare application object
+                _application ??= new clsLocalDrivingLicenseApplication();
+                _application.ApplicantPersonID = _person.ID;
+                _application.LicenseClassID    = Convert.ToInt32(cbLicClass.SelectedValue);
+                _application.ApplicationDate   = dtpApplicationDate.Value;
+                _application.PaidFees          = decimal.TryParse(txtFees.Text, out decimal fees) ? fees : 0;
 
-                // Only set password if it's provided (required in Add mode, optional in Edit mode)
-                if (!string.IsNullOrWhiteSpace(txtPassword.Text))
+                // Only set creator on first save
+                if (!_isEditMode)
                 {
-                    _user.Password = txtPassword.Text;   // hashing should happen in Business layer
+                    _application.CreatedByUserID = clsGlobal.CurrentUserID;
                 }
-                // Save the user
-                if (_user.Save())
+
+                // Save the application
+                if (_application.Save())
                 {
-                    lblUserID.Text = _user.UserID.ToString();
-                    clsUtil.ShowSuccess("User saved successfully!", "Saved");
+                    lblAppID.Text = _application.LocalDrivingLicenseApplicationID.ToString();
+                    clsUtil.ShowSuccess("Application saved successfully!", "Saved");
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
                 else
                 {
-                    clsUtil.ShowError("Failed to save user. Please check the data and try again.", "Save Failed");
+                    clsUtil.ShowError("Failed to save application. Please check the data and try again.", "Save Failed");
                 }
             }
             catch (Exception ex)
@@ -543,7 +503,6 @@ namespace DVLD
                 clsUtil.ShowError($"An error occurred while saving: {ex.Message}", "Save Error");
             }
         }
-
 
     }
 }

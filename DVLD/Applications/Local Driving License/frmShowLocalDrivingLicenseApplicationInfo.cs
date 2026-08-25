@@ -68,7 +68,7 @@ namespace DVLD
                 Location = new Point(620,255), Font = new Font("Microsoft Sans Serif", 9.5F),
                 LinkColor = Color.SteelBlue };
             llEdit.LinkClicked += (s, e) => {
-                new frmAddNewLocalDrivingLicenseApplication(_appID).ShowDialog();
+                new frmAddEditNewLocalDrivingLicenseApplication(_appID).ShowDialog();
                 _LoadData();
             };
 
