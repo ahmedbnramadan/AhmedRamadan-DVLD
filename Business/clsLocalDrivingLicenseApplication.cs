@@ -309,7 +309,7 @@ namespace Business
 
         public static bool DoesPersonHaveActiveLicense(int PersonID, int LicenseClassID)
         {
-            return GetActiveLicenseIDByPersonID(PersonID, LicenseClassID) != -1;
+            return clsLicense.GetActiveLicenseIDByPersonID(PersonID, LicenseClassID) != -1;
         }
 
         public bool DoesPersonHaveActiveApplication()

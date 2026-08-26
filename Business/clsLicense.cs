@@ -208,6 +208,11 @@ namespace Business
             return DataAccess.clsLicenses.GetActiveLicenseIDByPersonID(PersonID, LicenseClassID);
         }
 
+        public static bool DoesPersonHaveActiveLicense(int PersonID, int LicenseClassID)
+        {
+            return GetActiveLicenseIDByPersonID(PersonID, LicenseClassID) != -1;
+        }
+
         public static DataTable ViewDriverLicenses(int DriverID)
         {
             if (DriverID <= 0) return null;
