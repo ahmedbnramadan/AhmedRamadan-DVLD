@@ -85,7 +85,7 @@ namespace DVLD
         private void InitializeComponents()
         {
             // Setup UserControl
-            this.Size = new Size(830, 620);
+            this.Size = new Size(830, 520);
             this.Font = new Font("Microsoft Sans Serif", 9F);
 
             // Driving License Application Information
@@ -93,7 +93,7 @@ namespace DVLD
             {
                 Text = "Driving License Application Information",
                 Location = new Point(0, 0),
-                Size = new Size(830, 285),
+                Size = new Size(830, 185),
                 Font = new Font(
                     "Microsoft Sans Serif",
                     10F,
@@ -181,8 +181,8 @@ namespace DVLD
             // Base Application Information
             ctrlApplicationBasicInfo = new ctrlApplicationBasicInfo
             {
-                Location = new Point(0, 300),
-                Size = new Size(830, 300)
+                Location = new Point(0, 200),
+                Size = new Size(830, 200)
             };
 
             this.Controls.Add(gbDrivingLicenseApplicationInformation);

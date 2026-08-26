@@ -178,7 +178,7 @@ namespace DVLD
             lblApplicationDateTitle = new Label
             {
                 Text = "Application Date:",
-                Location = new Point(350, 80),
+                Location = new Point(450, 80),
                 AutoSize = true,
                 Font = new Font(this.Font, FontStyle.Bold)
             };
@@ -186,14 +186,14 @@ namespace DVLD
             lblApplicationDate = new Label
             {
                 Text = "[???]",
-                Location = new Point(480, 80),
+                Location = new Point(580, 80),
                 AutoSize = true
             };
 
             lblStatusDateTitle = new Label
             {
                 Text = "Status Date:",
-                Location = new Point(350, 120),
+                Location = new Point(450, 120),
                 AutoSize = true,
                 Font = new Font(this.Font, FontStyle.Bold)
             };
@@ -201,14 +201,14 @@ namespace DVLD
             lblStatusDate = new Label
             {
                 Text = "[???]",
-                Location = new Point(480, 120),
+                Location = new Point(580, 120),
                 AutoSize = true
             };
 
             lblCreatedByTitle = new Label
             {
                 Text = "Created By:",
-                Location = new Point(350, 160),
+                Location = new Point(450, 160),
                 AutoSize = true,
                 Font = new Font(this.Font, FontStyle.Bold)
             };
@@ -216,7 +216,7 @@ namespace DVLD
             lblCreatedBy = new Label
             {
                 Text = "[???]",
-                Location = new Point(480, 160),
+                Location = new Point(580, 160),
                 AutoSize = true
             };
 
