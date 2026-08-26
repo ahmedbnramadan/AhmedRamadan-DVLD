@@ -224,13 +224,11 @@ namespace DVLD
             llViewPersonInfo = new LinkLabel
             {
                 Text = "View Person Info",
-                Location = new Point(350, 200),
-                AutoSize = true,
-                Visible = false,
-                LinkColor = Color.SteelBlue,
-                Font = new Font(
-                    this.Font,
-                    FontStyle.Underline)
+                Location    = new Point(350, 200),
+                AutoSize    = true,
+                Visible     = false,
+                LinkColor   = Color.SteelBlue,
+                Font        = new Font(this.Font, FontStyle.Underline)
             };
 
             // ---------------------------------------------------------

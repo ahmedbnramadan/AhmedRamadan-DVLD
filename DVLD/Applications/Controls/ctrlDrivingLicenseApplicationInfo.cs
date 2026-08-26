@@ -85,7 +85,7 @@ namespace DVLD
         private void InitializeComponents()
         {
             // Setup UserControl
-            this.Size = new Size(830, 520);
+            this.Size = new Size(830, 350);
             this.Font = new Font("Microsoft Sans Serif", 9F);
 
             // Driving License Application Information
@@ -93,7 +93,7 @@ namespace DVLD
             {
                 Text = "Driving License Application Information",
                 Location = new Point(0, 0),
-                Size = new Size(830, 185),
+                Size = new Size(830, 130),
                 Font = new Font(
                     "Microsoft Sans Serif",
                     10F,
@@ -138,7 +138,7 @@ namespace DVLD
             lblPassedTestsTitle = new Label
             {
                 Text = "Passed Tests:",
-                Location = new Point(20, 120),
+                Location = new Point(450, 40),
                 AutoSize = true,
                 Font = new Font(this.Font, FontStyle.Bold)
             };
@@ -146,7 +146,7 @@ namespace DVLD
             lblPassedTests = new Label
             {
                 Text = "[???]",
-                Location = new Point(135, 120),
+                Location = new Point(580, 40),
                 AutoSize = true
             };
 
@@ -154,13 +154,11 @@ namespace DVLD
             llShowLicenseInfo = new LinkLabel
             {
                 Text = "Show License Info",
-                Location = new Point(20, 165),
+                Location = new Point(450, 80),
                 AutoSize = true,
                 Visible = false,
                 LinkColor = Color.SteelBlue,
-                Font = new Font(
-                    this.Font,
-                    FontStyle.Underline)
+                Font = new Font(this.Font, FontStyle.Underline)
             };
 
             gbDrivingLicenseApplicationInformation.Controls.AddRange(
@@ -181,7 +179,7 @@ namespace DVLD
             // Base Application Information
             ctrlApplicationBasicInfo = new ctrlApplicationBasicInfo
             {
-                Location = new Point(0, 200),
+                Location = new Point(0, 150),
                 Size = new Size(830, 200)
             };
 
@@ -196,10 +194,7 @@ namespace DVLD
         public void LoadApplicationInfo(
             int LocalDrivingLicenseApplicationID)
         {
-            _LocalDrivingLicenseApplication =
-                clsLocalDrivingLicenseApplication
-                .FindByLocalDrivingAppID(
-                    LocalDrivingLicenseApplicationID);
+            _LocalDrivingLicenseApplication = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(LocalDrivingLicenseApplicationID);
 
             if (_LocalDrivingLicenseApplication == null)
             {
@@ -218,8 +213,7 @@ namespace DVLD
             _FillApplicationData();
         }
 
-        public void LoadApplicationInfo(
-            clsLocalDrivingLicenseApplication Application)
+        public void LoadApplicationInfo(clsLocalDrivingLicenseApplication Application)
         {
             if (Application == null)
             {
@@ -238,15 +232,11 @@ namespace DVLD
 
         private void _FillApplicationData()
         {
-            _LocalDrivingLicenseApplicationID =
-                _LocalDrivingLicenseApplication
-                .LocalDrivingLicenseApplicationID;
+            _LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplication.LocalDrivingLicenseApplicationID;
 
-            lblDLAppID.Text =
-                _LocalDrivingLicenseApplicationID.ToString();
+            lblDLAppID.Text = _LocalDrivingLicenseApplicationID.ToString();
 
-            lblAppliedFor.Text =
-                (_LocalDrivingLicenseApplication.LicenseClassInfo != null)
+            lblAppliedFor.Text = (_LocalDrivingLicenseApplication.LicenseClassInfo != null)
                 ? _LocalDrivingLicenseApplication.LicenseClassInfo.Name
                 : "[Unknown]";
 
@@ -284,8 +274,8 @@ namespace DVLD
             _LocalDrivingLicenseApplication = null;
             _License = null;
 
-            lblDLAppID.Text = "[???]";
-            lblAppliedFor.Text = "[???]";
+            lblDLAppID.Text     = "[???]";
+            lblAppliedFor.Text  = "[???]";
             lblPassedTests.Text = "[???]";
 
             llShowLicenseInfo.Visible = false;

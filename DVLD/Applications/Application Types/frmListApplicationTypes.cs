@@ -131,9 +131,7 @@ namespace DVLD
 
             BackColor = Color.White;
 
-            Font = new Font(
-                "Microsoft Sans Serif",
-                9.5F);
+            Font = new Font("Microsoft Sans Serif", 9.5F);
         }
 
         private void _InitializeTitle()
@@ -142,10 +140,7 @@ namespace DVLD
             {
                 Text = "Application Types",
 
-                Font = new Font(
-                    "Arial",
-                    18F,
-                    FontStyle.Bold),
+                Font = new Font("Arial", 18F, FontStyle.Bold),
 
                 ForeColor = clsGlobal.PrimaryRed,
 
@@ -160,9 +155,7 @@ namespace DVLD
         {
             ctxMenu = new ContextMenuStrip
             {
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F)
+                Font = new Font("Microsoft Sans Serif", 9.5F)
             };
 
             ctxEdit = new ToolStripMenuItem("Edit");
@@ -179,14 +172,10 @@ namespace DVLD
         {
             dgv = new DataGridView
             {
-                Location = new Point(
-                    GridMargin,
-                    GridTop),
+                Location = new Point(GridMargin, GridTop),
 
-                Size = new Size(
-                    ClientSize.Width - (GridMargin * 2),
-                    ClientSize.Height -
-                    GridTop -
+                Size = new Size(ClientSize.Width - (GridMargin * 2),
+                    ClientSize.Height - GridTop - 
                     BottomAreaHeight),
 
                 Anchor =
@@ -197,9 +186,9 @@ namespace DVLD
 
                 ReadOnly = true,
 
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                AllowUserToResizeRows = false,
+                AllowUserToAddRows      = false,
+                AllowUserToDeleteRows   = false,
+                AllowUserToResizeRows   = false,
 
                 SelectionMode =
                     DataGridViewSelectionMode.FullRowSelect,
@@ -233,10 +222,10 @@ namespace DVLD
 
             _StyleGrid(dgv);
 
-            dgv.CellDoubleClick += _GridCellDoubleClick;
-            dgv.MouseDown += _GridMouseDown;
-            dgv.SelectionChanged += _GridSelectionChanged;
-            dgv.KeyDown += _GridKeyDown;
+            dgv.CellDoubleClick     += _GridCellDoubleClick;
+            dgv.MouseDown           += _GridMouseDown;
+            dgv.SelectionChanged    += _GridSelectionChanged;
+            dgv.KeyDown             += _GridKeyDown;
         }
 
         private void _InitializeFooter()
@@ -244,36 +233,18 @@ namespace DVLD
             lblCount = new Label
             {
                 Text = "Records: 0",
-
                 AutoSize = true,
-
-                Location = new Point(
-                    GridMargin,
-                    ClientSize.Height - 43),
-
-                Anchor =
-                    AnchorStyles.Bottom |
-                    AnchorStyles.Left,
-
+                Location = new Point(GridMargin, ClientSize.Height - 43),
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
                 ForeColor = Color.Gray
             };
 
-            btnClose = _CreateButton(
-                "✖  Close",
-                Color.FromArgb(192, 50, 50));
+            btnClose = _CreateButton("✖  Close", Color.FromArgb(192, 50, 50));
 
-            btnClose.Anchor =
-                AnchorStyles.Bottom |
-                AnchorStyles.Right;
+            btnClose.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
-            btnClose.Location = new Point(
-                ClientSize.Width -
-                btnClose.Width -
-                GridMargin,
-
-                ClientSize.Height -
-                btnClose.Height -
-                18);
+            btnClose.Location = new Point(ClientSize.Width - btnClose.Width - GridMargin,
+            ClientSize.Height - btnClose.Height - 18);
 
             btnClose.Click += (s, e) => Close();
         }
@@ -284,16 +255,13 @@ namespace DVLD
 
         private void _Load()
         {
-            dgv.DataSource =
-                clsApplicationType.GetAllApplicationTypes();
+            dgv.DataSource = clsApplicationType.GetAllApplicationTypes();
 
             _ConfigureColumns();
 
-            lblCount.Text =
-                "Records: " + dgv.Rows.Count;
+            lblCount.Text = "Records: " + dgv.Rows.Count;
 
-            ctxEdit.Enabled =
-                dgv.SelectedRows.Count > 0;
+            ctxEdit.Enabled = dgv.SelectedRows.Count > 0;
         }
 
         // Applies header text, alignment, width/fill and format for every
@@ -314,7 +282,7 @@ namespace DVLD
             DataGridViewColumn column =
                 dgv.Columns[setup.DataField];
 
-            column.HeaderText = setup.Header;
+            column.HeaderText   = setup.Header;
             column.DisplayIndex = displayIndex;
 
             column.DefaultCellStyle.Alignment =
@@ -367,9 +335,7 @@ namespace DVLD
 
             int id;
 
-            if (!int.TryParse(
-                    value.ToString(),
-                    out id))
+            if (!int.TryParse(value.ToString(), out id))
             {
                 return -1;
             }
@@ -390,8 +356,7 @@ namespace DVLD
                 return;
             }
 
-            using (frmEditApplicationType frm =
-                new frmEditApplicationType(id))
+            using (frmEditApplicationType frm = new frmEditApplicationType(id))
             {
                 frm.ShowDialog();
             }
@@ -526,20 +491,14 @@ namespace DVLD
             {
                 Text = text,
 
-                Size = new Size(
-                    150,
-                    36),
+                Size = new Size(150, 36),
 
-                Font = new Font(
-                    "Microsoft Sans Serif",
-                    9.5F,
-                    FontStyle.Bold),
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold),
 
                 BackColor = backColor,
                 ForeColor = Color.White,
 
-                FlatStyle =
-                    FlatStyle.Flat,
+                FlatStyle = FlatStyle.Flat,
 
                 Cursor = Cursors.Hand,
 

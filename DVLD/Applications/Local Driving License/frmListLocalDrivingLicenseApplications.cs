@@ -37,73 +37,119 @@ namespace DVLD
             this.MaximizeBox = false; this.BackColor = Color.White;
             this.Font = new Font("Microsoft Sans Serif", 9.5F);
 
-            lblTitle = new Label { Text = "Local Driving License Applications",
-                Font = new Font("Arial", 18F, FontStyle.Bold), ForeColor = clsGlobal.PrimaryRed,
-                AutoSize = true, Location = new Point(330, 18) };
+            lblTitle = new Label 
+            {
+                Text = "Local Driving License Applications",
+                Font = new Font("Arial", 18F, FontStyle.Bold),
+                ForeColor = clsGlobal.PrimaryRed,
+                AutoSize = true, Location = new Point(380, 18) 
+            };
 
-            lblFilterBy = new Label { Text = "Filter By:", AutoSize = true, Location = new Point(30, 65),
-                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
+            lblFilterBy = new Label 
+            { 
+                Text = "Filter By:",
+                AutoSize = true,
+                Location = new Point(30, 65),
+                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) 
+            };
 
-            cbFilterBy = new ComboBox { Location = new Point(110, 62), Size = new Size(160, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList, Cursor = Cursors.Hand };
-            cbFilterBy.Items.AddRange(new object[] {
-                "None","Application ID","Person ID","National No.","Full Name","License Class","Status" });
+            cbFilterBy = new ComboBox 
+            { 
+                Location = new Point(110, 62),
+                Size = new Size(160, 23),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Cursor = Cursors.Hand 
+            };
+            
+            cbFilterBy.Items.AddRange(new object[] 
+            {
+                "None","Application ID","Person ID","National No.","Full Name","License Class","Status" }
+            );
+            
             cbFilterBy.SelectedIndex = 0;
-            cbFilterBy.SelectedIndexChanged += (s, e) => {
+            
+            cbFilterBy.SelectedIndexChanged += (s, e) => 
+            {
                 txtFilter.Visible = cbFilterBy.SelectedIndex > 0;
                 txtFilter.Clear();
                 if (!txtFilter.Visible) _BindGrid(_full);
             };
 
-            txtFilter = new TextBox { Location = new Point(280, 62), Size = new Size(220, 23), Visible = false };
+            txtFilter = new TextBox 
+            { 
+                Location = new Point(280, 62), 
+                Size = new Size(220, 23), 
+                Visible = false 
+            };
             txtFilter.TextChanged += (s, e) => _Filter();
 
             // Context menu
             ctxMenu = new ContextMenuStrip { Font = new Font("Microsoft Sans Serif", 9.5F) };
-            ctxShowDetails = new ToolStripMenuItem("👤  Show Details");
-            ctxAddNew      = new ToolStripMenuItem("➕  Add New");
-            ctxEdit        = new ToolStripMenuItem("✏️  Edit");
-            ctxDelete      = new ToolStripMenuItem("🗑  Delete");
+            ctxShowDetails = new ToolStripMenuItem("Show Details");
+            ctxAddNew      = new ToolStripMenuItem("Add New");
+            ctxEdit        = new ToolStripMenuItem("Edit");
+            ctxDelete      = new ToolStripMenuItem("Delete");
+
+
             ctxShowDetails.Click += (s, e) => _ShowDetails();
             ctxAddNew.Click      += (s, e) => _OpenAddNew();
             ctxEdit.Click        += (s, e) => _OpenEdit();
             ctxDelete.Click      += (s, e) => _Delete();
-            ctxMenu.Items.AddRange(new ToolStripItem[] {
-                ctxShowDetails, new ToolStripSeparator(), ctxAddNew, ctxEdit, ctxDelete });
+            
+            ctxMenu.Items.AddRange(new ToolStripItem[] 
+            {
+                ctxShowDetails, new ToolStripSeparator(), ctxAddNew, ctxEdit, ctxDelete 
+            });
 
-            dgv = new DataGridView {
-                Location = new Point(20, 100), Size = new Size(1150, 490),
-                ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false,
+            dgv = new DataGridView 
+            {
+                Location = new Point(20, 100),
+                Size = new Size(1150, 490),
+                ReadOnly = true, AllowUserToAddRows = false,
+                AllowUserToDeleteRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                ColumnHeadersHeight = 34, RowTemplate = { Height = 28 },
-                BorderStyle = BorderStyle.None, BackgroundColor = Color.White,
+                MultiSelect = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                ColumnHeadersHeight = 34,
+                RowTemplate = { Height = 28 },
+                BorderStyle = BorderStyle.None,
+                BackgroundColor = Color.White,
                 GridColor = Color.FromArgb(220, 225, 235),
                 ContextMenuStrip = ctxMenu, Cursor = Cursors.Hand
             };
+
             _StyleGrid(dgv);
             dgv.CellDoubleClick  += (s, e) => { if (e.RowIndex >= 0) _ShowDetails(); };
+
             dgv.MouseDown        += (s, e) => {
                 if (e.Button == MouseButtons.Right) {
                     var h = dgv.HitTest(e.X, e.Y);
                     if (h.RowIndex >= 0) dgv.Rows[h.RowIndex].Selected = true;
                 }
             };
+
             dgv.SelectionChanged += (s, e) => {
                 bool ok = dgv.SelectedRows.Count > 0;
                 ctxShowDetails.Enabled = ok; ctxEdit.Enabled = ok; ctxDelete.Enabled = ok;
             };
 
-            lblCount = new Label { Text = "Records: 0", AutoSize = true,
-                Location = new Point(20, 602), ForeColor = Color.Gray };
+            lblCount = new Label {
+                Text = "Records: 0", 
+                AutoSize = true,
+                Location = new Point(20, 602),
+                ForeColor = Color.Gray 
+            };
 
-            btnAddNew = _Btn("➕  Add New", 925, 600, Color.FromArgb(0, 120, 215));
+            btnAddNew = _Btn("Add New", 860, 600, Color.FromArgb(0, 120, 215));
             btnAddNew.Click += (s, e) => _OpenAddNew();
-            btnClose  = _Btn("✖  Close",  1090, 600, Color.FromArgb(192, 50, 50));
+            
+            btnClose  = _Btn("✖  Close",  1025, 600, Color.FromArgb(192, 50, 50));
             btnClose.Click += (s, e) => this.Close();
 
-            this.Controls.AddRange(new Control[] {
-                lblTitle, lblFilterBy, cbFilterBy, txtFilter, dgv, lblCount, btnAddNew, btnClose });
+            this.Controls.AddRange(new Control[] 
+            {
+                lblTitle, lblFilterBy, cbFilterBy, txtFilter, dgv, lblCount, btnAddNew, btnClose 
+            });
         }
 
         private void _LoadData()
@@ -117,7 +163,7 @@ namespace DVLD
             dgv.DataSource  = dt;
             lblCount.Text   = $"Records: {dt.Rows.Count}";
             _Rename("localdrivinglicenseapplicationid", "App ID");
-            _Rename("classname",                 "License Class");
+            _Rename("classname",                        "License Class");
             _Rename("nationalno",                       "National No.");
             _Rename("fullname",                         "Full Name");
             _Rename("applicationdate",                  "Date");

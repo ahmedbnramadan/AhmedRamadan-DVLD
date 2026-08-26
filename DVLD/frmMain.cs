@@ -435,7 +435,7 @@ namespace DVLD
             object sender,
             EventArgs e)
         {
-            OpenMDIForm<frmListLocalDrivingLicenseApplications>();
+            new frmListLocalDrivingLicenseApplications().ShowDialog();
         }
 
         private void _InternationalDrivingLicenseApplications(
