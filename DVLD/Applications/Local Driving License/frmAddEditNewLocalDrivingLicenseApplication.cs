@@ -82,6 +82,8 @@ namespace DVLD
             this.BackColor       = Color.White;
             this.Font            = new Font("Microsoft Sans Serif", 9.5F);
 
+            this.Shown += frmAddEditNewLocalDrivingLicenseApplication_Shown;
+
             // ── Page title ───────────────────────────────────────────
             lblTitle = new Label
             {
@@ -367,8 +369,6 @@ namespace DVLD
             // Ensure filter is visible in add mode
             ctrlPersonCardWithFilter1.FilterVisible = true;
 
-            // Set focus to the filter for quick person lookup
-            ctrlPersonCardWithFilter1.FocusOnFilter();
         }
 
         private void CtrlPersonCardWithFilter1_PersonLoaded(object sender, clsPerson person)
@@ -462,6 +462,14 @@ namespace DVLD
             btnSave.Visible =  onAppInfoTab;
         }
 
+        private void frmAddEditNewLocalDrivingLicenseApplication_Shown(object sender, EventArgs e)
+        {
+            if (!_isEditMode)
+            {
+                ctrlPersonCardWithFilter1.FocusOnFilter();
+            }
+        }
+
         private void tcMain_Selecting(object sender, TabControlCancelEventArgs e)
         {
             // Block jumping to Application Info (via tab header or code) until a person is selected
@@ -505,7 +513,7 @@ namespace DVLD
                 // Prepare application object
                 _application ??= new clsLocalDrivingLicenseApplication();
                 _application.ApplicantPersonID = _person.ID;
-                _application.ApplicationTypeID = 1;
+                _application.ApplicationTypeID = (int)clsApplicationType.enApplicationType.NewLocalDrivingLicense;
                 _application.LicenseClassID    = Convert.ToInt32(cbLicClass.SelectedValue);
                 _application.ApplicationDate   = dtpApplicationDate.Value;
                 _application.PaidFees          = decimal.TryParse(txtFees.Text, out decimal fees) ? fees : 0;

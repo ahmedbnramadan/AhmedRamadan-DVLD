@@ -7,6 +7,15 @@ namespace Business
     public class clsApplicationType
     {
         public enum enMode { AddNew = 0, Update = 1 };
+        public enum enApplicationType
+        {
+            NewLocalDrivingLicense = 1,
+            RenewLocalDrivingLicense = 2,
+            ReplaceLostDrivingLicense = 3,
+            ReplaceDamagedDrivingLicense = 4,
+            NewInternationalDrivingLicense = 5
+        }
+        
         public enMode Mode = enMode.AddNew;
 
         public int ID { get; set; }
