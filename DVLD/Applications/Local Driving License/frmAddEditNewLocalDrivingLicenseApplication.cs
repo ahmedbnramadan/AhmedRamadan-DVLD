@@ -423,6 +423,36 @@ namespace DVLD
             return true;
         }
 
+        /// <summary>
+        /// check if person already has an active application of that type of license of the same type
+        /// Returns true if all validations pass, false otherwise with the wrong message
+        /// </summary>
+        private bool _ValidateApplicationRules()
+        {
+            if (!_isEditMode)
+            {
+                if (_application.DoesPersonHaveActiveApplication())
+                {
+                    clsUtil.ShowWarning(
+                        "This person already has an active application for this license class.",
+                        "Application Exists");
+
+                    return false;
+                }
+
+                if (_application.DoesPersonHaveActiveLicense())
+                {
+                    clsUtil.ShowWarning(
+                        "This person already has an active license for this license class.",
+                        "License Exists");
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         // ── Events ───────────────────────────────────────────────────────────
 
         private void tcMain_SelectedIndexChanged(object sender, EventArgs e)
@@ -483,6 +513,11 @@ namespace DVLD
                 if (!_isEditMode)
                 {
                     _application.CreatedByUserID = clsGlobal.CurrentUserID;
+                }
+
+                if (!_ValidateApplicationRules())
+                {
+                    return;
                 }
 
                 // Save the application

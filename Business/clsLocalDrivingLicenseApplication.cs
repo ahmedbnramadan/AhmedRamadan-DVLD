@@ -158,9 +158,37 @@ namespace Business
             }
         }
 
+        private bool _ValidateAddNew()
+        {
+            if (DoesPersonHaveActiveApplication(
+                this.ApplicantPersonID,
+                this.LicenseClassID))
+            {
+                return false;
+            }
+
+            if (clsLicense.DoesPersonHaveActiveLicense(
+                this.ApplicantPersonID,
+                this.LicenseClassID))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public override bool Save()
         {
+            if (Mode == enMode.AddNew)
+            {
+                if (!_ValidateAddNew())
+                {
+                    return false;
+                }
+            }
+
             base.Mode = (clsApplication.enMode)this.Mode;
+
             if (!base.Save())
             {
                 return false;
@@ -174,10 +202,7 @@ namespace Business
                         Mode = enMode.Update;
                         return true;
                     }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
 
                 case enMode.Update:
                     return _Update();
@@ -281,5 +306,27 @@ namespace Business
                 this.LicenseClassID
             );
         }
+
+        public static bool DoesPersonHaveActiveLicense(int PersonID, int LicenseClassID)
+        {
+            return GetActiveLicenseIDByPersonID(PersonID, LicenseClassID) != -1;
+        }
+
+        public bool DoesPersonHaveActiveApplication()
+        {
+            return DoesPersonHaveActiveApplication(
+                this.ApplicantPersonID,
+                this.LicenseClassID);
+        }
+
+        public bool DoesPersonHaveActiveLicense()
+        {
+            return clsLicense.DoesPersonHaveActiveLicense(
+                this.ApplicantPersonID,
+                this.LicenseClassID);
+        }
+
+
+
     }
 }

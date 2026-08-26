@@ -268,8 +268,11 @@ namespace DVLD
         /// <summary>Sets focus to the filter textbox for quick data entry.</summary>
         public void FocusOnFilter()
         {
-            txtFilterValue.Clear();
-            txtFilterValue.Focus();
+            if (gbFilter.Visible)
+            {
+                txtFilterValue.Clear();
+                txtFilterValue.Focus();
+            }
         }
 
         #endregion
