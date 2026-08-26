@@ -369,125 +369,93 @@ namespace DVLD
 
         // Applications - Direct Forms
 
-        private void _ManageApplicationTypes(
-            object sender,
-            EventArgs e)
+        private void _ManageApplicationTypes(object sender, EventArgs e)
         {
             new frmListApplicationTypes().ShowDialog();
         }
 
-        private void _ManageTestTypes(
-            object sender,
-            EventArgs e)
+        private void _ManageTestTypes(object sender, EventArgs e)
         {
             new frmListTestTypes().ShowDialog();
         }
 
         // Driving Licenses Services
 
-        private void _RenewDrivingLicense(
-            object sender,
-            EventArgs e)
+        private void _RenewDrivingLicense(object sender, EventArgs e)
         {
             new frmRenewDrivingLicense().ShowDialog();
         }
 
-        private void _ReplacementForLostorDamagedLicense(
-            object sender,
-            EventArgs e)
+        private void _ReplacementForLostorDamagedLicense(object sender, EventArgs e)
         {
             new frmReplaceLicense().ShowDialog();
         }
 
-        private void _ReleaseDetainedDrivingLicense(
-            object sender,
-            EventArgs e)
+        private void _ReleaseDetainedDrivingLicense(object sender, EventArgs e)
         {
             new frmReleaseDetainedLicense().ShowDialog();
         }
 
-        private void _RetakeTest(
-            object sender,
-            EventArgs e)
+        private void _RetakeTest(object sender, EventArgs e)
         {
             MessageBox.Show("Coming Soon");
         }
 
         // New Driving License
 
-        private void _LocalLicense(
-            object sender,
-            EventArgs e)
+        private void _LocalLicense(object sender, EventArgs e)
         {
            new frmAddEditNewLocalDrivingLicenseApplication().ShowDialog();
         }
 
-        private void _InternationalLicense(
-            object sender,
-            EventArgs e)
+        private void _InternationalLicense(object sender, EventArgs e)
         {
             new frmAddNewInternationalLicense().ShowDialog();
         }
 
         // Manage Applications
 
-        private void _LocalDrivingLicenseApplications(
-            object sender,
-            EventArgs e)
+        private void _LocalDrivingLicenseApplications(object sender, EventArgs e)
         {
             new frmListLocalDrivingLicenseApplications().ShowDialog();
         }
 
-        private void _InternationalDrivingLicenseApplications(
-            object sender,
-            EventArgs e)
+        private void _InternationalDrivingLicenseApplications(object sender, EventArgs e)
         {
             MessageBox.Show("Coming Soon");
         }
 
         // Detained Licenses
 
-        private void _ManageDetainedLicenses(
-            object sender,
-            EventArgs e)
+        private void _ManageDetainedLicenses(object sender, EventArgs e)
         {
             new frmListDetainedLicenses().ShowDialog();
         }
 
-        private void _DetainLicense(
-            object sender,
-            EventArgs e)
+        private void _DetainLicense(object sender, EventArgs e)
         {
             MessageBox.Show("Coming Soon");
         }
 
-        private void _ReleaseDetainedLicense(
-            object sender,
-            EventArgs e)
+        private void _ReleaseDetainedLicense(object sender, EventArgs e)
         {
             new frmReleaseDetainedLicense().ShowDialog();
         }
 
         // Account Settings
 
-        private void _CurrentUserInfo(
-            object sender,
-            EventArgs e)
+        private void _CurrentUserInfo(object sender, EventArgs e)
         {
             new frmShowUserInfo(
                 clsGlobal.CurrentUserID).ShowDialog();
         }
 
-        private void _ChangePassword(
-            object sender,
-            EventArgs e)
+        private void _ChangePassword(object sender, EventArgs e)
         {
             new frmChangePassword(clsGlobal.CurrentUserID).ShowDialog();
         }
 
-        private void _LogOut(
-            object sender,
-            EventArgs e)
+        private void _LogOut(object sender, EventArgs e)
         {
             if (MessageBox.Show(
                     "Are you sure you want to log out?",
