@@ -505,6 +505,7 @@ namespace DVLD
                 // Prepare application object
                 _application ??= new clsLocalDrivingLicenseApplication();
                 _application.ApplicantPersonID = _person.ID;
+                _application.ApplicationTypeID = 1;
                 _application.LicenseClassID    = Convert.ToInt32(cbLicClass.SelectedValue);
                 _application.ApplicationDate   = dtpApplicationDate.Value;
                 _application.PaidFees          = decimal.TryParse(txtFees.Text, out decimal fees) ? fees : 0;
