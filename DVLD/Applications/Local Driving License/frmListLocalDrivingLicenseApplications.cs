@@ -6,6 +6,7 @@ using Business;
 
 namespace DVLD
 {
+    /// make the availavle optioins only theat is availvle, others read-only/////////////
     public class frmListLocalDrivingLicenseApplications : Form
     {
         #region Controls
@@ -411,38 +412,24 @@ namespace DVLD
             _SetWidth("status", 110);
 
             // Center small/value columns.
-            _SetAlignment(
-                "localdrivinglicenseapplicationid",
-                DataGridViewContentAlignment.MiddleCenter);
+            _SetAlignment("localdrivinglicenseapplicationid", DataGridViewContentAlignment.MiddleCenter);
 
-            _SetAlignment(
-                "personid",
-                DataGridViewContentAlignment.MiddleCenter);
+            _SetAlignment("personid", DataGridViewContentAlignment.MiddleCenter);
 
-            _SetAlignment(
-                "applicationdate",
-                DataGridViewContentAlignment.MiddleCenter);
+            _SetAlignment("applicationdate", DataGridViewContentAlignment.MiddleCenter);
 
-            _SetAlignment(
-                "passedtestscount",
-                DataGridViewContentAlignment.MiddleCenter);
+            _SetAlignment("passedtestscount", DataGridViewContentAlignment.MiddleCenter);
 
-            _SetAlignment(
-                "status",
-                DataGridViewContentAlignment.MiddleCenter);
+            _SetAlignment("status", DataGridViewContentAlignment.MiddleCenter);
         }
 
-        private void _SetWidth(
-            string columnName,
-            int width)
+        private void _SetWidth(string columnName, int width)
         {
             if (dgv.Columns.Contains(columnName))
                 dgv.Columns[columnName].Width = width;
         }
 
-        private void _SetAlignment(
-            string columnName,
-            DataGridViewContentAlignment alignment)
+        private void _SetAlignment(string columnName, DataGridViewContentAlignment alignment)
         {
             if (dgv.Columns.Contains(columnName))
             {
@@ -456,9 +443,7 @@ namespace DVLD
 
         #region Filter
 
-        private void CbFilterBy_SelectedIndexChanged(
-            object sender,
-            EventArgs e)
+        private void CbFilterBy_SelectedIndexChanged(object sender, EventArgs e)
         {
             bool showFilter =
                 cbFilterBy.SelectedIndex > 0;
@@ -473,9 +458,7 @@ namespace DVLD
                 txtFilter.Focus();
         }
 
-        private void TxtFilter_TextChanged(
-            object sender,
-            EventArgs e)
+        private void TxtFilter_TextChanged(object sender, EventArgs e)
         {
             _Filter();
         }
@@ -682,68 +665,50 @@ namespace DVLD
             _ShowDetails();
         }
 
-        private void CtxEdit_Click(
-            object sender,
-            EventArgs e)
+        private void CtxEdit_Click(object sender, EventArgs e)
         {
             _OpenEdit();
         }
 
-        private void CtxDelete_Click(
-            object sender,
-            EventArgs e)
+        private void CtxDelete_Click(object sender, EventArgs e)
         {
             _Delete();
         }
 
-        private void CtxCancel_Click(
-            object sender,
-            EventArgs e)
+        private void CtxCancel_Click(object sender, EventArgs e)
         {
             _CancelApplication();
         }
 
-        private void CtxVisionTest_Click(
-            object sender,
-            EventArgs e)
+        private void CtxVisionTest_Click(object sender, EventArgs e)
         {
             _ScheduleTest(
                 (int)clsTestType.enTestType.Vision);
         }
 
-        private void CtxWrittenTest_Click(
-            object sender,
-            EventArgs e)
+        private void CtxWrittenTest_Click(object sender, EventArgs e)
         {
             _ScheduleTest(
                 (int)clsTestType.enTestType.Written);
         }
 
-        private void CtxPracticalTest_Click(
-            object sender,
-            EventArgs e)
+        private void CtxPracticalTest_Click(object sender, EventArgs e)
         {
             _ScheduleTest(
                 (int)clsTestType.enTestType.Practical);
         }
 
-        private void CtxIssueDrivingLicense_Click(
-            object sender,
-            EventArgs e)
+        private void CtxIssueDrivingLicense_Click(object sender, EventArgs e)
         {
             _IssueDrivingLicense();
         }
 
-        private void CtxShowLicense_Click(
-            object sender,
-            EventArgs e)
+        private void CtxShowLicense_Click(object sender, EventArgs e)
         {
             _ShowLicense();
         }
 
-        private void CtxShowPersonLicenseHistory_Click(
-            object sender,
-            EventArgs e)
+        private void CtxShowPersonLicenseHistory_Click(object sender, EventArgs e)
         {
             _ShowPersonLicenseHistory();
         }
@@ -795,8 +760,7 @@ namespace DVLD
 
             if (application == null)
             {
-                clsUtil.ShowError(
-                    "Application not found.");
+                clsUtil.ShowError("Application not found.");
 
                 return;
             }
@@ -807,8 +771,7 @@ namespace DVLD
             }
             else
             {
-                clsUtil.ShowError(
-                    "Cannot delete this application.\n\n" +
+                clsUtil.ShowError("Cannot delete this application.\n\n" +
                     "It may have linked records.");
             }
         }
@@ -1083,9 +1046,7 @@ namespace DVLD
             }
         }
 
-        private void Dgv_SelectionChanged(
-            object sender,
-            EventArgs e)
+        private void Dgv_SelectionChanged(object sender, EventArgs e)
         {
             bool hasSelection =
                 dgv.SelectedRows.Count > 0;
@@ -1119,16 +1080,11 @@ namespace DVLD
 
         #region Button Events
 
-        private void BtnAddNew_Click(
-            object sender,
-            EventArgs e)
-        {
-            _OpenAddNew();
+        private void BtnAddNew_Click(object sender, EventArgs e)
+        {_OpenAddNew();
         }
 
-        private void BtnClose_Click(
-            object sender,
-            EventArgs e)
+        private void BtnClose_Click(object sender, EventArgs e)
         {
             this.Close();
         }
@@ -1137,9 +1093,7 @@ namespace DVLD
 
         #region Helpers
 
-        private void _Rename(
-            string columnName,
-            string headerText)
+        private void _Rename(string columnName ,string headerText)
         {
             if (dgv.Columns.Contains(columnName))
             {
@@ -1188,10 +1142,7 @@ namespace DVLD
                     Location = new Point(x, y),
                     Size = new Size(150, 34),
 
-                    Font = new Font(
-                        "Microsoft Sans Serif",
-                        9.5F,
-                        FontStyle.Bold),
+                    Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold),
 
                     BackColor = color,
                     ForeColor = Color.White,

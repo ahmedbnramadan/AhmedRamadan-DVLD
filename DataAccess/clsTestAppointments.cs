@@ -340,6 +340,100 @@ namespace DataAccess
             return isFound;
         }
 
+        public static bool GetLastTestAppointment(
+            ref int TestAppointmentID,
+            int TestTypeID,
+            int LocalDrivingLicenseApplicationID,
+            ref DateTime AppointmentDate,
+            ref decimal PaidFees,
+            ref int CreatedByUserID,
+            ref bool IsLocked,
+            ref int? RetakeTestApplicationID
+            )
+        {
+            bool isFound = false;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TOP 1 * FROM testappointments
+                                WHERE TestTypeID = @TestTypeID
+                                AND LocalDrivingLicenseApplicationID = @LocalDrivingLicenseApplicationID
+                                ORDER by testappointmentid SESC";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
+                    command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
+
+                    try
+                    {
+                        connection.Open();
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                isFound = true;
+
+                                TestAppointmentID                   = (int)reader["testappointmentid"];
+                                AppointmentDate                     = (DateTime)reader["appointmentdate"];
+                                PaidFees                            = (decimal)reader["paidfees"];
+                                CreatedByUserID                     = (int)reader["createdbyuserid"];
+                                IsLocked                            = (bool)reader["islocked"];
+
+                                RetakeTestApplicationID = reader["retaketestapplicationid"] != DBNull.Value
+                                    ? (int?)reader["retaketestapplicationid"]
+                                    : null;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error getting test appointment by ID: " + ex.Message;
+                    }
+                }
+            }
+            return isFound;
+        }
+
+        public static int GetTestID(int TestAppointmentID)
+        {
+            int TestID = -1;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TestID
+                                FROM Tests
+                                WHERE TestAppointmentID = @TestAppointmentID";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@TestAppointmentID", TestAppointmentID);
+
+                    try
+                    {
+                        connection.Open();
+
+                        object result = command.ExecuteScalar();
+
+                        if (result != null && result != DBNull.Value)
+                        {
+                            TestID = (int)result;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error getting Test ID: " + ex.Message;
+                    }
+                }
+            }
+
+            return TestID;
+        }
+
+
+
         public static DataTable GetAppointmentsForTest(int LocalDrivingLicenseApplicationID, int TestTypeID)
         {
             DataTable dt = new DataTable();

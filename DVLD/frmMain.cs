@@ -344,9 +344,12 @@ namespace DVLD
             }
 
             T newForm = formFactory();
+            {
+                newForm.MdiParent = this;
+                newForm.WindowState = FormWindowState.Maximized;
+                MinimizeBox = false;
+            }
 
-            newForm.MdiParent = this;
-            newForm.WindowState = FormWindowState.Maximized;
             newForm.Show();
         }
 
