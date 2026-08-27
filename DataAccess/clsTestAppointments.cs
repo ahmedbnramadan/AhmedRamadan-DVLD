@@ -524,19 +524,8 @@ namespace DataAccess
 
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = @"SELECT ta.*, 
-                                        tt.testtypetitle,
-                                        tt.testtypefees,
-                                        lda.applicantpersonid,
-                                        p.firstname + ' ' + p.lastname as applicantname,
-                                        u.username as createdbyusername
-                                FROM testappointments ta
-                                INNER JOIN testtypes tt ON ta.testtypeid = tt.testtypeid
-                                INNER JOIN localdrivinglicenseapplications lda ON ta.localdrivinglicenseapplicationid = lda.localdrivinglicenseapplicationid
-                                INNER JOIN applications a ON lda.applicationid = a.applicationid
-                                INNER JOIN people p ON a.applicantpersonid = p.personid
-                                INNER JOIN users u ON ta.createdbyuserid = u.userid
-                                ORDER BY ta.appointmentdate DESC";
+                string query = @"SELECT * FROM TestAppointments_View
+                                ORDER BY appointmentdate DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
