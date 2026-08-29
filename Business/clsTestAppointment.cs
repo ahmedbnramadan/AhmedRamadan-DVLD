@@ -16,9 +16,7 @@ namespace Business
         public int TestAppointmentID { get; set; }
 
         public clsTestType.enTestType TestTypeID { get; set; }
-        
-        public int TestTypeID { get; set; }
-        
+                
         public int LocalDrivingLicenseApplicationID { get; set; }
         
         public DateTime AppointmentDate { get; set; }
@@ -44,8 +42,9 @@ namespace Business
         {
             get
             {
-                if (_RetakeTestApplicationInfo == null)
-                    _RetakeTestApplicationInfo = clsApplication.Find(this.RetakeTestApplicationID);
+                if (_RetakeTestApplicationInfo == null && this.RetakeTestApplicationID.HasValue)
+                    _RetakeTestApplicationInfo = clsApplication.FindBaseApplication(this.RetakeTestApplicationID.Value);
+
                 return _RetakeTestApplicationInfo;
             }
         }
@@ -55,7 +54,8 @@ namespace Business
             get
             {
                 if (_TestTypeInfo == null)
-                    _TestTypeInfo = clsTestType.Find(this.TestTypeID);
+                    _TestTypeInfo = clsTestType.Find((int)this.TestTypeID);
+
                 return _TestTypeInfo;
             }
         }
@@ -75,7 +75,7 @@ namespace Business
             get
             {
                 if (_LocalDrivingLicenseApplicationInfo == null)
-                    _LocalDrivingLicenseApplicationInfo = clsLocalDrivingLicenseApplication.Find(this.LocalDrivingLicenseApplicationID);
+                    _LocalDrivingLicenseApplicationInfo = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(this.LocalDrivingLicenseApplicationID);
                 return _LocalDrivingLicenseApplicationInfo;
             }
         }
@@ -83,7 +83,7 @@ namespace Business
         public clsTestAppointment()
         {
             this.TestAppointmentID = -1;
-            this.TestTypeID = -1;
+            this.TestTypeID = 0;
             this.LocalDrivingLicenseApplicationID = -1;
             this.AppointmentDate = DateTime.Now;
             this.PaidFees = 0;
@@ -96,7 +96,7 @@ namespace Business
 
         private clsTestAppointment(
             int TestAppointmentID,
-            int TestTypeID,
+            clsTestType.enTestType TestTypeID,
             int LocalDrivingLicenseApplicationID,
             DateTime AppointmentDate,
             decimal PaidFees,
@@ -120,7 +120,7 @@ namespace Business
         private bool _AddNew()
         {
             this.TestAppointmentID = DataAccess.clsTestAppointments.AddNewTestAppointment(
-                this.TestTypeID,
+                (int)this.TestTypeID,
                 this.LocalDrivingLicenseApplicationID,
                 this.AppointmentDate,
                 this.PaidFees,
@@ -136,7 +136,7 @@ namespace Business
         {
             return DataAccess.clsTestAppointments.UpdateTestAppointment(
                 this.TestAppointmentID,
-                this.TestTypeID,
+                (int)this.TestTypeID,
                 this.LocalDrivingLicenseApplicationID,
                 this.AppointmentDate,
                 this.PaidFees,
@@ -169,7 +169,7 @@ namespace Business
             {
                 return new clsTestAppointment(
                     TestAppointmentID,
-                    TestTypeID,
+                    (clsTestType.enTestType)TestTypeID,
                     LocalDrivingLicenseApplicationID,
                     AppointmentDate,
                     PaidFees,
@@ -231,17 +231,6 @@ namespace Business
             );
         }
 
-        public static DataTable GetApplicationAppointmentsPerTestType(
-            int LocalDrivingLicenseApplicationID, 
-            int TestTypeID
-        )
-        {
-            return DataAccess.clsTestAppointments.GetAppointmentsForTest(
-                LocalDrivingLicenseApplicationID, 
-                TestTypeID
-            );
-        }
-
         public static clsTestAppointment GetLastTestAppointment(
             int LocalDrivingLicenseApplicationID,
             clsTestType.enTestType TestType
@@ -267,8 +256,8 @@ namespace Business
             {
                 return new clsTestAppointment(
                     testAppointmentID,
+                    TestType,
                     LocalDrivingLicenseApplicationID,
-                    (int)TestType,
                     appointmentDate,
                     paidFees,
                     createdByUserID,
@@ -289,7 +278,7 @@ namespace Business
 
         private int _GetTestID()
         {
-            return clsTestAppointment.GetTestID(this.TestAppointmentID);
+            return clsTestAppointments.GetTestID(this.TestAppointmentID);
         }
         
     }
