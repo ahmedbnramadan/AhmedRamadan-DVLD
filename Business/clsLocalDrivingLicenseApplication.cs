@@ -266,6 +266,14 @@ namespace Business
             );
         }
 
+        // Get Active Test Appointment ID
+        public static int GetActiveTestAppointmentID(int LocalDrivingLicenseApplicationID)
+        {
+            return DataAccess.clsLocalDrivingLicenseApplications.GetActiveTestAppointmentID(
+                LocalDrivingLicenseApplicationID
+            );
+        }
+
         // IsAllTestsPassed
         public bool IsAllTestsPassed()
         {

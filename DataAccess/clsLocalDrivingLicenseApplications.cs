@@ -819,6 +819,40 @@ namespace DataAccess
             return Result;
         }
 
+        public static int GetActiveTestAppointmentID(int LocalDrivingLicenseApplicationID)
+        {
+            int Result = -1;
+            LastErrorMessage = "";
+
+            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            {
+                string query = @"SELECT TOP 1 ta.testappointmentid
+                                    FROM localdrivinglicenseapplications ldla INNER JOIN 
+                                    TestAppointments ta ON ldla.localdrivinglicenseapplicationid = ta.localdrivinglicenseapplicationid
+                                    WHERE ldla.localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID
+                                    AND ta.islocked = 0
+                                    ORDER BY ta.testappointmentid DESC";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LocalDrivingLicenseApplicationID", LocalDrivingLicenseApplicationID);
+
+                    try
+                    {
+                        connection.Open();
+                        object result = command.ExecuteScalar();
+                        Result = (result != null) ? Convert.ToInt32(result) : -1;
+                    }
+                    catch (Exception ex)
+                    {
+                        LastErrorMessage = "Error checking active scheduled test: " + ex.Message;
+                    }
+                }
+            }
+
+            return Result;
+        }
+
 
         // Check if all tests are passed
         public static bool IsAllTestsPassed(int LocalDrivingLicenseApplicationID)

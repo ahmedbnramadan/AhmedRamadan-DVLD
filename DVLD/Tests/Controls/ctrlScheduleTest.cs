@@ -4,14 +4,40 @@ using System.Drawing;
 using System.Windows.Forms;
 using Business;
 
-namespace DVLD
+namespace DVLD.Tests.Controls
 {
-    public class clsScheduleTest : UserControl
+    public class ctrlScheduleTest : UserControl
     {
+        #region Enums
+
+        /// <summary>
+        /// Whether this control is about to insert a brand-new appointment
+        /// or update one that is already on file for this application.
+        /// This drives clsTestAppointment's own enMode when Save() is called.
+        /// </summary>
+        public enum enMode
+        {
+            AddNew = 0,
+            Update = 1
+        }
+
+        /// <summary>
+        /// Whether the applicant is taking this test type for the first time,
+        /// or retaking it after a previous failed attempt.
+        /// </summary>
+        public enum enCreationMode
+        {
+            FirstTime = 0,
+            RetakeTest = 1
+        }
+
+        #endregion
+
         #region Controls Declaration
 
         private GroupBox gbScheduleTest;
         private Label lblTitle;
+        private Label lblStatusMessage;
 
         // Test Type Selection
         private Label lblTestTypeTitle;
@@ -48,9 +74,13 @@ namespace DVLD
         private Label lblApplicationFees;
         private Label lblTotalFeesTitle;
         private Label lblTotalFees;
-        private CheckBox chkUseTestAppointmentID;
-        private Label lblTestAppointmentIDTitle;
-        private Label lblTestAppointmentID;
+
+        // Retake Info Section (shown only when CreationMode = RetakeTest)
+        private GroupBox gbRetakeTestInfo;
+        private Label lblRetakeApplicationIDTitle;
+        private Label lblRetakeApplicationID;
+        private Label lblRetakeFeesTitle;
+        private Label lblRetakeFees;
 
         // Save Button
         private Button btnSave;
@@ -65,13 +95,25 @@ namespace DVLD
         private int _LocalDrivingLicenseApplicationID = -1;
         private clsLocalDrivingLicenseApplication _Application;
 
-        private clsTestType.enTestType _TestType;
-        private int _TestTypeID;
+        private clsTestType.enTestType _TestType = clsTestType.enTestType.Vision;
+        private int _TestTypeID = 1;
         private clsTestType _TestTypeInfo;
 
         private decimal _ApplicationFees = 0;
         private decimal _TestFees = 0;
+        private decimal _RetakeTestFees = 0;
         private int _CreatedByUserID = 1; // Should be set from login session
+
+        private enMode _Mode = enMode.AddNew;
+        private enCreationMode _CreationMode = enCreationMode.FirstTime;
+        private clsTestAppointment _ExistingAppointment;
+        private bool _IsLocked = false;
+        private int _TestAppointmentID = -1;
+        private bool _CanScheduleCurrentTest = true;
+
+        // Suppresses handler side-effects while we are populating controls programmatically,
+        // so we don't re-run the same logic twice or fight our own initial values.
+        private bool _isPopulatingControls = false;
 
         #endregion
 
@@ -80,11 +122,7 @@ namespace DVLD
         public int LocalDrivingLicenseApplicationID
         {
             get { return _LocalDrivingLicenseApplicationID; }
-            set
-            {
-                _LocalDrivingLicenseApplicationID = value;
-                LoadApplicationInfo(value);
-            }
+            set { _InitializeControl(value); }
         }
 
         public clsTestType.enTestType TestType
@@ -109,23 +147,7 @@ namespace DVLD
                 if (_TestTypeID != value)
                 {
                     _TestTypeID = value;
-
-                    switch (_TestTypeID)
-                    {
-                        case 1:
-                            _TestType = clsTestType.enTestType.Vision;
-                            break;
-                        case 2:
-                            _TestType = clsTestType.enTestType.Written;
-                            break;
-                        case 3:
-                            _TestType = clsTestType.enTestType.Practical;
-                            break;
-                        default:
-                            _TestType = clsTestType.enTestType.Vision;
-                            break;
-                    }
-
+                    _TestType = (clsTestType.enTestType)value;
                     _UpdateTestTypeSpecifics();
                 }
             }
@@ -142,6 +164,28 @@ namespace DVLD
             get { return ValidateChildren(ValidationConstraints.Enabled); }
         }
 
+        /// <summary>Whether we are about to insert a new appointment or update an existing one.</summary>
+        public enMode Mode
+        {
+            get { return _Mode; }
+        }
+
+        /// <summary>Whether the applicant is taking this test for the first time or retaking it.</summary>
+        public enCreationMode CreationMode
+        {
+            get { return _CreationMode; }
+        }
+
+        public bool IsLocked
+        {
+            get { return _IsLocked; }
+        }
+
+        public int TestAppointmentID
+        {
+            get { return _TestAppointmentID; }
+        }
+
         #endregion
 
         #region Events
@@ -153,10 +197,11 @@ namespace DVLD
 
         #region Constructor
 
-        public clsScheduleTest()
+        public ctrlScheduleTest()
         {
             InitializeComponent();
             SetupEvents();
+            ResetControls();
         }
 
         #endregion
@@ -165,12 +210,10 @@ namespace DVLD
 
         private void InitializeComponent()
         {
-            // UserControl - taller than other controls (600 vs 300)
-            this.Size = new Size(900, 600);
+            this.Size = new Size(950, 650);
             this.Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Regular);
             this.Dock = DockStyle.Fill;
 
-            // Main GroupBox
             gbScheduleTest = new GroupBox
             {
                 Text = "Schedule Test",
@@ -179,7 +222,6 @@ namespace DVLD
                 Padding = new Padding(20)
             };
 
-            // Title Label (Upper Right Corner)
             lblTitle = new Label
             {
                 Text = "Schedule Test - Vision Test",
@@ -190,7 +232,19 @@ namespace DVLD
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
 
-            // Test Type Selection
+            // Status message straight under the title
+            lblStatusMessage = new Label
+            {
+                Text = string.Empty,
+                Location = new Point(600, 50),
+                AutoSize = true,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
+                ForeColor = Color.Red,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                MaximumSize = new Size(300, 0),
+                Visible = false
+            };
+
             lblTestTypeTitle = new Label
             {
                 Text = "Test Type:",
@@ -202,16 +256,11 @@ namespace DVLD
             cbTestType = new ComboBox
             {
                 Location = new Point(140, 32),
-                Size = new Size(200, 25),
+                Size = new Size(220, 25),
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 Font = new Font("Microsoft Sans Serif", 9F)
             };
-            cbTestType.Items.Add("Vision Test");
-            cbTestType.Items.Add("Written Test");
-            cbTestType.Items.Add("Practical Test");
-            cbTestType.SelectedIndex = 0;
 
-            // DL App ID
             lblDLAppIDTitle = new Label
             {
                 Text = "DL App ID:",
@@ -229,7 +278,6 @@ namespace DVLD
                 Font = new Font(this.Font, FontStyle.Bold)
             };
 
-            // License Class
             lblLicenseClassTitle = new Label
             {
                 Text = "License Class:",
@@ -245,7 +293,6 @@ namespace DVLD
                 AutoSize = true
             };
 
-            // Applicant Name
             lblNameTitle = new Label
             {
                 Text = "Name:",
@@ -262,7 +309,6 @@ namespace DVLD
                 ForeColor = Color.DarkGreen
             };
 
-            // Trial Number
             lblTrialTitle = new Label
             {
                 Text = "Trial:",
@@ -279,7 +325,6 @@ namespace DVLD
                 ForeColor = Color.Red
             };
 
-            // Appointment Date
             lblDateTitle = new Label
             {
                 Text = "Date:",
@@ -297,7 +342,6 @@ namespace DVLD
                 Font = new Font("Microsoft Sans Serif", 9F)
             };
 
-            // Fees
             lblFeesTitle = new Label
             {
                 Text = "Test Fees:",
@@ -314,16 +358,14 @@ namespace DVLD
                 ForeColor = Color.Brown
             };
 
-            // Payment GroupBox
             gbPayment = new GroupBox
             {
                 Text = "Payment Details",
                 Location = new Point(450, 80),
-                Size = new Size(400, 280),
+                Size = new Size(420, 220),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold)
             };
 
-            // Application Fees Checkbox
             chkPayApplicationFees = new CheckBox
             {
                 Text = "Pay Application Fees",
@@ -337,7 +379,7 @@ namespace DVLD
                 Text = "Application Fees:",
                 Location = new Point(40, 70),
                 AutoSize = true,
-                Font = new Font(new FontFamily("Microsoft Sans Serif"), 9F, FontStyle.Regular)
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular)
             };
 
             lblApplicationFees = new Label
@@ -345,17 +387,16 @@ namespace DVLD
                 Text = "0.00",
                 Location = new Point(180, 70),
                 AutoSize = true,
-                Font = new Font(new FontFamily("Microsoft Sans Serif"), 9F, FontStyle.Bold),
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
                 ForeColor = Color.Green
             };
 
-            // Total Fees
             lblTotalFeesTitle = new Label
             {
                 Text = "Total Fees:",
                 Location = new Point(40, 110),
                 AutoSize = true,
-                Font = new Font(new FontFamily("Microsoft Sans Serif"), 10F, FontStyle.Bold)
+                Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold)
             };
 
             lblTotalFees = new Label
@@ -363,40 +404,58 @@ namespace DVLD
                 Text = "0.00",
                 Location = new Point(180, 110),
                 AutoSize = true,
-                Font = new Font(new FontFamily("Microsoft Sans Serif"), 11F, FontStyle.Bold),
+                Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 ForeColor = Color.DarkRed
             };
 
-            // Test Appointment ID Checkbox
-            chkUseTestAppointmentID = new CheckBox
+            // Retake Info GroupBox - only visible when CreationMode = RetakeTest
+            gbRetakeTestInfo = new GroupBox
             {
-                Text = "Use Existing Test Appointment ID",
-                Location = new Point(20, 155),
-                AutoSize = true
+                Text = "Retake Test Information",
+                Location = new Point(450, 320),
+                Size = new Size(420, 130),
+                Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
+                Visible = false
             };
 
-            lblTestAppointmentIDTitle = new Label
+            lblRetakeApplicationIDTitle = new Label
             {
-                Text = "Test Appointment ID:",
-                Location = new Point(40, 195),
+                Text = "Retake Base Application ID:",
+                Location = new Point(20, 35),
                 AutoSize = true,
-                Font = new Font(new FontFamily("Microsoft Sans Serif"), 9F, FontStyle.Regular)
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular)
             };
 
-            lblTestAppointmentID = new Label
+            lblRetakeApplicationID = new Label
             {
-                Text = "[Not Set]",
-                Location = new Point(220, 195),
+                Text = "N/A",
+                Location = new Point(230, 35),
                 AutoSize = true,
-                Font = new Font(new FontFamily("Microsoft Sans Serif"), 9F, FontStyle.Bold),
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
                 ForeColor = Color.Gray
             };
 
-            // Save Button
+            lblRetakeFeesTitle = new Label
+            {
+                Text = "Retake Fees:",
+                Location = new Point(20, 70),
+                AutoSize = true,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Regular)
+            };
+
+            lblRetakeFees = new Label
+            {
+                Text = "0.00",
+                Location = new Point(230, 70),
+                AutoSize = true,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
+                ForeColor = Color.Brown
+            };
+
             btnSave = new Button
             {
                 Text = "Save",
-                Location = new Point(140, 530),
+                Location = new Point(140, 560),
                 Size = new Size(150, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = Color.SteelBlue,
@@ -406,26 +465,29 @@ namespace DVLD
             };
             btnSave.FlatAppearance.BorderSize = 0;
 
-            // Error Provider
             errorProvider1 = new ErrorProvider();
 
-            // Add controls to Payment GroupBox
+            gbRetakeTestInfo.Controls.AddRange(new Control[]
+            {
+                lblRetakeApplicationIDTitle,
+                lblRetakeApplicationID,
+                lblRetakeFeesTitle,
+                lblRetakeFees
+            });
+
             gbPayment.Controls.AddRange(new Control[]
             {
                 chkPayApplicationFees,
                 lblApplicationFeesTitle,
                 lblApplicationFees,
                 lblTotalFeesTitle,
-                lblTotalFees,
-                chkUseTestAppointmentID,
-                lblTestAppointmentIDTitle,
-                lblTestAppointmentID
+                lblTotalFees
             });
 
-            // Add all controls to Main GroupBox
             gbScheduleTest.Controls.AddRange(new Control[]
             {
                 lblTitle,
+                lblStatusMessage,
                 lblTestTypeTitle,
                 cbTestType,
                 lblDLAppIDTitle,
@@ -441,6 +503,7 @@ namespace DVLD
                 lblFeesTitle,
                 lblFees,
                 gbPayment,
+                gbRetakeTestInfo,
                 btnSave
             });
 
@@ -449,11 +512,10 @@ namespace DVLD
 
         private void SetupEvents()
         {
-            cbTestType.SelectedIndexChanged += CbTestType_SelectedIndexChanged;
+            cbTestType.SelectedIndexChanged      += CbTestType_SelectedIndexChanged;
             chkPayApplicationFees.CheckedChanged += ChkPayApplicationFees_CheckedChanged;
-            chkUseTestAppointmentID.CheckedChanged += ChkUseTestAppointmentID_CheckedChanged;
-            btnSave.Click += BtnSave_Click;
-            dtpAppointmentDate.ValueChanged += DtpAppointmentDate_ValueChanged;
+            btnSave.Click                        += BtnSave_Click;
+            dtpAppointmentDate.ValueChanged       += DtpAppointmentDate_ValueChanged;
         }
 
         #endregion
@@ -462,38 +524,41 @@ namespace DVLD
 
         private void CbTestType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TestTypeID = cbTestType.SelectedIndex + 1;
+            if (_isPopulatingControls) return;
+
+            TestTypeID = cbTestType.SelectedIndex + 1; // setter runs _UpdateTestTypeSpecifics
+            _ValidateTestSequence();
+            _RefreshControlsEnabledState();
             OnTestTypeChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void ChkPayApplicationFees_CheckedChanged(object sender, EventArgs e)
         {
+            if (_isPopulatingControls) return;
             CalculateTotalFees();
-        }
-
-        private void ChkUseTestAppointmentID_CheckedChanged(object sender, EventArgs e)
-        {
-            lblTestAppointmentID.Enabled = chkUseTestAppointmentID.Checked;
         }
 
         private void DtpAppointmentDate_ValueChanged(object sender, EventArgs e)
         {
-            // Validate date is not in the past
-            if (dtpAppointmentDate.Value.Date < DateTime.Now.Date)
-            {
-                errorProvider1.SetError(dtpAppointmentDate, "Appointment date cannot be in the past");
-            }
-            else
-            {
-                errorProvider1.SetError(dtpAppointmentDate, "");
-            }
+            if (_isPopulatingControls) return;
+            _ValidateAppointmentDate();
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
-            if (ValidateInputs())
+            if (_IsLocked)
             {
-                if (SaveTestAppointment())
+                MessageBox.Show(
+                    "Cannot save: Application is locked.",
+                    "Locked",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (_ValidateInputs())
+            {
+                if (_SaveTestAppointment())
                 {
                     MessageBox.Show(
                         "Test appointment scheduled successfully!",
@@ -516,18 +581,114 @@ namespace DVLD
 
         #endregion
 
-        #region Private Methods
+        #region Private Methods - Load / Initialize
+
+        /// <summary>
+        /// Entry point: the control only becomes usable once it is given an LDLA ID.
+        /// It figures out here whether it is adding a new appointment or updating an
+        /// active one, whether this is a first attempt or a retake, and whether the
+        /// application is locked.
+        /// </summary>
+        private void _InitializeControl(int ldlaID)
+        {
+            _isPopulatingControls = true;
+            try
+            {
+                if (ldlaID <= 0)
+                {
+                    ResetControls();
+                    return;
+                }
+
+                _Application = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(ldlaID);
+                if (_Application == null)
+                {
+                    ResetControls();
+                    _ShowStatusMessage($"No application found with ID = {ldlaID}", isError: true);
+                    MessageBox.Show(
+                        $"No application found with ID = {ldlaID}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    return;
+                }
+
+                _LocalDrivingLicenseApplicationID = ldlaID;
+
+                int activeAppointmentID = clsLocalDrivingLicenseApplication.GetActiveTestAppointmentID(ldlaID);
+
+                if (activeAppointmentID == -1)
+                {
+                    _Mode = enMode.AddNew;
+                    _ExistingAppointment = null;
+                    _TestAppointmentID = -1;
+                    _IsLocked = false;
+
+                    dtpAppointmentDate.MinDate = DateTime.Now.AddDays(1);
+                    dtpAppointmentDate.Value = DateTime.Now.AddDays(1);
+                }
+                else
+                {
+                    _Mode = enMode.Update;
+                    _ExistingAppointment = clsTestAppointment.Find(activeAppointmentID);
+                    _TestAppointmentID = activeAppointmentID;
+
+                    if (_ExistingAppointment != null)
+                    {
+                        _TestTypeID = (int)_ExistingAppointment.TestTypeID;
+                        _TestType = _ExistingAppointment.TestTypeID;
+                        _IsLocked = _ExistingAppointment.IsLocked;
+
+                        DateTime lowestAllowedDate = _ExistingAppointment.AppointmentDate < DateTime.Now
+                            ? DateTime.Now
+                            : _ExistingAppointment.AppointmentDate;
+
+                        dtpAppointmentDate.MinDate = lowestAllowedDate;
+                        dtpAppointmentDate.Value = _ExistingAppointment.AppointmentDate;
+                    }
+                }
+
+                _FillApplicationData();
+                _UpdateTestTypeSpecifics();
+                EnableAvailableTestsOnly();
+            }
+            finally
+            {
+                _isPopulatingControls = false;
+            }
+
+            _ValidateTestSequence();
+            _SetControlsReadOnly(_IsLocked);
+        }
+
+        #endregion
+
+        #region Private Methods - Business Logic
+
+        /// <summary>
+        /// A test type is a retake if the applicant already has at least one prior
+        /// trial on record for it; otherwise it's a first-time attempt.
+        /// </summary>
+        private void _DetermineCreationMode()
+        {
+            if (_LocalDrivingLicenseApplicationID <= 0)
+            {
+                _CreationMode = enCreationMode.FirstTime;
+                return;
+            }
+
+            int previousTrials = clsLocalDrivingLicenseApplication.TotalTrialsPerTest(
+                _LocalDrivingLicenseApplicationID, _TestTypeID);
+
+            _CreationMode = previousTrials > 0 ? enCreationMode.RetakeTest : enCreationMode.FirstTime;
+        }
 
         private void _UpdateTestTypeSpecifics()
         {
-            // Update title based on test type
-            string testTypeName = _TestType.ToString();
-            lblTitle.Text = $"Schedule Test - {testTypeName} Test";
+            lblTitle.Text = $"Schedule Test - {_TestType} Test";
 
-            // Update combo box selection
-            cbTestType.SelectedIndex = _TestTypeID - 1;
+            _DetermineCreationMode();
 
-            // Load test fees
             _TestTypeInfo = clsTestType.Find(_TestTypeID);
             if (_TestTypeInfo != null)
             {
@@ -540,7 +701,38 @@ namespace DVLD
                 lblFees.Text = "[???]";
             }
 
+            if (_LocalDrivingLicenseApplicationID > 0)
+            {
+                int trialNumber = clsLocalDrivingLicenseApplication.TotalTrialsPerTest(
+                    _LocalDrivingLicenseApplicationID, _TestTypeID);
+                lblTrial.Text = trialNumber.ToString();
+            }
+
+            _UpdateRetakeInfo();
             CalculateTotalFees();
+        }
+
+        private void _UpdateRetakeInfo()
+        {
+            if (_CreationMode == enCreationMode.RetakeTest && _Application != null)
+            {
+                _RetakeTestFees = _Application.ApplicationTypeInfo?.Fees ?? 0;
+                lblRetakeFees.Text = _RetakeTestFees.ToString("0.00");
+
+                lblRetakeApplicationID.Text =
+                    (_Mode == enMode.Update && _ExistingAppointment?.RetakeTestApplicationID != null)
+                        ? _ExistingAppointment.RetakeTestApplicationID.Value.ToString()
+                        : "[Created on save]";
+
+                gbRetakeTestInfo.Visible = true;
+            }
+            else
+            {
+                _RetakeTestFees = 0;
+                lblRetakeFees.Text = "0.00";
+                lblRetakeApplicationID.Text = "N/A";
+                gbRetakeTestInfo.Visible = false;
+            }
         }
 
         private void CalculateTotalFees()
@@ -559,10 +751,108 @@ namespace DVLD
                 lblApplicationFees.Text = "0.00";
             }
 
+            if (_CreationMode == enCreationMode.RetakeTest)
+            {
+                total += _RetakeTestFees;
+            }
+
             lblTotalFees.Text = total.ToString("0.00");
         }
 
-        private bool ValidateInputs()
+        /// <summary>
+        /// Can't take test N without having passed every test before it,
+        /// and can't re-schedule a test that has already been passed.
+        /// </summary>
+        private void _ValidateTestSequence()
+        {
+            bool canSchedule = true;
+            string message = string.Empty;
+
+            for (int testID = 1; testID < _TestTypeID; testID++)
+            {
+                if (!clsTest.IsPassed(_LocalDrivingLicenseApplicationID, testID))
+                {
+                    canSchedule = false;
+                    string previousTestName = ((clsTestType.enTestType)testID).ToString();
+                    message = $"Cannot schedule, {previousTestName} test should be passed first.";
+                    break;
+                }
+            }
+
+            if (canSchedule && clsTest.IsPassed(_LocalDrivingLicenseApplicationID, _TestTypeID))
+            {
+                canSchedule = false;
+                message = $"Cannot schedule, {_TestType} test has already been passed.";
+            }
+
+            _CanScheduleCurrentTest = canSchedule;
+            _ShowStatusMessage(message, isError: !canSchedule);
+        }
+
+        /// <summary>
+        /// A test type counts as a duplicate only if it isn't the very appointment
+        /// we are currently editing - otherwise updating a record would always flag
+        /// itself as a conflict.
+        /// </summary>
+        private bool _IsDuplicateAppointmentForTestType(int testTypeID)
+        {
+            if (_Mode == enMode.Update
+                && _ExistingAppointment != null
+                && testTypeID == (int)_ExistingAppointment.TestTypeID)
+            {
+                return false;
+            }
+
+            return clsLocalDrivingLicenseApplication.IsThereAnActiveScheduledTest(
+                _LocalDrivingLicenseApplicationID, testTypeID);
+        }
+
+        private void _ShowStatusMessage(string message, bool isError)
+        {
+            lblStatusMessage.Text = message;
+            lblStatusMessage.ForeColor = isError ? Color.Red : Color.Green;
+            lblStatusMessage.Visible = !string.IsNullOrEmpty(message);
+        }
+
+        /// <summary>
+        /// Single place that decides what the user is allowed to touch.
+        /// A locked application always wins over everything else.
+        /// </summary>
+        private void _RefreshControlsEnabledState()
+        {
+            bool canEdit = !_IsLocked;
+            bool canSave = canEdit && _CanScheduleCurrentTest;
+
+            dtpAppointmentDate.Enabled = canEdit;
+            chkPayApplicationFees.Enabled = canEdit;
+            btnSave.Enabled = canSave;
+
+            if (_IsLocked)
+            {
+                _ShowStatusMessage("Application is locked. View only.", isError: true);
+            }
+        }
+
+        private void _SetControlsReadOnly(bool isLocked)
+        {
+            _IsLocked = isLocked;
+            cbTestType.Enabled = !isLocked;
+            _RefreshControlsEnabledState();
+        }
+
+        private void _ValidateAppointmentDate()
+        {
+            if (dtpAppointmentDate.Value.Date < DateTime.Now.Date)
+            {
+                errorProvider1.SetError(dtpAppointmentDate, "Appointment date cannot be in the past");
+            }
+            else
+            {
+                errorProvider1.SetError(dtpAppointmentDate, string.Empty);
+            }
+        }
+
+        private bool _ValidateInputs()
         {
             bool isValid = true;
             errorProvider1.Clear();
@@ -591,54 +881,79 @@ namespace DVLD
                 isValid = false;
             }
 
+            if (!_CanScheduleCurrentTest)
+            {
+                errorProvider1.SetError(cbTestType, "This test cannot be scheduled yet.");
+                isValid = false;
+            }
+
+            if (_IsDuplicateAppointmentForTestType(_TestTypeID))
+            {
+                errorProvider1.SetError(cbTestType, "An active appointment already exists for this test type.");
+                isValid = false;
+            }
+
             return isValid;
         }
 
-        private bool SaveTestAppointment()
+        private bool _SaveTestAppointment()
         {
             try
             {
-                // Check if appointment already exists for this test type
-                DataTable existingAppointments;
-                existingAppointments = clsTestAppointment.GetApplicationAppointmentsPerTestType(
-                    _LocalDrivingLicenseApplicationID,
-                    _TestTypeID);
-
-                if (existingAppointments != null && existingAppointments.Rows.Count > 0)
+                if (_Mode == enMode.AddNew)
                 {
-                    DialogResult result = MessageBox.Show(
-                        "An appointment already exists for this test type. Do you want to create a new one?",
-                        "Confirmation",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question);
+                    DataTable existingAppointments = clsTestAppointment.GetApplicationAppointmentsPerTestType(
+                        _LocalDrivingLicenseApplicationID, _TestTypeID);
 
-                    if (result == DialogResult.No)
+                    if (existingAppointments != null && existingAppointments.Rows.Count > 0)
                     {
-                        return false;
+                        DialogResult result = MessageBox.Show(
+                            "An appointment already exists for this test type. Do you want to create a new one?",
+                            "Confirmation",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question);
+
+                        if (result == DialogResult.No)
+                        {
+                            return false;
+                        }
                     }
                 }
 
-                // Create new test appointment
-                clsTestAppointment appointment = new clsTestAppointment
-                {
-                    TestTypeID = (clsTestType.enTestType)_TestTypeID,
-                    LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplicationID,
-                    AppointmentDate = dtpAppointmentDate.Value,
-                    PaidFees = decimal.Parse(lblTotalFees.Text),
-                    CreatedByUserID = _CreatedByUserID,
-                    IsLocked = false,
-                    Mode = clsTestAppointment.enMode.AddNew
-                };
+                clsTestAppointment appointment = (_Mode == enMode.Update && _ExistingAppointment != null)
+                    ? _ExistingAppointment
+                    : new clsTestAppointment();
 
-                if (chkUseTestAppointmentID.Checked && !string.IsNullOrEmpty(lblTestAppointmentID.Text))
+                appointment.Mode = (_Mode == enMode.Update)
+                    ? clsTestAppointment.enMode.Update
+                    : clsTestAppointment.enMode.AddNew;
+
+                appointment.TestTypeID = (clsTestType.enTestType)_TestTypeID;
+                appointment.LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplicationID;
+                appointment.AppointmentDate = dtpAppointmentDate.Value;
+                appointment.PaidFees = decimal.Parse(lblTotalFees.Text);
+                appointment.CreatedByUserID = _CreatedByUserID;
+                appointment.IsLocked = false;
+
+                if (_CreationMode == enCreationMode.RetakeTest)
                 {
-                    if (int.TryParse(lblTestAppointmentID.Text, out int retakeAppID))
-                    {
-                        appointment.RetakeTestApplicationID = retakeAppID;
-                    }
+                    appointment.RetakeTestApplicationID = _EnsureRetakeBaseApplicationID();
+                }
+                else
+                {
+                    appointment.RetakeTestApplicationID = null;
                 }
 
-                return appointment.Save();
+                bool saved = appointment.Save();
+
+                if (saved && _Mode == enMode.AddNew)
+                {
+                    _TestAppointmentID = appointment.TestAppointmentID;
+                    _ExistingAppointment = appointment;
+                    _Mode = enMode.Update;
+                }
+
+                return saved;
             }
             catch (Exception ex)
             {
@@ -651,28 +966,31 @@ namespace DVLD
             }
         }
 
+        /// <summary>
+        /// A retake should not duplicate the whole LDLA - it just needs its own
+        /// lightweight base application record, linked via RetakeTestApplicationID.
+        /// If one is already linked (editing an existing retake), we reuse it.
+        /// </summary>
+        private int? _EnsureRetakeBaseApplicationID()
+        {
+            if (_Mode == enMode.Update && _ExistingAppointment?.RetakeTestApplicationID != null)
+            {
+                return _ExistingAppointment.RetakeTestApplicationID;
+            }
+
+            // I don't have clsApplication's real constructor/Save API in front of me,
+            // so I'm not going to invent it. See my note in chat about this.
+            throw new NotImplementedException(
+                "Creating a new base application for a retake needs clsApplication's actual members - please confirm them.");
+        }
+
         #endregion
 
         #region Public Methods
 
         public void LoadApplicationInfo(int applicationID)
         {
-            _LocalDrivingLicenseApplicationID = applicationID;
-            _Application = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(applicationID);
-
-            if (_Application == null)
-            {
-                ResetControls();
-                MessageBox.Show(
-                    $"No application found with ID = {applicationID}",
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                return;
-            }
-
-            FillApplicationData();
-            _UpdateTestTypeSpecifics();
+            LocalDrivingLicenseApplicationID = applicationID;
         }
 
         public void LoadApplicationInfo(clsLocalDrivingLicenseApplication application)
@@ -683,21 +1001,26 @@ namespace DVLD
                 return;
             }
 
-            _Application = application;
-            _LocalDrivingLicenseApplicationID = application.LocalDrivingLicenseApplicationID;
-
-            FillApplicationData();
-            _UpdateTestTypeSpecifics();
+            LocalDrivingLicenseApplicationID = application.LocalDrivingLicenseApplicationID;
         }
 
         public void ResetControls()
         {
+            _isPopulatingControls = true;
+
             _LocalDrivingLicenseApplicationID = -1;
             _Application = null;
             _TestTypeID = 1;
             _TestType = clsTestType.enTestType.Vision;
             _TestFees = 0;
             _ApplicationFees = 0;
+            _RetakeTestFees = 0;
+            _Mode = enMode.AddNew;
+            _CreationMode = enCreationMode.FirstTime;
+            _ExistingAppointment = null;
+            _IsLocked = false;
+            _TestAppointmentID = -1;
+            _CanScheduleCurrentTest = true;
 
             lblDLAppID.Text = "[???]";
             lblLicenseClass.Text = "[???]";
@@ -706,14 +1029,25 @@ namespace DVLD
             lblFees.Text = "[???]";
             lblApplicationFees.Text = "0.00";
             lblTotalFees.Text = "0.00";
-            lblTestAppointmentID.Text = "[Not Set]";
+            lblRetakeApplicationID.Text = "N/A";
+            lblRetakeFees.Text = "0.00";
+            gbRetakeTestInfo.Visible = false;
 
+            dtpAppointmentDate.MinDate = DateTime.Now.AddDays(1);
             dtpAppointmentDate.Value = DateTime.Now.AddDays(1);
-            cbTestType.SelectedIndex = 0;
-            chkPayApplicationFees.Checked = true;
-            chkUseTestAppointmentID.Checked = false;
 
+            cbTestType.Items.Clear();
+            cbTestType.Items.Add("Vision Test");
+            cbTestType.SelectedIndex = 0;
+
+            chkPayApplicationFees.Checked = true;
+
+            _ShowStatusMessage(string.Empty, isError: false);
             errorProvider1.Clear();
+
+            _isPopulatingControls = false;
+
+            _RefreshControlsEnabledState();
         }
 
         public void SetCurrentUser(int userID)
@@ -721,43 +1055,60 @@ namespace DVLD
             _CreatedByUserID = userID;
         }
 
+        /// <summary>
+        /// Rebuilds the test type list so only tests the applicant is actually
+        /// eligible for are shown (e.g. Written only appears once Vision is passed).
+        /// </summary>
+        public void EnableAvailableTestsOnly()
+        {
+            bool wasPopulating = _isPopulatingControls;
+            _isPopulatingControls = true;
+
+            cbTestType.Items.Clear();
+            cbTestType.Items.Add("Vision Test");
+
+            bool visionPassed = clsTest.IsPassed(_LocalDrivingLicenseApplicationID, (int)clsTestType.enTestType.Vision);
+            if (visionPassed)
+            {
+                cbTestType.Items.Add("Written Test");
+            }
+
+            bool writtenPassed = visionPassed
+                && clsTest.IsPassed(_LocalDrivingLicenseApplicationID, (int)clsTestType.enTestType.Written);
+            if (writtenPassed)
+            {
+                cbTestType.Items.Add("Practical Test");
+            }
+
+            int indexToSelect = _TestTypeID - 1;
+            if (indexToSelect < 0 || indexToSelect >= cbTestType.Items.Count)
+            {
+                indexToSelect = 0;
+            }
+
+            cbTestType.SelectedIndex = indexToSelect;
+
+            _isPopulatingControls = wasPopulating;
+        }
+
         #endregion
 
         #region Helper Methods
 
-        private void FillApplicationData()
+        private void _FillApplicationData()
         {
             if (_Application == null) return;
 
             lblDLAppID.Text = _Application.LocalDrivingLicenseApplicationID.ToString();
 
-            // License Class
-            if (_Application.LicenseClassInfo != null)
-            {
-                lblLicenseClass.Text = $"{_Application.LicenseClassInfo.Name} ({_Application.LicenseClassInfo.ID})";
-            }
-            else
-            {
-                lblLicenseClass.Text = "[Unknown]";
-            }
+            lblLicenseClass.Text = _Application.LicenseClassInfo != null
+                ? $"{_Application.LicenseClassInfo.Name} ({_Application.LicenseClassInfo.ID})"
+                : "[Unknown]";
 
-            // Applicant Name
-            if (_Application.PersonInfo != null)
-            {
-                lblName.Text = _Application.PersonInfo.FullName;
-            }
-            else
-            {
-                lblName.Text = "[Unknown]";
-            }
+            lblName.Text = _Application.PersonInfo != null
+                ? _Application.PersonInfo.FullName
+                : "[Unknown]";
 
-            // Trial Number
-            int trialNumber = clsLocalDrivingLicenseApplication.TotalTrialsPerTest(
-                _LocalDrivingLicenseApplicationID,
-                _TestTypeID);
-            lblTrial.Text = trialNumber.ToString();
-
-            // Application Fees
             if (_Application.ApplicationTypeInfo != null)
             {
                 _ApplicationFees = _Application.ApplicationTypeInfo.Fees;
