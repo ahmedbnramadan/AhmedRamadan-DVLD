@@ -6,7 +6,7 @@ using Business;
 
 namespace DVLD.Tests.Controls
 {
-    public class ctrlScheduleTest : UserControl
+    public class clsScheduleTest : UserControl
     {
         #region Enums
 
@@ -197,7 +197,7 @@ namespace DVLD.Tests.Controls
 
         #region Constructor
 
-        public ctrlScheduleTest()
+        public clsScheduleTest()
         {
             InitializeComponent();
             SetupEvents();
@@ -526,6 +526,8 @@ namespace DVLD.Tests.Controls
         {
             if (_isPopulatingControls) return;
 
+            // The dropdown is only ever enabled in AddNew mode (see _SetControlsReadOnly),
+            // so we don't need to re-check Add-vs-Update here - just refresh fees/validation.
             TestTypeID = cbTestType.SelectedIndex + 1; // setter runs _UpdateTestTypeSpecifics
             _ValidateTestSequence();
             _RefreshControlsEnabledState();
@@ -583,12 +585,6 @@ namespace DVLD.Tests.Controls
 
         #region Private Methods - Load / Initialize
 
-        /// <summary>
-        /// Entry point: the control only becomes usable once it is given an LDLA ID.
-        /// It figures out here whether it is adding a new appointment or updating an
-        /// active one, whether this is a first attempt or a retake, and whether the
-        /// application is locked.
-        /// </summary>
         private void _InitializeControl(int ldlaID)
         {
             _isPopulatingControls = true;
@@ -619,16 +615,23 @@ namespace DVLD.Tests.Controls
 
                 if (activeAppointmentID == -1)
                 {
+                    // Nothing active at all - we're adding a new appointment.
+                    // Default the selection to the first test type not yet passed.
                     _Mode = enMode.AddNew;
                     _ExistingAppointment = null;
                     _TestAppointmentID = -1;
                     _IsLocked = false;
+
+                    _TestTypeID = _DetermineDefaultTestTypeID();
+                    _TestType = (clsTestType.enTestType)_TestTypeID;
 
                     dtpAppointmentDate.MinDate = DateTime.Now.AddDays(1);
                     dtpAppointmentDate.Value = DateTime.Now.AddDays(1);
                 }
                 else
                 {
+                    // There's exactly one active appointment for this application -
+                    // load it, and the test type comes from the record itself, not a guess.
                     _Mode = enMode.Update;
                     _ExistingAppointment = clsTestAppointment.Find(activeAppointmentID);
                     _TestAppointmentID = activeAppointmentID;
@@ -659,6 +662,26 @@ namespace DVLD.Tests.Controls
 
             _ValidateTestSequence();
             _SetControlsReadOnly(_IsLocked);
+        }
+
+        /// <summary>
+        /// Picks the first test type the applicant hasn't passed yet
+        /// (Vision, then Written, then Practical) as the initial selection
+        /// when adding a brand-new appointment.
+        /// </summary>
+        private int _DetermineDefaultTestTypeID()
+        {
+            if (!clsTest.IsPassed(_LocalDrivingLicenseApplicationID, (int)clsTestType.enTestType.Vision))
+            {
+                return (int)clsTestType.enTestType.Vision;
+            }
+
+            if (!clsTest.IsPassed(_LocalDrivingLicenseApplicationID, (int)clsTestType.enTestType.Written))
+            {
+                return (int)clsTestType.enTestType.Written;
+            }
+
+            return (int)clsTestType.enTestType.Practical;
         }
 
         #endregion
@@ -836,7 +859,11 @@ namespace DVLD.Tests.Controls
         private void _SetControlsReadOnly(bool isLocked)
         {
             _IsLocked = isLocked;
-            cbTestType.Enabled = !isLocked;
+
+            // You can only pick a test type while adding a brand-new appointment -
+            // once one is active (Update mode), the test type comes from that record.
+            cbTestType.Enabled = (_Mode == enMode.AddNew) && !isLocked;
+
             _RefreshControlsEnabledState();
         }
 
@@ -1047,6 +1074,7 @@ namespace DVLD.Tests.Controls
 
             _isPopulatingControls = false;
 
+            cbTestType.Enabled = true; // fresh control, no LDLA loaded yet - always AddNew
             _RefreshControlsEnabledState();
         }
 
