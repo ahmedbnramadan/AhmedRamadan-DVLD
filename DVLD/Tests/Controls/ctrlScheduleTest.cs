@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Business;
@@ -598,7 +599,8 @@ namespace DVLD
             try
             {
                 // Check if appointment already exists for this test type
-                DataTable existingAppointments = clsTestAppointment.GetApplicationAppointmentsPerTestType(
+                DataTable existingAppointments;
+                existingAppointments = clsTestAppointment.GetApplicationAppointmentsPerTestType(
                     _LocalDrivingLicenseApplicationID,
                     _TestTypeID);
 
@@ -619,7 +621,7 @@ namespace DVLD
                 // Create new test appointment
                 clsTestAppointment appointment = new clsTestAppointment
                 {
-                    TestTypeID = _TestTypeID,
+                    TestTypeID = (clsTestType.enTestType)_TestTypeID,
                     LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplicationID,
                     AppointmentDate = dtpAppointmentDate.Value,
                     PaidFees = decimal.Parse(lblTotalFees.Text),
@@ -656,7 +658,7 @@ namespace DVLD
         public void LoadApplicationInfo(int applicationID)
         {
             _LocalDrivingLicenseApplicationID = applicationID;
-            _Application = clsLocalDrivingLicenseApplication.Find(applicationID);
+            _Application = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(applicationID);
 
             if (_Application == null)
             {
@@ -732,7 +734,7 @@ namespace DVLD
             // License Class
             if (_Application.LicenseClassInfo != null)
             {
-                lblLicenseClass.Text = $"{_Application.LicenseClassInfo.ClassName} ({_Application.LicenseClassInfo.ClassID})";
+                lblLicenseClass.Text = $"{_Application.LicenseClassInfo.Name} ({_Application.LicenseClassInfo.ID})";
             }
             else
             {
@@ -750,7 +752,10 @@ namespace DVLD
             }
 
             // Trial Number
-            lblTrial.Text = _Application.TrialNumber.ToString();
+            int trialNumber = clsLocalDrivingLicenseApplication.TotalTrialsPerTest(
+                _LocalDrivingLicenseApplicationID,
+                _TestTypeID);
+            lblTrial.Text = trialNumber.ToString();
 
             // Application Fees
             if (_Application.ApplicationTypeInfo != null)
