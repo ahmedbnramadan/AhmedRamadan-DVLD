@@ -276,6 +276,11 @@ namespace Business
             );
         }
 
+        public static bool IsAppointmentLocked(int TestAppointmentID)
+        {
+            return clsTestAppointment.IsAppointmentLocked(TestAppointmentID);
+        }
+
         private int _GetTestID()
         {
             return clsTestAppointments.GetTestID(this.TestAppointmentID);

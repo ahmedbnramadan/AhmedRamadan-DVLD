@@ -88,7 +88,7 @@ namespace DVLD.Tests
             ctrlDrivingLicenseApplicationInfo1 = new ctrlDrivingLicenseApplicationInfo
             {
                 Location = new Point(30, 60),
-                Size = new Size(990, 380),
+                Size = new Size(990, 400),
                 Dock = DockStyle.None
             };
 
