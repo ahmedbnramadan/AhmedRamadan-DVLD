@@ -6,7 +6,7 @@ using Business;
 
 namespace DVLD.Tests.Controls
 {
-    public class clsScheduleTest : UserControl
+    public class ctrlScheduleTest : UserControl
     {
         #region Enums
 
@@ -197,7 +197,7 @@ namespace DVLD.Tests.Controls
 
         #region Constructor
 
-        public clsScheduleTest()
+        public ctrlScheduleTest()
         {
             InitializeComponent();
             SetupEvents();
