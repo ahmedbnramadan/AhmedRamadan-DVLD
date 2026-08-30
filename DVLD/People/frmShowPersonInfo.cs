@@ -65,7 +65,7 @@ namespace DVLD
         {
             // ── Form ────────────────────────────────────────────────
             this.Text = "Person Details";
-            this.Size = new Size(900, 650);
+            this.Size = new Size(900, 500);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -109,7 +109,7 @@ namespace DVLD
             {
                 Text = "Phone Call",
                 AutoSize = true,
-                Location = new Point(30, 420),
+                Location = new Point(120, 390),
                 Font = new Font("Microsoft Sans Serif", 9.5F),
                 LinkColor = clsGlobal.LinkBlue
             };
@@ -123,7 +123,7 @@ namespace DVLD
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(650, 385),
+                Location = new Point(680, 385),
                 Size = new Size(165, 38),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,

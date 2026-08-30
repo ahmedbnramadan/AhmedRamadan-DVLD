@@ -143,7 +143,7 @@ namespace DVLD.Tests
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(435, 705),
+                Location = new Point(835, 705),
                 Size = new Size(180, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,
@@ -239,11 +239,11 @@ namespace DVLD.Tests
 
         private void _SetupEvents()
         {
-            this.Load += frmListTestAppointments_Load;
-            btnClose.Click += btnClose_Click;
-            btnAddNew.Click += btnAddNew_Click;
-            ctxEdit.Click += ctxEdit_Click;
-            ctxTakeTest.Click += ctxTakeTest_Click;
+            this.Load           += frmListTestAppointments_Load;
+            btnClose.Click      += btnClose_Click;
+            btnAddNew.Click     += btnAddNew_Click;
+            ctxEdit.Click       += ctxEdit_Click;
+            ctxTakeTest.Click   += ctxTakeTest_Click;
             dgv.CellDoubleClick += Dgv_CellDoubleClick;
 
             // Keep the context menu's Enabled state in sync with the current

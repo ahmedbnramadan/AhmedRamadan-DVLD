@@ -61,7 +61,7 @@ namespace DVLD.Tests
         {
             // ── Form ────────────────────────────────────────────────
             this.Text = "Schedule Test";
-            this.Size = new Size(950, 700);
+            this.Size = new Size(950, 610);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -83,7 +83,7 @@ namespace DVLD.Tests
             ctrlScheduleTest1 = new ctrlScheduleTest
             {
                 Location = new Point(30, 70),
-                Size = new Size(890, 550),
+                Size = new Size(950, 430),
                 Dock = DockStyle.None
             };
 
@@ -91,7 +91,7 @@ namespace DVLD.Tests
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(385, 630),
+                Location = new Point(385, 520),
                 Size = new Size(180, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,
