@@ -79,7 +79,7 @@ namespace DVLD
         private void InitializeComponents()
         {
             // UserControl
-            this.Size = new Size(830, 300);
+            this.Size = new Size(830, 250);
             this.Font = new Font( "Microsoft Sans Serif", 9F);
 
             // GroupBox

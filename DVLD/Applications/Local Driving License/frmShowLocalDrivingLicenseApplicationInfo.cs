@@ -53,7 +53,7 @@ namespace DVLD
         {
             // Setup Form
             this.Text = "Local Driving License Application Information";
-            this.Size = new Size(900, 520);
+            this.Size = new Size(900, 570);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -75,14 +75,14 @@ namespace DVLD
             ctrlApplicationInfo = new ctrlDrivingLicenseApplicationInfo
                 {
                     Location = new Point(30, 65),
-                    Size = new Size(830, 350)
+                    Size = new Size(830, 400)
                 };
 
             // Close Button
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(700, 430),
+                Location = new Point(700, 480),
                 Size = new Size(160, 38),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,

@@ -3,6 +3,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Business;
+using DVLD.Tests;
 
 namespace DVLD
 {
@@ -197,21 +198,13 @@ namespace DVLD
             // ---------------------------------------------------------
 
             btnAddNew =
-                _Btn(
-                    "Add New",
-                    860,
-                    590,
-                    Color.FromArgb(0, 120, 215));
+                _Btn( "Add New", 860, 590, Color.FromArgb(0, 120, 215));
 
             btnAddNew.Click +=
                 BtnAddNew_Click;
 
             btnClose =
-                _Btn(
-                    "✖  Close",
-                    1025,
-                    590,
-                    Color.FromArgb(192, 50, 50));
+                _Btn( "✖  Close", 1025, 590, Color.FromArgb(192, 50, 50));
 
             btnClose.Click +=
                 BtnClose_Click;
@@ -291,6 +284,13 @@ namespace DVLD
 
             ctxScheduleTest.DropDownItems.Add(
                 ctxPracticalTest);
+
+            // Recompute which test types are actually schedulable every
+            // time this submenu is about to open, rather than trying to
+            // keep it in sync proactively from elsewhere (e.g. selection
+            // change), since passing a test can happen in another dialog
+            // while this row stays selected.
+            ctxScheduleTest.DropDownOpening += CtxScheduleTest_DropDownOpening;
 
             // ---------------------------------------------------------
             // License
@@ -682,20 +682,17 @@ namespace DVLD
 
         private void CtxVisionTest_Click(object sender, EventArgs e)
         {
-            _ScheduleTest(
-                (int)clsTestType.enTestType.Vision);
+            _ScheduleTest(clsTestType.enTestType.Vision);
         }
 
         private void CtxWrittenTest_Click(object sender, EventArgs e)
         {
-            _ScheduleTest(
-                (int)clsTestType.enTestType.Written);
+            _ScheduleTest(clsTestType.enTestType.Written);
         }
 
         private void CtxPracticalTest_Click(object sender, EventArgs e)
         {
-            _ScheduleTest(
-                (int)clsTestType.enTestType.Practical);
+            _ScheduleTest(clsTestType.enTestType.Practical);
         }
 
         private void CtxIssueDrivingLicense_Click(object sender, EventArgs e)
@@ -711,6 +708,28 @@ namespace DVLD
         private void CtxShowPersonLicenseHistory_Click(object sender, EventArgs e)
         {
             _ShowPersonLicenseHistory();
+        }
+
+        private void CtxScheduleTest_DropDownOpening(object sender, EventArgs e)
+        {
+            int id = _SelectedID();
+
+            if (id < 0)
+            {
+                ctxVisionTest.Enabled       = false;
+                ctxWrittenTest.Enabled      = false;
+                ctxPracticalTest.Enabled    = false;
+                return;
+            }
+
+            ctxVisionTest.Enabled =
+                _CanScheduleTestType(id, (int)clsTestType.enTestType.Vision);
+
+            ctxWrittenTest.Enabled =
+                _CanScheduleTestType(id, (int)clsTestType.enTestType.Written);
+
+            ctxPracticalTest.Enabled =
+                _CanScheduleTestType(id, (int)clsTestType.enTestType.Practical);
         }
 
         #endregion
@@ -856,9 +875,42 @@ namespace DVLD
 
         #endregion
 
-        #region Future Application Actions
+        #region Test Scheduling
 
-        private void _ScheduleTest(int testTypeID)
+        // A test type can be scheduled only if:
+        //   1. It hasn't already been passed (no point rescheduling a passed test), and
+        //   2. Every test type before it in the sequence (Vision -> Written -> Practical)
+        //      has already been passed.
+        //
+        // NOTE: this rule is also implemented separately in
+        // ctrlScheduleTest._ValidateTestSequence() and
+        // frmListTestAppointments._ValidateTestSequence(). Having it a third
+        // time here is a maintenance risk - if DVLD ever changes the required
+        // test order, all three places must be updated together. Worth pulling
+        // into a single static method (e.g.
+        // clsLocalDrivingLicenseApplication.CanScheduleTestType) in the
+        // Business layer the next time this file is touched.
+        private static bool _CanScheduleTestType(int localDrivingLicenseApplicationID, int testTypeID)
+        {
+            if (clsLocalDrivingLicenseApplication.IsTestPassed(
+                    localDrivingLicenseApplicationID, testTypeID))
+            {
+                return false;
+            }
+
+            for (int previousTestID = 1; previousTestID < testTypeID; previousTestID++)
+            {
+                if (!clsLocalDrivingLicenseApplication.IsTestPassed(
+                        localDrivingLicenseApplicationID, previousTestID))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private void _ScheduleTest(clsTestType.enTestType testType)
         {
             int id = _SelectedID();
 
@@ -888,21 +940,30 @@ namespace DVLD
                 return;
             }
 
-            // ---------------------------------------------------------
-            // Your current GitHub branch does not yet contain the
-            // Schedule Test form.
-            //
-            // When that form is added, this is the only place that
-            // needs to be linked.
-            // ---------------------------------------------------------
+            // Defensive re-check: the menu item should already be disabled
+            // for this case (see CtxScheduleTest_DropDownOpening), so this
+            // path should be unreachable through the UI - but we don't
+            // trust that blindly here.
+            if (!_CanScheduleTestType(id, (int)testType))
+            {
+                clsUtil.ShowWarning(
+                    $"You cannot schedule the {testType} test yet.");
 
-            MessageBox.Show(
-                "Schedule Test form is not available in the current branch.\n\n" +
-                "Selected Test Type ID: " + testTypeID,
-                "Schedule Test",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+                return;
+            }
+
+            using (frmListTestAppointments frm =
+                new frmListTestAppointments(id, testType))
+            {
+                frm.ShowDialog();
+            }
+
+            // Refresh so columns like "Passed Tests" reflect anything that
+            // happened while the appointments list / schedule dialog was open.
+            _LoadData();
         }
+
+        #endregion
 
         private void _IssueDrivingLicense()
         {
@@ -1016,8 +1077,6 @@ namespace DVLD
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
         }
-
-        #endregion
 
         #region Grid Events
 

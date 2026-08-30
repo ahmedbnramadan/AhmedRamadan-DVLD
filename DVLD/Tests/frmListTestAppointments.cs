@@ -50,13 +50,14 @@ namespace DVLD.Tests
         {
             // ── Form ────────────────────────────────────────────────
             this.Text = "Test Appointments";
-            this.Size = new Size(1050, 750);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.BackColor = Color.FromArgb(240, 242, 248);
-            this.Font = new Font("Microsoft Sans Serif", 10F);
+            this.FormBorderStyle    = FormBorderStyle.FixedDialog;
+            this.ClientSize         = new Size(1050, 760);
+            this.StartPosition      = FormStartPosition.CenterScreen;
+            this.FormBorderStyle    = FormBorderStyle.FixedDialog;
+            this.MaximizeBox        = false;
+            this.MinimizeBox        = false;
+            this.BackColor          = Color.FromArgb(240, 242, 248);
+            this.Font               = new Font("Microsoft Sans Serif", 10F);
 
             // ── Page title ───────────────────────────────────────────
             lblTitle = new Label
@@ -68,18 +69,7 @@ namespace DVLD.Tests
                 Location = new Point(30, 20)
             };
 
-            // ── Driving License Application Info Control ─────────────
-            ctrlDrivingLicenseApplicationInfo1 = new ctrlDrivingLicenseApplicationInfo
-            {
-                Location = new Point(30, 60),
-                Size = new Size(990, 350),
-                Dock = DockStyle.None
-            };
-
             // ── Context Menu (built BEFORE the grid, since the grid needs it) ──
-            // KEY CONCEPT: dgv.ContextMenuStrip = ctxMenu only works if ctxMenu
-            // already points to a real object at the moment that line runs.
-            // Building ctxMenu after the grid meant the grid captured `null`.
             ctxMenu = new ContextMenuStrip();
 
             ctxEdit = new ToolStripMenuItem
@@ -94,17 +84,25 @@ namespace DVLD.Tests
 
             ctxMenu.Items.AddRange(new ToolStripItem[] { ctxEdit, ctxTakeTest });
 
+            // ── Driving License Application Info Control ─────────────
+            ctrlDrivingLicenseApplicationInfo1 = new ctrlDrivingLicenseApplicationInfo
+            {
+                Location = new Point(30, 60),
+                Size = new Size(990, 380),
+                Dock = DockStyle.None
+            };
+
             // ── DataGridView ─────────────────────────────────────────
             dgv = new DataGridView
             {
-                Location = new Point(30, 420),
-                Size = new Size(990, 230),
+                Location = new Point(30, 470),
+                Size = new Size(990, 200),
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
                 MultiSelect = false,
                 AutoGenerateColumns = false,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 ColumnHeadersHeight = 34,
                 RowTemplate = { Height = 28 },
                 BorderStyle = BorderStyle.None,
@@ -122,16 +120,30 @@ namespace DVLD.Tests
             {
                 Text = "Records: 0",
                 AutoSize = true,
-                Location = new Point(30, 660),
+                Location = new Point(30, 685),
                 ForeColor = Color.Gray,
                 Font = new Font("Microsoft Sans Serif", 9F)
             };
+
+            // ── Add New button ───────────────────────────────────────
+            btnAddNew = new Button
+            {
+                Text = "Schedule Test",
+                Location = new Point(30, 705),
+                Size = new Size(180, 40),
+                Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
+                BackColor = clsGlobal.PrimaryBlue,  
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+            btnAddNew.FlatAppearance.BorderSize = 0;
 
             // ── Close button ─────────────────────────────────────────
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(435, 680),
+                Location = new Point(435, 705),
                 Size = new Size(180, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,
@@ -140,20 +152,6 @@ namespace DVLD.Tests
                 Cursor = Cursors.Hand
             };
             btnClose.FlatAppearance.BorderSize = 0;
-
-            // ── Add New button ───────────────────────────────────────
-            btnAddNew = new Button
-            {
-                Text = "Schedule Test",
-                Location = new Point(30, 680),
-                Size = new Size(180, 40),
-                Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
-                BackColor = clsGlobal.PrimaryBlue,   // ← now valid
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand
-            };
-            btnAddNew.FlatAppearance.BorderSize = 0;
 
             // ── Add to form ───────────────────────────────────────────
             this.Controls.AddRange(new Control[]
@@ -176,7 +174,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "testappointmentid",
                 HeaderText = "Appointment ID",
-                Width = 100,
+                FillWeight = 100,
                 SortMode = DataGridViewColumnSortMode.Automatic
             });
 
@@ -185,7 +183,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "testtypetitle",
                 HeaderText = "Test Type",
-                Width = 120,
+                FillWeight = 120,
                 SortMode = DataGridViewColumnSortMode.Automatic
             });
 
@@ -194,7 +192,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "appointmentdate",
                 HeaderText = "Appointment Date",
-                Width = 140,
+                FillWeight = 140,
                 SortMode = DataGridViewColumnSortMode.Automatic,
                 DefaultCellStyle = { Format = "dd/MMM/yyyy" }
             });
@@ -204,7 +202,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "paidfees",
                 HeaderText = "Paid Fees",
-                Width = 100,
+                FillWeight = 100,
                 SortMode = DataGridViewColumnSortMode.Automatic,
                 DefaultCellStyle = { Format = "N2", Alignment = DataGridViewContentAlignment.MiddleRight }
             });
@@ -214,7 +212,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "createdbyusername",
                 HeaderText = "Created By",
-                Width = 130,
+                FillWeight = 130,
                 SortMode = DataGridViewColumnSortMode.Automatic
             });
 
@@ -223,7 +221,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "islocked",
                 HeaderText = "Locked",
-                Width = 80,
+                FillWeight = 80,
                 SortMode = DataGridViewColumnSortMode.Automatic,
                 DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
@@ -233,7 +231,7 @@ namespace DVLD.Tests
             {
                 DataPropertyName = "retaketestapplicationid",
                 HeaderText = "Retake App ID",
-                Width = 100,
+                FillWeight = 100,
                 SortMode = DataGridViewColumnSortMode.Automatic,
                 DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
             });
