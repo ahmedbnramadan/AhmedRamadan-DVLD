@@ -27,6 +27,7 @@ namespace DVLD
 
         // ── Shared UI colours ─────────────────────────────────────────
         public static readonly Color PrimaryRed = Color.FromArgb(192, 0, 0);
+        public static readonly Color PrimaryBlue = Color.FromArgb(0, 120, 215);   // ← added
         public static readonly Color InputError = Color.FromArgb(255, 204, 204);
         public static readonly Color InputValid = Color.White;
         public static readonly Color GridHeaderBack = Color.FromArgb(68, 114, 196);
