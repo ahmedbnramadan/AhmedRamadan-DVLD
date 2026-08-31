@@ -21,13 +21,34 @@ namespace Business
         public bool TestResult { get; set; }
 
         public string Notes { get; set; }
-
         public int CreatedByUserID { get; set; }
 
-        public clsTestAppointment TestAppointmentInfo { get; set; }
+        private clsTestAppointment _TestAppointmentInfo;
 
-        public clsUser CreatedByUserInfo { get; set; }
+        private clsUser _CreatedByUserInfo { get; set; }
 
+        public clsTestAppointment TestAppointmentInfo
+        {
+            get
+            {
+                if(_TestAppointmentInfo == null)
+                    _TestAppointmentInfo = clsTestAppointment.Find(this.TestAppointmentID);
+
+                return _TestAppointmentInfo;
+            }
+        }
+
+        public clsUser CreatedByUserInfo
+        {
+            get
+            {
+                if(_CreatedByUserInfo == null)
+                    _CreatedByUserInfo = clsUser.Find(this.CreatedByUserID);
+
+                return _CreatedByUserInfo;
+            }
+        }
+      
         public clsTest()
         {
             this.TestID = -1;
@@ -52,14 +73,6 @@ namespace Business
             this.TestResult = TestResult;
             this.Notes = Notes;
             this.CreatedByUserID = CreatedByUserID;
-
-            this.TestAppointmentInfo = clsTestAppointment.Find(
-                this.TestAppointmentID
-            );
-
-            this.CreatedByUserInfo = clsUser.Find(
-                this.CreatedByUserID
-            );
 
             this.Mode = enMode.Update;
         }
@@ -214,30 +227,43 @@ namespace Business
             );
         }
 
-        
-        public static bool GetLastTestByPersonAndTestTypeAndLicenseClass(
-            int PersonID,
-            int TestTypeID,
-            int LicenseClassID,
-            ref int TestID,
-            ref int TestAppointmentID,
-            ref bool TestResult,
-            ref string Notes,
-            ref int CreatedByUserID,
-            ref DateTime AppointmentDate
-        )
+        public static bool IsPassedAllTests(int LocalDrivingLicenseApplicationID)
         {
-            return DataAccess.clsTests.GetLastTestByPersonAndTestTypeAndLicenseClass(
+            return GetPassedTestCount(LocalDrivingLicenseApplicationID) == 3;
+        }
+        
+        public static clsTest GetLastTestByPersonAndTestTypeAndLicenseClass(
+            int PersonID,
+            int LicenseClassID,
+            clsTestType.enTestType TestTypeID)
+        {
+            int TestID = -1;
+            int TestAppointmentID = -1;
+            bool TestResult = false;
+            string Notes = "";
+            int CreatedByUserID = -1;
+            DateTime AppointmentDate = DateTime.MinValue;
+
+            if (DataAccess.clsTests.GetLastTestByPersonAndTestTypeAndLicenseClass(
                 PersonID,
-                TestTypeID,
+                (int)TestTypeID,
                 LicenseClassID,
                 ref TestID,
                 ref TestAppointmentID,
                 ref TestResult,
                 ref Notes,
                 ref CreatedByUserID,
-                ref AppointmentDate
-            );
+                ref AppointmentDate))
+            {
+                return new clsTest(
+                    TestID,
+                    TestAppointmentID,
+                    TestResult,
+                    Notes,
+                    CreatedByUserID);
+            }
+
+            return null;
         }
 
         
