@@ -234,8 +234,9 @@ namespace Business
         
         public static clsTest GetLastTestByPersonAndTestTypeAndLicenseClass(
             int PersonID,
-            int LicenseClassID,
-            clsTestType.enTestType TestTypeID)
+            clsTestType.enTestType TestTypeID,
+            int LicenseClassID
+            )
         {
             int TestID = -1;
             int TestAppointmentID = -1;
