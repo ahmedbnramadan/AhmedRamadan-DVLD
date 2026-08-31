@@ -465,16 +465,21 @@ namespace DVLD.Tests
                 return;
             }
 
-            // Check if appointment is locked
             if (clsTestAppointment.IsAppointmentLocked(testAppointmentID))
             {
-                clsUtil.ShowError("This appointment is locked and cannot be used to take a test.", "Error");
+                clsUtil.ShowError("This appointment is locked - the test has already been taken.", "Error");
                 return;
             }
 
-            // For now, show coming soon message
-            // TODO: Implement take test functionality when frmTakeTest is created
-            clsUtil.ShowMessage("Take Test feature is coming soon.", "Coming Soon");
+            using (var frm = new frmTakeTest(testAppointmentID, _TestType))
+            {
+                frm.ShowDialog();
+            }
+
+            // Always refresh, regardless of DialogResult - the "Locked" column
+            // (and any future result column) needs to reflect what just happened,
+            // and the user might have saved without formally "closing OK".
+            _LoadData();
         }
 
         #endregion
