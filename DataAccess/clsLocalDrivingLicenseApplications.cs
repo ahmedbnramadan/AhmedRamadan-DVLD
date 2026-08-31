@@ -759,7 +759,8 @@ namespace DataAccess
                                 FROM tests t
                                 INNER JOIN testappointments ta ON t.testappointmentid = ta.testappointmentid
                                 WHERE ta.localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID
-                                AND ta.testtypeid = @TestTypeID";
+                                AND ta.testtypeid = @TestTypeID
+                                AND ta.appointmentdate <= GETDATE()";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -831,6 +832,7 @@ namespace DataAccess
                                     TestAppointments ta ON ldla.localdrivinglicenseapplicationid = ta.localdrivinglicenseapplicationid
                                     WHERE ldla.localdrivinglicenseapplicationid = @LocalDrivingLicenseApplicationID
                                     AND ta.islocked = 0
+                                    AND ta.appointmentdate > GETDATE()
                                     ORDER BY ta.testappointmentid DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))

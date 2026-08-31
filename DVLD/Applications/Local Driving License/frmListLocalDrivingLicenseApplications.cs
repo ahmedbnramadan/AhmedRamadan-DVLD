@@ -7,7 +7,6 @@ using DVLD.Tests;
 
 namespace DVLD
 {
-    /// make the availavle optioins only theat is availvle, others read-only/////////////
     public class frmListLocalDrivingLicenseApplications : Form
     {
         #region Controls

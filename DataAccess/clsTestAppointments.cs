@@ -359,7 +359,7 @@ namespace DataAccess
                 string query = @"SELECT TOP 1 * FROM testappointments
                                 WHERE TestTypeID = @TestTypeID
                                 AND LocalDrivingLicenseApplicationID = @LocalDrivingLicenseApplicationID
-                                ORDER by testappointmentid SESC";
+                                ORDER by testappointmentid DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {

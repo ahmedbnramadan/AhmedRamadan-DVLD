@@ -61,7 +61,7 @@ namespace DVLD.Tests
         {
             // ── Form ────────────────────────────────────────────────
             this.Text = "Schedule Test";
-            this.Size = new Size(950, 610);
+            this.Size = new Size(1010, 630);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -69,7 +69,7 @@ namespace DVLD.Tests
             this.BackColor = Color.FromArgb(240, 242, 248);
             this.Font = new Font("Microsoft Sans Serif", 10F);
 
-            // ── Page title ───────────────────────────────────────────
+            // ── Page title ─────────────────────────────────────────
             lblTitle = new Label
             {
                 Text = "Schedule Test Appointment",
@@ -79,19 +79,19 @@ namespace DVLD.Tests
                 Location = new Point(30, 20)
             };
 
-            // ── Schedule Test Control ─────────────────────────────────
+            // ── Schedule Test Control ──────────────────────────────
             ctrlScheduleTest1 = new ctrlScheduleTest
             {
                 Location = new Point(30, 70),
-                Size = new Size(950, 430),
+                Size = new Size(950, 450),
                 Dock = DockStyle.None
             };
 
-            // ── Close button ─────────────────────────────────────────
+            // ── Close button ───────────────────────────────────────
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(385, 520),
+                Location = new Point(400, 535),
                 Size = new Size(180, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,
@@ -99,9 +99,10 @@ namespace DVLD.Tests
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand
             };
+
             btnClose.FlatAppearance.BorderSize = 0;
 
-            // ── Add to form ───────────────────────────────────────────
+            // ── Add to form ────────────────────────────────────────
             this.Controls.AddRange(new Control[]
             {
                 lblTitle,
@@ -153,20 +154,31 @@ namespace DVLD.Tests
 
             try
             {
-                // Order matters here: TestType is set first so it's already
-                // correct if LocalDrivingLicenseApplicationID's setter ends up
-                // reading it while resolving AddNew mode.
                 ctrlScheduleTest1.TestType = _TestType;
                 ctrlScheduleTest1.SetCurrentUser(clsGlobal.CurrentUserID);
 
-                // This setter triggers the control's own _InitializeControl,
-                // which looks up the active appointment (if any) for this
-                // application and switches itself into Add or Update mode.
-                ctrlScheduleTest1.LocalDrivingLicenseApplicationID = _LocalDrivingLicenseApplicationID;
+                if (_AppointmentID > 0)
+                {
+                    // Edit an exact appointment.
+                    ctrlScheduleTest1.LoadAppointment(
+                        _LocalDrivingLicenseApplicationID,
+                        _AppointmentID);
+                }
+                else
+                {
+                    // New scheduling request.
+                    // The control decides whether this is AddNew
+                    // or Update based on the active appointment.
+                    ctrlScheduleTest1.LocalDrivingLicenseApplicationID =
+                        _LocalDrivingLicenseApplicationID;
+                }
             }
             catch (Exception ex)
             {
-                clsUtil.ShowError($"Failed to load appointment data.\n{ex.Message}", "Error");
+                clsUtil.ShowError(
+                    $"Failed to load appointment data.\n{ex.Message}",
+                    "Error");
+
                 this.Close();
             }
         }

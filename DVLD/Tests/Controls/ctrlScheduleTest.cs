@@ -114,6 +114,7 @@ namespace DVLD.Tests.Controls
         // Suppresses handler side-effects while we are populating controls programmatically,
         // so we don't re-run the same logic twice or fight our own initial values.
         private bool _isPopulatingControls = false;
+        private bool _TestTypeWasExplicitlySet = false;
 
         #endregion
 
@@ -130,6 +131,8 @@ namespace DVLD.Tests.Controls
             get { return _TestType; }
             set
             {
+                _TestTypeWasExplicitlySet = true;
+
                 if (_TestType != value)
                 {
                     _TestType = value;
@@ -210,7 +213,7 @@ namespace DVLD.Tests.Controls
 
         private void InitializeComponent()
         {
-            this.Size = new Size(950, 430);
+            this.Size = new Size(950, 450);
             this.Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Regular);
             this.Dock = DockStyle.Fill;
 
@@ -412,7 +415,7 @@ namespace DVLD.Tests.Controls
             gbRetakeTestInfo = new GroupBox
             {
                 Text = "Retake Test Information",
-                Location = new Point(450, 315),
+                Location = new Point(450, 295),
                 Size = new Size(420, 100),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 Visible = false
@@ -455,13 +458,13 @@ namespace DVLD.Tests.Controls
             btnSave = new Button
             {
                 Text = "Save",
-                Location = new Point(140, 360),
+                Location = new Point(140, 320),
                 Size = new Size(150, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Anchor = AnchorStyles.Bottom,
+                Anchor = AnchorStyles.Left,
                 Visible = true
             };
             btnSave.FlatAppearance.BorderSize = 0;
@@ -623,8 +626,11 @@ namespace DVLD.Tests.Controls
                     _TestAppointmentID = -1;
                     _IsLocked = false;
 
-                    _TestTypeID = _DetermineDefaultTestTypeID();
-                    _TestType = (clsTestType.enTestType)_TestTypeID;
+                    if (!_TestTypeWasExplicitlySet)
+                    {
+                        _TestTypeID = _DetermineDefaultTestTypeID();
+                        _TestType = (clsTestType.enTestType)_TestTypeID;
+                    }
 
                     dtpAppointmentDate.MinDate = DateTime.Now.AddDays(1);
                     dtpAppointmentDate.Value = DateTime.Now.AddDays(1);
@@ -1006,15 +1012,104 @@ namespace DVLD.Tests.Controls
                 return _ExistingAppointment.RetakeTestApplicationID;
             }
 
-            // I don't have clsApplication's real constructor/Save API in front of me,
-            // so I'm not going to invent it. See my note in chat about this.
-            throw new NotImplementedException(
-                "Creating a new base application for a retake needs clsApplication's actual members - please confirm them.");
+            // Create a new base application for the retake
+            // Use the same applicant person as the original LDLA
+            var retakeApplication = new clsApplication();
+            retakeApplication.ApplicantPersonID = _Application.ApplicantPersonID;
+            retakeApplication.ApplicationTypeID = _Application.ApplicationTypeID;
+            retakeApplication.PaidFees = 0; // Retake uses existing fees or handled separately
+            retakeApplication.CreatedByUserID = clsGlobal.CurrentUserID;
+
+            if (retakeApplication.Save())
+            {
+                return retakeApplication.ApplicationID;
+            }
+
+            throw new Exception(
+                "Failed to create base application for retake test.");
         }
 
         #endregion
 
         #region Public Methods
+
+        public void LoadAppointment(int localDrivingLicenseApplicationID, int appointmentID)
+        {
+            if (localDrivingLicenseApplicationID <= 0 || appointmentID <= 0)
+            {
+                ResetControls();
+                return;
+            }
+
+            _isPopulatingControls = true;
+
+            try
+            {
+                _Application = clsLocalDrivingLicenseApplication.FindByLocalDrivingAppID(
+                    localDrivingLicenseApplicationID);
+
+                if (_Application == null)
+                {
+                    ResetControls();
+                    _ShowStatusMessage(
+                        $"No application found with ID = {localDrivingLicenseApplicationID}",
+                        true);
+                    return;
+                }
+
+                clsTestAppointment appointment = clsTestAppointment.Find(appointmentID);
+
+                if (appointment == null)
+                {
+                    ResetControls();
+                    _ShowStatusMessage(
+                        $"No test appointment found with ID = {appointmentID}",
+                        true);
+                    return;
+                }
+
+                // Make sure the appointment belongs to this LDLA.
+                if (appointment.LocalDrivingLicenseApplicationID !=
+                    localDrivingLicenseApplicationID)
+                {
+                    ResetControls();
+                    _ShowStatusMessage(
+                        "The selected appointment does not belong to this application.",
+                        true);
+                    return;
+                }
+
+                _LocalDrivingLicenseApplicationID = localDrivingLicenseApplicationID;
+
+                _ExistingAppointment = appointment;
+                _TestAppointmentID = appointment.TestAppointmentID;
+
+                _Mode = enMode.Update;
+                _TestTypeID = (int)appointment.TestTypeID;
+                _TestType = appointment.TestTypeID;
+                _TestTypeWasExplicitlySet = true;
+
+                _IsLocked = appointment.IsLocked;
+
+                DateTime lowestAllowedDate = appointment.AppointmentDate < DateTime.Now
+                    ? DateTime.Now
+                    : appointment.AppointmentDate;
+
+                dtpAppointmentDate.MinDate = lowestAllowedDate;
+                dtpAppointmentDate.Value = appointment.AppointmentDate;
+
+                _FillApplicationData();
+                _UpdateTestTypeSpecifics();
+                EnableAvailableTestsOnly();
+            }
+            finally
+            {
+                _isPopulatingControls = false;
+            }
+
+            _ValidateTestSequence();
+            _SetControlsReadOnly(_IsLocked);
+        }
 
         public void LoadApplicationInfo(int applicationID)
         {
@@ -1060,6 +1155,9 @@ namespace DVLD.Tests.Controls
             lblRetakeApplicationID.Text = "N/A";
             lblRetakeFees.Text = "0.00";
             gbRetakeTestInfo.Visible = false;
+
+            btnSave.Visible = true;
+            btnSave.Enabled = true;
 
             dtpAppointmentDate.MinDate = DateTime.Now.AddDays(1);
             dtpAppointmentDate.Value = DateTime.Now.AddDays(1);
