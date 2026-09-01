@@ -9,13 +9,13 @@ namespace DataAccess
         public static string LastErrorMessage = "";
 
         public static int AddNewLicenseClass(
-    int LicenseClassID,
-    string ClassName,
-    string ClassDescription,
-    short MinimumAllowedAge,
-    short DefaultValidityLength,
-    decimal ClassFees
-    )
+        int LicenseClassID,
+        string ClassName,
+        string ClassDescription,
+        short MinimumAllowedAge,
+        short DefaultValidityLength,
+        decimal ClassFees
+        )
         {
             int insertedID = -1;
             LastErrorMessage = "";
