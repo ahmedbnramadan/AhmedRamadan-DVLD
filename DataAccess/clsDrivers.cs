@@ -11,8 +11,7 @@ namespace DataAccess
 
         public static int AddNewDriver(
             int PersonID,
-            int CreatedByUserID,
-            DateTime CreatedDate
+            int CreatedByUserID
             )
         {
             int DriverID = -1;
@@ -30,7 +29,6 @@ namespace DataAccess
                 {
                     command.Parameters.AddWithValue("@PersonID", PersonID);
                     command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-                    command.Parameters.AddWithValue("@CreatedDate", CreatedDate);
 
                     try
                     {
@@ -239,8 +237,7 @@ namespace DataAccess
         public static bool UpdateDriver(
             int DriverID,
             int PersonID,
-            int CreatedByUserID,
-            DateTime CreatedDate
+            int CreatedByUserID
             )
         {
             LastErrorMessage = "";
@@ -261,7 +258,6 @@ namespace DataAccess
                     command.Parameters.AddWithValue("@DriverID", DriverID);
                     command.Parameters.AddWithValue("@PersonID", PersonID);
                     command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-                    command.Parameters.AddWithValue("@CreatedDate", CreatedDate);
 
                     try
                     {

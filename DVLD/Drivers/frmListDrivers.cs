@@ -90,7 +90,7 @@ namespace DVLD
 
         private void _LoadData()
         {
-            _full = clsDriver.ViewAllDrivers();
+            _full = clsDriver.GetAllDrivers();
             _BindGrid(_full);
         }
 
