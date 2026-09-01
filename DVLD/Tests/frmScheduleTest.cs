@@ -91,7 +91,7 @@ namespace DVLD.Tests
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(400, 535),
+                Location = new Point(800, 535),
                 Size = new Size(180, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,

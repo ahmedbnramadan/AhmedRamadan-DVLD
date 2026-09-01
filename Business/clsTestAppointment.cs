@@ -278,7 +278,7 @@ namespace Business
 
         public static bool IsAppointmentLocked(int TestAppointmentID)
         {
-            return clsTestAppointment.IsAppointmentLocked(TestAppointmentID);
+            return DataAccess.clsTestAppointments.IsAppointmentLocked(TestAppointmentID);   // ✅ delegates to DataAccess
         }
 
         private int _GetTestID()

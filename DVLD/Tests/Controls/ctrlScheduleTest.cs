@@ -458,13 +458,12 @@ namespace DVLD.Tests.Controls
             btnSave = new Button
             {
                 Text = "Save",
-                Location = new Point(140, 320),
+                Location = new Point(370, 390),
                 Size = new Size(150, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = Color.SteelBlue,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Anchor = AnchorStyles.Left,
                 Visible = true
             };
             btnSave.FlatAppearance.BorderSize = 0;

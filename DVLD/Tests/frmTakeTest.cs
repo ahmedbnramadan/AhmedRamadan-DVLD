@@ -41,7 +41,7 @@ namespace DVLD.Tests
         private void _InitializeComponents()
         {
             this.Text = "Take Test";
-            this.Size = new Size(1000, 620);
+            this.Size = new Size(1020, 650);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -68,7 +68,7 @@ namespace DVLD.Tests
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(410, 555),
+                Location = new Point(800, 555),
                 Size = new Size(180, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,

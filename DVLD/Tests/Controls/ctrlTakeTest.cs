@@ -174,7 +174,7 @@ namespace DVLD.Tests.Controls
             // ── Save ────────────────────────────────────────────────────
             btnSave = new Button
             {
-                Text = "💾  Save",
+                Text = "Save",
                 Location = new Point(400, 400),
                 Size = new Size(150, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
@@ -259,7 +259,7 @@ namespace DVLD.Tests.Controls
             _TestAppointmentID = testAppointmentID;
             _TestType = _Appointment.TestTypeID;
 
-            lblTitle.Text = $"Take Test - {_TestType} Test";
+            lblTitle.Text = $"{_TestType} Test";
 
             _FillAppointmentData();
 

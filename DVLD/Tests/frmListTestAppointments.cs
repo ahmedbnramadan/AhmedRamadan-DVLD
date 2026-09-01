@@ -172,6 +172,7 @@ namespace DVLD.Tests
             // Test Appointment ID
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "TestAppointmentID",
                 DataPropertyName = "TestAppointmentID",
                 HeaderText = "Appointment ID",
                 FillWeight = 100,
@@ -181,6 +182,7 @@ namespace DVLD.Tests
             // Test Type
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "testtypetitle",
                 DataPropertyName = "testtypetitle",
                 HeaderText = "Test Type",
                 FillWeight = 120,
@@ -190,6 +192,7 @@ namespace DVLD.Tests
             // Appointment Date
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "appointmentdate",
                 DataPropertyName = "appointmentdate",
                 HeaderText = "Appointment Date",
                 FillWeight = 140,
@@ -200,6 +203,7 @@ namespace DVLD.Tests
             // Paid Fees
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "paidfees",
                 DataPropertyName = "paidfees",
                 HeaderText = "Paid Fees",
                 FillWeight = 100,
@@ -210,6 +214,7 @@ namespace DVLD.Tests
             // Created By
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "createdbyusername",
                 DataPropertyName = "createdbyusername",
                 HeaderText = "Created By",
                 FillWeight = 130,
@@ -219,6 +224,7 @@ namespace DVLD.Tests
             // Is Locked
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "islocked",
                 DataPropertyName = "islocked",
                 HeaderText = "Locked",
                 FillWeight = 80,
@@ -229,6 +235,7 @@ namespace DVLD.Tests
             // Retake Application ID
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
+                Name = "retaketestapplicationid",
                 DataPropertyName = "retaketestapplicationid",
                 HeaderText = "Retake App ID",
                 FillWeight = 100,
@@ -377,10 +384,10 @@ namespace DVLD.Tests
                 return;
             }
 
-            // Check if already taken this test
-            if (clsLocalDrivingLicenseApplication.DoesAttendTestType(_LocalDrivingLicenseApplicationID, (int)_TestType))
+            // Retaking a FAILED test must remain allowed — only block if it's already been PASSED.
+            if (clsLocalDrivingLicenseApplication.IsTestPassed(_LocalDrivingLicenseApplicationID, (int)_TestType))
             {
-                clsUtil.ShowError($"You have already taken the {_TestType} test before.", "Validation Error");
+                clsUtil.ShowError($"You have already passed the {_TestType} test.", "Validation Error");
                 return;
             }
 
