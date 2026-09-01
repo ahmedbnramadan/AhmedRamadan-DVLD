@@ -134,12 +134,12 @@ namespace DVLD
             ctxMenu = new ContextMenuStrip();
             ctxMenu.Font = new Font("Microsoft Sans Serif", 9.5F);
 
-            ctxShowDetails = new ToolStripMenuItem("👤  Show Details");
-            ctxAddNew      = new ToolStripMenuItem("➕  Add New Person");
-            ctxEdit        = new ToolStripMenuItem("✏️  Edit");
-            ctxDelete      = new ToolStripMenuItem("🗑  Delete");
-            ctxSendEmail   = new ToolStripMenuItem("📧  Send Email");
-            ctxPhoneCall   = new ToolStripMenuItem("📞  Phone Call");
+            ctxShowDetails = new ToolStripMenuItem("Show Details");
+            ctxAddNew      = new ToolStripMenuItem("Add New Person");
+            ctxEdit        = new ToolStripMenuItem("Edit");
+            ctxDelete      = new ToolStripMenuItem("Delete");
+            ctxSendEmail   = new ToolStripMenuItem("Send Email");
+            ctxPhoneCall   = new ToolStripMenuItem("Phone Call");
 
             ctxShowDetails.Click += (s, e) => _ShowDetails();
             ctxAddNew.Click      += (s, e) => _OpenAddNew();

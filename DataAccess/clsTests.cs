@@ -739,15 +739,15 @@ namespace DataAccess
 
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = @"SELECT TOP 1 t.TestID, t.TestAppointmentID, t.TestResult, t.Notes, t.CreatedByUserID, ta.AppointmentDate
-                                FROM Tests t
-                                INNER JOIN TestAppointments ta ON t.TestAppointmentID = ta.TestAppointmentID
-                                INNER JOIN LocalDrivingLicenseApplications lda ON ta.LocalDrivingLicenseApplicationID = lda.LocalDrivingLicenseApplicationID
-                                INNER JOIN Applications a ON lda.ApplicationID = a.ApplicationID
-                                WHERE a.ApplicantPersonID = @PersonID
-                                AND ta.TestTypeID = @TestTypeID
-                                AND lda.LicenseClassID = @LicenseClassID
-                                ORDER BY ta.AppointmentDate DESC, t.TestID DESC";
+                string query = @"SELECT TOP 1 t.testid, t.testappointmentid , t.testresult , t.notes , t.createdbyuserid , ta.appointmentdate
+                                FROM tests t
+                                INNER JOIN testappointments ta ON t.testappointmentid = ta.testappointmentid
+                                INNER JOIN localdrivinglicenseapplications lda ON ta.localdrivinglicenseapplicationid = lda.localdrivinglicenseapplicationid
+                                INNER JOIN applications a ON lda.applicationid = a.applicationid
+                                WHERE a.applicantpersonid = @PersonID
+                                AND ta.testtypeid = @TestTypeID
+                                AND lda.licenseclassid = @LicenseClassID
+                                ORDER BY ta.appointmentdate DESC, t.testid DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {

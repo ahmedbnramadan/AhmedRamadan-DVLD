@@ -172,7 +172,7 @@ namespace DVLD.Tests
             // Test Appointment ID
             dgv.Columns.Add(new DataGridViewTextBoxColumn
             {
-                DataPropertyName = "testappointmentid",
+                DataPropertyName = "TestAppointmentID",
                 HeaderText = "Appointment ID",
                 FillWeight = 100,
                 SortMode = DataGridViewColumnSortMode.Automatic
@@ -339,7 +339,7 @@ namespace DVLD.Tests
         {
             if (dgv.SelectedRows.Count > 0)
             {
-                if (int.TryParse(dgv.SelectedRows[0].Cells["testappointmentid"].Value?.ToString(), out int id))
+                if (int.TryParse(dgv.SelectedRows[0].Cells["TestAppointmentID"].Value?.ToString(), out int id))
                 {
                     return id;
                 }

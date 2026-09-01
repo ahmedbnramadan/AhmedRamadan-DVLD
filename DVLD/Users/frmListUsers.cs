@@ -514,7 +514,7 @@ namespace DVLD
             if (hasSelection && dgvUsers.SelectedRows[0].Cells["FullName"]?.Value != null)
             {
                 string userName = dgvUsers.SelectedRows[0].Cells["FullName"].Value.ToString();
-                ctxShowDetails.Text = $"Show Details ({userName})";
+                ctxShowDetails.Text = "Show Details";
             }
             else
             {

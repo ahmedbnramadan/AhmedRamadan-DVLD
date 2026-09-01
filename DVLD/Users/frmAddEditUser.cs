@@ -131,7 +131,7 @@ namespace DVLD
             btnSave = new Button
             {
                 Text      = "Save",
-                Location  = new Point(650, 625),
+                Location  = new Point(810, 625),
                 Size      = new Size(150, 38),
                 Font      = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 BackColor = Color.FromArgb(0, 120, 215),

@@ -554,10 +554,10 @@ namespace DVLD
                 new DataView(_full);
 
             dv.RowFilter =
-                string.Format(
-                    "[{0}] = {1}",
-                    columnName,
-                    number);
+            string.Format(
+                "CONVERT([{0}], 'System.String') LIKE '%{1}%'",
+                columnName,
+                value);
 
             _BindGrid(dv.ToTable());
         }

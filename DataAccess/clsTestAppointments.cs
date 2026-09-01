@@ -440,7 +440,14 @@ namespace DataAccess
 
             using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = @"SELECT ta.*, 
+                string query = @"SELECT ta.testappointmentid as TestAppointmentID,
+                                        ta.testtypeid,
+                                        ta.localdrivinglicenseapplicationid,
+                                        ta.appointmentdate,
+                                        ta.paidfees,
+                                        ta.createdbyuserid,
+                                        ta.islocked,
+                                        ta.retaketestapplicationid,
                                         tt.testtypetitle,
                                         u.username as createdbyusername
                                 FROM testappointments ta

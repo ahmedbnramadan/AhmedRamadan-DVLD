@@ -308,7 +308,7 @@ namespace DVLD
             llRemoveImage.LinkClicked += llRemoveImage_LinkClicked;
 
             // ── Buttons ─────────────────────────────────────────────
-            btnSave = _MakeButton("💾  Save",  560, 460, 180, Color.FromArgb(0, 120, 215));
+            btnSave = _MakeButton("Save",  560, 460, 180, Color.FromArgb(0, 120, 215));
             btnSave.Click += btnSave_Click;
 
             btnClose = _MakeButton("✖  Close", 755, 460, 180, Color.FromArgb(192, 50, 50));
