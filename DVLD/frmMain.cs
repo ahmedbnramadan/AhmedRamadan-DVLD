@@ -401,7 +401,7 @@ namespace DVLD
 
         private void _RetakeTest(object sender, EventArgs e)
         {
-            MessageBox.Show("Coming Soon");
+            new frmListLocalDrivingLicenseApplications().ShowDialog();
         }
 
         // New Driving License
