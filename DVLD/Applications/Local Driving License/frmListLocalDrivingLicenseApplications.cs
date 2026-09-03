@@ -1033,32 +1033,28 @@ namespace DVLD
 
             if (!application.IsAllTestsPassed())
             {
-                MessageBox.Show(
-                    "The applicant must pass all three tests first.",
-                    "Issue Driving License",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                clsUtil.ShowWarning(
+                    "The applicant must pass all three required tests first.");
 
                 return;
             }
 
             if (application.IsLicenseIssued())
             {
-                MessageBox.Show(
-                    "A driving license has already been issued for this application.",
-                    "Issue Driving License",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                clsUtil.ShowWarning(
+                    "The driving license has already been issued.");
 
                 return;
             }
 
-            MessageBox.Show(
-                "The first-time Issue Driving License form is not available " +
-                "in the current GitHub branch.",
-                "Issue Driving License",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            using (frmIssueDriverLicenseFirstTime frm = new frmIssueDriverLicenseFirstTime(id))
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    _LoadData();
+                    _UpdateLicenseActionsState();
+                }
+            }
         }
 
         private void _ShowLicense()

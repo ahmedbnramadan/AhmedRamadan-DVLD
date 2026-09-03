@@ -118,7 +118,7 @@ namespace DVLD
                 "Issue Driving License First Time";
 
             this.Size =
-                new Size(900, 650);
+                new Size(900, 690);
 
             this.StartPosition =
                 FormStartPosition.CenterScreen;
@@ -205,7 +205,7 @@ namespace DVLD
                     new Point(30, 505),
 
                 Size =
-                    new Size(830, 60),
+                    new Size(830, 80),
 
                 Multiline = true,
 
@@ -224,10 +224,10 @@ namespace DVLD
                 Text = "Issue",
 
                 Location =
-                    new Point(30, 580),
+                    new Point(750, 600),
 
                 Size =
-                    new Size(100, 38),
+                    new Size(110, 38),
 
                 Font =
                     new Font(
@@ -262,10 +262,10 @@ namespace DVLD
                 Text = "Close",
 
                 Location =
-                    new Point(140, 580),
+                    new Point(630, 600),
 
                 Size =
-                    new Size(100, 38),
+                    new Size(110, 38),
 
                 Font =
                     new Font(
