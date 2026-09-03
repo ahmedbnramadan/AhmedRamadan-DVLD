@@ -45,6 +45,8 @@ namespace DVLD
 
         private bool _isEditMode => _mode == enMode.Update;
 
+        public event Action<object, int> DataBack;
+
         #endregion
 
         /// <summary>Gets the ID of the user after successful save.</summary>
@@ -531,6 +533,7 @@ namespace DVLD
                     lblUserID.Text = _user.UserID.ToString();
                     clsUtil.ShowSuccess("User saved successfully!", "Saved");
                     this.DialogResult = DialogResult.OK;
+                    DataBack?.Invoke(this, _user.UserID);
                     this.Close();
                 }
                 else

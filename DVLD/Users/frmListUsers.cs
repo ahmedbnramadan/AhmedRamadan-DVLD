@@ -25,7 +25,7 @@ namespace DVLD
         private Button btnClose;
 
         
-        private ContextMenuStrip ctxMenu;
+        private ContextMenuStrip  ctxMenu;
         private ToolStripMenuItem ctxShowDetails;
         private ToolStripMenuItem ctxAddNew;
         private ToolStripMenuItem ctxEdit;
@@ -410,8 +410,9 @@ namespace DVLD
 
         private void _OpenAddNew()
         {
-            new frmAddEditUser().ShowDialog();
-            _LoadUsers();     // refresh after dialog closes
+            var frm = new frmAddEditUser();
+            frm.DataBack += (s, userID) => _LoadUsers();
+            frm.ShowDialog();
         }
 
         private void _OpenEdit()
@@ -419,8 +420,9 @@ namespace DVLD
             int id = _SelectedUserID();
             if (id == -1) return;
 
-            new frmAddEditUser(id).ShowDialog();
-            _LoadUsers();
+            var frm = new frmAddEditUser(id);
+            frm.DataBack += (s, userID) => _LoadUsers();
+            frm.ShowDialog();
         }
 
         private void _DeleteSelected()
