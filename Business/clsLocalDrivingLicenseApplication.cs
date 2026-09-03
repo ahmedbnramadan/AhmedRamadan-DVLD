@@ -334,6 +334,81 @@ namespace Business
                 this.LicenseClassID);
         }
 
+        public int IssueLicenseFrotTheFristTeim(string Notes, int CreatedByUserID)
+        {
+            // The application must be a saved local driving license application.
+            if (this.LocalDrivingLicenseApplicationID <= 0 || this.ApplicationID <= 0)
+                return -1;
+
+            // This method is only for issuing a brand-new local driving license.
+            if (this.ApplicationTypeID != 1)
+                return -1;
+
+            // The application must still be new and all required tests must be passed.
+            if (this.ApplicationStatus != clsApplication.enApplicationStatus.New)
+                return -1;
+
+            if (!this.IsAllTestsPassed())
+                return -1;
+
+            // Do not issue another active license for the same person and license class.
+            if (this.DoesPersonHaveActiveLicense())
+                return -1;
+
+            // The license class must exist and have a valid validity period.
+            clsLicenseClass LicenseClass = this.LicenseClassInfo;
+
+            if (LicenseClass == null || LicenseClass.DefaultValidityLength <= 0)
+                return -1;
+
+            // A person becomes a driver when their first license is issued.
+            clsDriver Driver = clsDriver.FindByPersonID(this.ApplicantPersonID);
+
+            if (Driver == null)
+            {
+                Driver = new clsDriver();
+
+                Driver.PersonID = this.ApplicantPersonID;
+                Driver.CreatedByUserID = CreatedByUserID;
+
+                if (!Driver.Save())
+                    return -1;
+            }
+
+            // Create the new license.
+            DateTime IssueDate = DateTime.Now;
+
+            clsLicense License = new clsLicense();
+
+            License.ApplicationID = this.ApplicationID;
+            License.DriverID = Driver.ID;
+            License.LicenseClassID = this.LicenseClassID;
+            License.IssueDate = IssueDate;
+            License.ExpirationDate =
+                IssueDate.AddYears(LicenseClass.DefaultValidityLength);
+            License.Notes = Notes;
+            License.PaidFees = LicenseClass.Fees;
+            License.IsActive = true;
+            License.IssueReason = clsLicense.enIssueReason.FirstTime;
+            License.CreatedByUserID = CreatedByUserID;
+
+            // The application must only be completed after the license is saved.
+            if (!License.Save())
+                return -1;
+
+            // Complete the application.
+            if (!this.SetComplete())
+                return -1;
+
+            // Keep the current object synchronized with the database.
+            this.ApplicationStatus =
+                clsApplication.enApplicationStatus.Completed;
+
+            this.LastStatusDate = DateTime.Now;
+
+            return License.ID;
+        }
+
 
 
     }

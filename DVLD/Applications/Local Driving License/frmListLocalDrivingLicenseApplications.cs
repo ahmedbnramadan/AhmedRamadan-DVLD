@@ -731,6 +731,53 @@ namespace DVLD
                 _CanScheduleTestType(id, (int)clsTestType.enTestType.Practical);
         }
 
+        private void _UpdateLicenseActionsState()
+        {
+            int id = _SelectedID();
+
+            if (id < 0)
+            {
+                ctxScheduleTest.Enabled = false;
+                ctxIssueDrivingLicense.Enabled = false;
+                ctxShowLicense.Enabled = false;
+                ctxShowPersonLicenseHistory.Enabled = false;
+
+                return;
+            }
+
+            clsLocalDrivingLicenseApplication application =
+                clsLocalDrivingLicenseApplication
+                    .FindByLocalDrivingAppID(id);
+
+            if (application == null)
+            {
+                ctxScheduleTest.Enabled = false;
+                ctxIssueDrivingLicense.Enabled = false;
+                ctxShowLicense.Enabled = false;
+                ctxShowPersonLicenseHistory.Enabled = false;
+
+                return;
+            }
+
+            bool allTestsPassed =
+                application.IsAllTestsPassed();
+
+            bool licenseIssued =
+                application.IsLicenseIssued();
+
+            ctxScheduleTest.Enabled =
+                !allTestsPassed && !licenseIssued;
+
+            ctxIssueDrivingLicense.Enabled =
+                allTestsPassed && !licenseIssued;
+
+            ctxShowLicense.Enabled =
+                licenseIssued;
+
+            ctxShowPersonLicenseHistory.Enabled =
+                licenseIssued;
+        }
+
         #endregion
 
         #region Application Actions
@@ -960,6 +1007,7 @@ namespace DVLD
             // Refresh so columns like "Passed Tests" reflect anything that
             // happened while the appointments list / schedule dialog was open.
             _LoadData();
+            _UpdateLicenseActionsState();
         }
 
         #endregion
@@ -1121,17 +1169,7 @@ namespace DVLD
             ctxCancel.Enabled =
                 hasSelection;
 
-            ctxScheduleTest.Enabled =
-                hasSelection;
-
-            ctxIssueDrivingLicense.Enabled =
-                hasSelection;
-
-            ctxShowLicense.Enabled =
-                hasSelection;
-
-            ctxShowPersonLicenseHistory.Enabled =
-                hasSelection;
+            _UpdateLicenseActionsState();
         }
 
         #endregion

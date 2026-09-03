@@ -213,7 +213,7 @@ namespace DVLD.Tests.Controls
 
         private void InitializeComponent()
         {
-            this.Size = new Size(950, 450);
+            this.Size = new Size(950, 480);
             this.Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Regular);
             this.Dock = DockStyle.Fill;
 
@@ -415,7 +415,7 @@ namespace DVLD.Tests.Controls
             gbRetakeTestInfo = new GroupBox
             {
                 Text = "Retake Test Information",
-                Location = new Point(450, 295),
+                Location = new Point(450, 315),
                 Size = new Size(420, 100),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 Visible = false
@@ -458,7 +458,7 @@ namespace DVLD.Tests.Controls
             btnSave = new Button
             {
                 Text = "Save",
-                Location = new Point(370, 390),
+                Location = new Point(370, 425),
                 Size = new Size(150, 40),
                 Font = new Font("Microsoft Sans Serif", 11F, FontStyle.Bold),
                 BackColor = Color.SteelBlue,
