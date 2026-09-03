@@ -1090,13 +1090,11 @@ namespace DVLD
                 return;
             }
 
-            MessageBox.Show(
-                "License ID: " + licenseID +
-                "\n\n" +
-                "The Show License form is not available in the current branch.",
-                "Show License",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            using (frmShowLicenseInfo frm = new frmShowLicenseInfo(licenseID))
+            {
+                frm.ShowDialog();
+            }
+
         }
 
         private void _ShowPersonLicenseHistory()
