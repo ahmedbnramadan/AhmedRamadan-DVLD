@@ -141,7 +141,7 @@ namespace DVLD
             if (_Person == null)
             {
                 ResetPersonInfo();
-                clsUtil.ShowError($"No License with ID = {LicenseID}.");;
+                clsUtil.ShowError($"No Person with ID = {_PersonID}.");;
                 return;
             }
 
