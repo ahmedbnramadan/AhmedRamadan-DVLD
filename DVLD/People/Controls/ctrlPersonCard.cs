@@ -141,7 +141,7 @@ namespace DVLD
             if (_Person == null)
             {
                 ResetPersonInfo();
-                MessageBox.Show("No Person with ID = " + PersonID.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                clsUtil.ShowError($"No License with ID = {LicenseID}.");;
                 return;
             }
 

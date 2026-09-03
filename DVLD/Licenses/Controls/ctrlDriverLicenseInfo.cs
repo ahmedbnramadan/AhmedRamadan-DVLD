@@ -368,12 +368,7 @@ namespace DVLD
             {
                 ResetLicenseInfo();
 
-                MessageBox.Show(
-                    "No License with ID = " +
-                    LicenseID.ToString(),
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                clsUtil.ShowError($"No License with ID = {LicenseID}.");
 
                 return;
             }
