@@ -74,7 +74,7 @@ namespace DVLD
             if (_License == null || _License.ID <= 0)
                 return;
 
-            using (frmShowLicenseInfo frm = new frmShowLicenseInfo(licenseID))
+            using (frmShowLicenseInfo frm = new frmShowLicenseInfo(_License.ID))
             {
                 frm.ShowDialog();
             }

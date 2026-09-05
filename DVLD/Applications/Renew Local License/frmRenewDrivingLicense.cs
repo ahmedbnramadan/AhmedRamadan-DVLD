@@ -7,99 +7,779 @@ namespace DVLD
 {
     public class frmRenewLocalDrivingLicenseApplication : Form
     {
-        private Label   lblTitle;
-        private TextBox txtLicenseID;
-        private Button  btnFind, btnRenew, btnClose;
-        private Panel   pnlCard;
-        private Label   lblLicIDv, lblDriverv, lblClassv, lblIssuev, lblExpiryv, lblNewExpiryv;
+        #region Controls
 
-        private clsLicense _license;
+        private Label lblTitle;
 
-        public frmRenewLocalDrivingLicenseApplication() { _Build(); }
+        private ctrlDriverLicenseInfoWithFilter ctrlDriverLicenseInfoWithFilter1;
 
-        private void _Build()
+        private GroupBox gbApplicationNewLicenseInfo;
+
+        private Label lblRLApplicationIDTitle;
+        private Label lblRLApplicationID;
+
+        private Label lblApplicationDateTitle;
+        private Label lblApplicationDate;
+
+        private Label lblIssueDateTitle;
+        private Label lblIssueDate;
+
+        private Label lblApplicationFeesTitle;
+        private Label lblApplicationFees;
+
+        private Label lblLicenseFeesTitle;
+        private Label lblLicenseFees;
+
+        private Label lblRenewedLicenseIDTitle;
+        private Label lblRenewedLicenseID;
+
+        private Label lblOldLicenseIDTitle;
+        private Label lblOldLicenseID;
+
+        private Label lblExpirationDateTitle;
+        private Label lblExpirationDate;
+
+        private Label lblCreatedByTitle;
+        private Label lblCreatedBy;
+
+        private Label lblTotalFeesTitle;
+        private Label lblTotalFees;
+
+        private Label lblNotesTitle;
+        private TextBox txtNotes;
+
+        private LinkLabel lnkShowLicensesHistory;
+        private LinkLabel lnkShowNewLicenseInfo;
+
+        private Button btnRenew;
+        private Button btnClose;
+
+        #endregion
+
+        #region Data
+
+        private clsLicense _OldLicense;
+        private clsLicense _NewLicense;
+
+        private int _RenewApplicationID = -1;
+
+        private DateTime _ApplicationDate;
+        private DateTime _IssueDate;
+        private DateTime _ExpirationDate;
+
+        private decimal _ApplicationFees;
+        private decimal _LicenseFees;
+
+        #endregion
+
+        #region Constructor
+
+        public frmRenewLocalDrivingLicenseApplication()
         {
-            this.Text = "Renew Driving License";
-            this.Size = new Size(560, 380);
+            InitializeComponents();
+
+            _InitializeApplicationInfo();
+
+            _SetupEvents();
+        }
+
+        #endregion
+
+        #region Form Initialization
+
+        private void InitializeComponents()
+        {
+            // =========================================================
+            // Form
+            // =========================================================
+
+            this.Text = "Renew Local Driving License";
+            this.Size = new Size(920, 865);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false; this.BackColor = Color.White;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.BackColor = Color.FromArgb(240, 242, 248);
             this.Font = new Font("Microsoft Sans Serif", 9.5F);
 
-            lblTitle = new Label { Text = "Renew Driving License",
-                Font = new Font("Arial", 16F, FontStyle.Bold), ForeColor = clsGlobal.PrimaryRed,
-                AutoSize = true, Location = new Point(160, 18) };
+            // =========================================================
+            // Title
+            // =========================================================
 
-            var lbl = new Label { Text = "License ID:", AutoSize = true, Location = new Point(30,65),
-                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold) };
-            txtLicenseID = new TextBox { Location = new Point(130,62), Size = new Size(150,23) };
-            txtLicenseID.KeyPress += (s, e) => { if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) e.Handled = true; };
+            lblTitle = new Label
+            {
+                Text = "Renew Local Driving License",
+                Font = new Font("Arial", 18F, FontStyle.Bold),
+                ForeColor = clsGlobal.PrimaryRed,
+                AutoSize = true,
+                Location = new Point(285, 18)
+            };
 
-            btnFind = new Button { Text = "🔍 Find", Location = new Point(290,61), Size = new Size(80,26),
-                BackColor = Color.FromArgb(0,120,215), ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
-            btnFind.FlatAppearance.BorderSize = 0;
-            btnFind.Click += _Find;
+            // =========================================================
+            // Driver License Filter + Information
+            // =========================================================
 
-            pnlCard = new Panel { Location = new Point(20,100), Size = new Size(510,175),
-                BackColor = Color.White, BorderStyle = BorderStyle.FixedSingle, Visible = false };
+            ctrlDriverLicenseInfoWithFilter1 =
+                new ctrlDriverLicenseInfoWithFilter
+                {
+                    Location = new Point(30, 58),
+                    Size = new Size(850, 430)
+                };
 
-            int y = 15; const int s = 28, lx = 15, vx = 155;
-            _R(pnlCard, "License ID:",   lx, vx, y, out _, out lblLicIDv,    Color.SteelBlue);          y += s;
-            _R(pnlCard, "Driver:",       lx, vx, y, out _, out lblDriverv,   Color.FromArgb(30,80,160)); y += s;
-            _R(pnlCard, "Class:",        lx, vx, y, out _, out lblClassv,    Color.Black);               y += s;
-            _R(pnlCard, "Current Issue:",lx, vx, y, out _, out lblIssuev,    Color.Black);               y += s;
-            _R(pnlCard, "Expires:",      lx, vx, y, out _, out lblExpiryv,   Color.DarkRed);             y += s;
-            _R(pnlCard, "New Expiry:",   lx, vx, y, out _, out lblNewExpiryv,Color.DarkGreen);
+            // =========================================================
+            // Application New License Info
+            // =========================================================
 
-            btnRenew = _Btn("🔄  Renew", 335, 295, Color.FromArgb(0,140,60));
-            btnClose = _Btn("✖  Close", 445, 295, Color.FromArgb(192,50,50));
-            btnRenew.Click += _Renew;
-            btnClose.Click += (s, e) => this.Close();
+            gbApplicationNewLicenseInfo = new GroupBox
+            {
+                Text = "Application New License Info",
+                Location = new Point(30, 500),
+                Size = new Size(850, 180),
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    9.5F,
+                    FontStyle.Bold)
+            };
 
-            this.Controls.AddRange(new Control[] { lblTitle, lbl, txtLicenseID, btnFind, pnlCard, btnRenew, btnClose });
+            // -------------------------
+            // Left Column
+            // -------------------------
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "RL Application ID:",
+                20,
+                32,
+                out lblRLApplicationIDTitle,
+                out lblRLApplicationID);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Application Date:",
+                20,
+                62,
+                out lblApplicationDateTitle,
+                out lblApplicationDate);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Issue Date:",
+                20,
+                92,
+                out lblIssueDateTitle,
+                out lblIssueDate);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Application Fees:",
+                20,
+                122,
+                out lblApplicationFeesTitle,
+                out lblApplicationFees);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "License Fees:",
+                20,
+                152,
+                out lblLicenseFeesTitle,
+                out lblLicenseFees);
+
+            // -------------------------
+            // Right Column
+            // -------------------------
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Renewed License ID:",
+                430,
+                32,
+                out lblRenewedLicenseIDTitle,
+                out lblRenewedLicenseID);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Old License ID:",
+                430,
+                62,
+                out lblOldLicenseIDTitle,
+                out lblOldLicenseID);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Expiration Date:",
+                430,
+                92,
+                out lblExpirationDateTitle,
+                out lblExpirationDate);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Created By:",
+                430,
+                122,
+                out lblCreatedByTitle,
+                out lblCreatedBy);
+
+            _AddInfoLabel(
+                gbApplicationNewLicenseInfo,
+                "Total Fees:",
+                430,
+                152,
+                out lblTotalFeesTitle,
+                out lblTotalFees);
+
+            // =========================================================
+            // Notes
+            // =========================================================
+
+            lblNotesTitle = new Label
+            {
+                Text = "Notes:",
+                AutoSize = true,
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    9.5F,
+                    FontStyle.Bold),
+                Location = new Point(30, 695)
+            };
+
+            txtNotes = new TextBox
+            {
+                Location = new Point(30, 720),
+                Size = new Size(850, 60),
+                Multiline = true,
+                ScrollBars = ScrollBars.Vertical,
+                MaxLength = 500,
+                Enabled = false
+            };
+
+            // =========================================================
+            // Buttons
+            // =========================================================
+
+            btnRenew = _CreateButton(
+                "Renew",
+                30,
+                790,
+                clsGlobal.PrimaryRed);
+
+            btnRenew.Enabled = false;
+
+            btnClose = _CreateButton(
+                "Close",
+                150,
+                790,
+                Color.FromArgb(110, 110, 110));
+
+            // =========================================================
+            // Links
+            // =========================================================
+
+            lnkShowLicensesHistory = new LinkLabel
+            {
+                Text = "Show Licenses History",
+                AutoSize = true,
+                Location = new Point(560, 800),
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    9.5F,
+                    FontStyle.Underline),
+                Enabled = false,
+                TabStop = false
+            };
+
+            lnkShowNewLicenseInfo = new LinkLabel
+            {
+                Text = "Show New License Info",
+                AutoSize = true,
+                Location = new Point(725, 800),
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    9.5F,
+                    FontStyle.Underline),
+                Enabled = false,
+                TabStop = false
+            };
+
+            // =========================================================
+            // Add Controls
+            // =========================================================
+
+            this.Controls.AddRange(
+                new Control[]
+                {
+                    lblTitle,
+
+                    ctrlDriverLicenseInfoWithFilter1,
+
+                    gbApplicationNewLicenseInfo,
+
+                    lblNotesTitle,
+                    txtNotes,
+
+                    btnRenew,
+                    btnClose,
+
+                    lnkShowLicensesHistory,
+                    lnkShowNewLicenseInfo
+                });
         }
 
-        private void _Find(object sender, EventArgs e)
+        #endregion
+
+        #region UI Helpers
+
+        private static void _AddInfoLabel(
+            Control parent,
+            string title,
+            int x,
+            int y,
+            out Label titleLabel,
+            out Label valueLabel)
         {
-            if (!int.TryParse(txtLicenseID.Text, out int id)) { clsUtil.ShowWarning("Enter a valid License ID."); return; }
-            _license = clsLicense.Find(id);
-            if (_license == null) { clsUtil.ShowWarning("License not found."); pnlCard.Visible = false; return; }
-            var lc = clsLicenseClass.Find(_license.LicenseClassID);
-            lblLicIDv.Text    = _license.ID.ToString();
-            lblDriverv.Text   = clsPerson.Find(_license.DriverID)?.FullName ?? "—";
-            lblClassv.Text    = lc?.Name ?? "—";
-            lblIssuev.Text    = clsFormat.DateShort(_license.IssueDate);
-            lblExpiryv.Text   = clsFormat.DateShort(_license.ExpirationDate);
-            lblNewExpiryv.Text = clsFormat.DateShort(
-                DateTime.Now.AddYears(lc?.DefaultValidityLength ?? 5));
-            pnlCard.Visible = true;
+            titleLabel = new Label
+            {
+                Text = title,
+                Location = new Point(x, y),
+                AutoSize = true,
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    9F,
+                    FontStyle.Bold),
+                ForeColor = Color.FromArgb(70, 70, 80)
+            };
+
+            valueLabel = new Label
+            {
+                Text = "[???]",
+                Location = new Point(x + 145, y),
+                AutoSize = true,
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    9F),
+                ForeColor = Color.FromArgb(30, 80, 160)
+            };
+
+            parent.Controls.Add(titleLabel);
+            parent.Controls.Add(valueLabel);
         }
 
-        private void _Renew(object sender, EventArgs e)
+        private static Button _CreateButton(
+            string text,
+            int x,
+            int y,
+            Color backColor)
         {
-            if (_license == null) { clsUtil.ShowWarning("Find a license first."); return; }
-            var lc = clsLicenseClass.Find(_license.LicenseClassID);
-            _license.IssueDate       = DateTime.Now;
-            _license.ExpirationDate  = DateTime.Now.AddYears(lc?.DefaultValidityLength ?? 5);
-            _license.IsActive        = true;
-            if (_license.Save()) { clsUtil.ShowInfo("License renewed successfully."); this.DialogResult = DialogResult.OK; this.Close(); }
-            else clsUtil.ShowError("Failed to renew license.");
+            Button button = new Button
+            {
+                Text = text,
+                Location = new Point(x, y),
+                Size = new Size(110, 35),
+                Font = new Font(
+                    "Microsoft Sans Serif",
+                    10F,
+                    FontStyle.Bold),
+                BackColor = backColor,
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
+            };
+
+            button.FlatAppearance.BorderSize = 0;
+
+            return button;
         }
 
-        private static void _R(Panel p, string t, int tx, int vx, int y, out Label tl, out Label vl, Color c)
+        #endregion
+
+        #region Initialization
+
+        private void _InitializeApplicationInfo()
         {
-            tl = new Label { Text = t, Location = new Point(tx,y), AutoSize = true, Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold), ForeColor = Color.FromArgb(80,80,90) };
-            vl = new Label { Text = "—", Location = new Point(vx,y), AutoSize = true, Font = new Font("Microsoft Sans Serif", 9.5F), ForeColor = c };
-            p.Controls.AddRange(new Control[] { tl, vl });
+            _ApplicationDate = DateTime.Now;
+            _IssueDate = DateTime.Now;
+
+            clsApplicationType applicationType =
+                clsApplicationType.Find(2);
+
+            _ApplicationFees =
+                applicationType == null
+                    ? 0
+                    : applicationType.Fees;
+
+            lblRLApplicationID.Text =
+                "[Will be created after renewal]";
+
+            lblApplicationDate.Text =
+                clsFormat.DateShort(_ApplicationDate);
+
+            lblIssueDate.Text =
+                clsFormat.DateShort(_IssueDate);
+
+            lblApplicationFees.Text =
+                _ApplicationFees.ToString("0.00");
+
+            lblRenewedLicenseID.Text =
+                "[Will be created after renewal]";
+
+            lblOldLicenseID.Text = "[???]";
+
+            lblExpirationDate.Text = "[???]";
+
+            lblCreatedBy.Text =
+                clsGlobal.CurrentUsername;
+
+            lblLicenseFees.Text = "[???]";
+
+            lblTotalFees.Text = "[???]";
         }
 
-        private static Button _Btn(string t, int x, int y, Color c)
+        #endregion
+
+        #region Events
+
+        private void _SetupEvents()
         {
-            var b = new Button { Text = t, Location = new Point(x,y), Size = new Size(105,32),
-                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
-                BackColor = c, ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
-            b.FlatAppearance.BorderSize = 0; return b;
+            ctrlDriverLicenseInfoWithFilter1.LicenseLoaded +=
+                _LicenseLoaded;
+
+            btnRenew.Click +=
+                _Renew;
+
+            btnClose.Click +=
+                _Close;
+
+            lnkShowLicensesHistory.LinkClicked +=
+                _ShowLicensesHistory;
+
+            lnkShowNewLicenseInfo.LinkClicked +=
+                _ShowNewLicenseInfo;
         }
+
+        #endregion
+
+        #region License Validation
+
+        private void _LicenseLoaded(
+            object sender,
+            clsLicense license)
+        {
+            _ResetRenewalState();
+
+            // ---------------------------------------------------------
+            // No valid license
+            // ---------------------------------------------------------
+
+            if (license == null)
+                return;
+
+            // ---------------------------------------------------------
+            // License must be active
+            // ---------------------------------------------------------
+
+            if (!license.IsActive)
+            {
+                clsUtil.ShowWarning(
+                    "This license is inactive and cannot be renewed.",
+                    "Cannot Renew License");
+
+                return;
+            }
+
+            // ---------------------------------------------------------
+            // License must be expired
+            // ---------------------------------------------------------
+
+            if (!license.IsExpired())
+            {
+                clsUtil.ShowWarning(
+                    "You cannot renew this license because it has not expired yet.",
+                    "Cannot Renew License");
+
+                return;
+            }
+
+            // ---------------------------------------------------------
+            // Valid license
+            // ---------------------------------------------------------
+
+            _OldLicense = license;
+
+            _ExpirationDate =
+                DateTime.Now.AddYears(
+                    license.LicenseClassInfo
+                        .DefaultValidityLength);
+
+            _LicenseFees =
+                license.LicenseClassInfo.Fees;
+
+            // ---------------------------------------------------------
+            // Fill information
+            // ---------------------------------------------------------
+
+            lblOldLicenseID.Text =
+                license.ID.ToString();
+
+            lblExpirationDate.Text =
+                clsFormat.DateShort(_ExpirationDate);
+
+            lblLicenseFees.Text =
+                _LicenseFees.ToString("0.00");
+
+            lblTotalFees.Text =
+                (_ApplicationFees + _LicenseFees)
+                .ToString("0.00");
+
+            // ---------------------------------------------------------
+            // Notes are copied from old license
+            // ---------------------------------------------------------
+
+            txtNotes.Enabled = true;
+
+            txtNotes.Text =
+                license.Notes ?? string.Empty;
+
+            // ---------------------------------------------------------
+            // Enable actions
+            // ---------------------------------------------------------
+
+            btnRenew.Enabled = true;
+
+            // History is available only when
+            // we have a valid license.
+            lnkShowLicensesHistory.Enabled = true;
+        }
+
+        #endregion
+
+        #region Reset
+
+        private void _ResetRenewalState()
+        {
+            _OldLicense = null;
+            _NewLicense = null;
+
+            _RenewApplicationID = -1;
+
+            _LicenseFees = 0;
+
+            _ExpirationDate =
+                DateTime.MinValue;
+
+            // ---------------------------------------------------------
+            // Reset displayed information
+            // ---------------------------------------------------------
+
+            lblRenewedLicenseID.Text =
+                "[Will be created after renewal]";
+
+            lblOldLicenseID.Text =
+                "[???]";
+
+            lblExpirationDate.Text =
+                "[???]";
+
+            lblLicenseFees.Text =
+                "[???]";
+
+            lblTotalFees.Text =
+                "[???]";
+
+            // ---------------------------------------------------------
+            // Disable controls
+            // ---------------------------------------------------------
+
+            txtNotes.Enabled = false;
+            txtNotes.Text = string.Empty;
+
+            btnRenew.Enabled = false;
+
+            // IMPORTANT:
+            // No valid license = no license history.
+            lnkShowLicensesHistory.Enabled = false;
+
+            // New license doesn't exist yet.
+            lnkShowNewLicenseInfo.Enabled = false;
+        }
+
+        #endregion
+
+        #region Renewal
+
+        private void _Renew(
+            object sender,
+            EventArgs e)
+        {
+            // ---------------------------------------------------------
+            // Defensive validation
+            // ---------------------------------------------------------
+
+            if (_OldLicense == null)
+            {
+                clsUtil.ShowWarning(
+                    "Find a valid expired license first.",
+                    "Cannot Renew License");
+
+                return;
+            }
+
+            // ---------------------------------------------------------
+            // Active validation
+            // ---------------------------------------------------------
+
+            if (!_OldLicense.IsActive)
+            {
+                clsUtil.ShowWarning(
+                    "This license is inactive and cannot be renewed.",
+                    "Cannot Renew License");
+
+                btnRenew.Enabled = false;
+
+                return;
+            }
+
+            // ---------------------------------------------------------
+            // Expiration validation
+            // ---------------------------------------------------------
+
+            if (!_OldLicense.IsExpired())
+            {
+                clsUtil.ShowWarning(
+                    "You cannot renew this license because it has not expired yet.",
+                    "Cannot Renew License");
+
+                btnRenew.Enabled = false;
+
+                return;
+            }
+
+            // ---------------------------------------------------------
+            // Renew through Business layer
+            // ---------------------------------------------------------
+
+            clsLicense newLicense =
+                _OldLicense.Renew(
+                    txtNotes.Text.Trim(),
+                    clsGlobal.CurrentUserID);
+
+            if (newLicense == null)
+            {
+                clsUtil.ShowError(
+                    "Failed to renew the driving license.",
+                    "Renew License");
+
+                return;
+            }
+
+            // ---------------------------------------------------------
+            // Renewal succeeded
+            // ---------------------------------------------------------
+
+            _NewLicense = newLicense;
+
+            _RenewApplicationID =
+                newLicense.ApplicationID;
+
+            _IssueDate =
+                newLicense.IssueDate;
+
+            _ExpirationDate =
+                newLicense.ExpirationDate;
+
+            // ---------------------------------------------------------
+            // Update UI
+            // ---------------------------------------------------------
+
+            lblRLApplicationID.Text =
+                _RenewApplicationID.ToString();
+
+            lblIssueDate.Text =
+                clsFormat.DateShort(_IssueDate);
+
+            lblRenewedLicenseID.Text =
+                _NewLicense.ID.ToString();
+
+            lblExpirationDate.Text =
+                clsFormat.DateShort(_ExpirationDate);
+
+            lblTotalFees.Text =
+                (_ApplicationFees + _LicenseFees)
+                .ToString("0.00");
+
+            // ---------------------------------------------------------
+            // Lock editing after successful renewal
+            // ---------------------------------------------------------
+
+            txtNotes.Enabled = false;
+
+            btnRenew.Enabled = false;
+
+            // New license now exists.
+            lnkShowNewLicenseInfo.Enabled = true;
+
+            clsUtil.ShowInfo(
+                "The driving license has been renewed successfully.\n\n" +
+                "New License ID = " +
+                _NewLicense.ID,
+                "License Renewed");
+        }
+
+        #endregion
+
+        #region Links
+
+        private void _ShowLicensesHistory(
+            object sender,
+            LinkLabelLinkClickedEventArgs e)
+        {
+            // No valid license = nothing to show.
+            if (_OldLicense == null)
+                return;
+
+            // Put your existing license-history form here.
+            //
+            // Example:
+            //
+            // using (frmShowLicenseHistory frm =
+            //        new frmShowLicenseHistory(_OldLicense.DriverID))
+            // {
+            //     frm.ShowDialog();
+            // }
+
+            MessageBox.Show(
+                "The License History form is not available yet.",
+                "License History",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+        private void _ShowNewLicenseInfo(
+            object sender,
+            LinkLabelLinkClickedEventArgs e)
+        {
+            // New license only exists after successful renewal.
+            if (_NewLicense == null)
+                return;
+
+            using (frmShowLicenseInfo frm =
+                new frmShowLicenseInfo(_NewLicense.ID))
+            {
+                frm.ShowDialog();
+            }
+        }
+
+        #endregion
+
+        #region Close
+
+        private void _Close(
+            object sender,
+            EventArgs e)
+        {
+            this.Close();
+        }
+
+        #endregion
     }
 }
