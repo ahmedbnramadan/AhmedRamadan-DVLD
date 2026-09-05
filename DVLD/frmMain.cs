@@ -386,7 +386,7 @@ namespace DVLD
 
         private void _RenewDrivingLicense(object sender, EventArgs e)
         {
-            new frmRenewDrivingLicense().ShowDialog();
+            new frmRenewLocalDrivingLicenseApplication().ShowDialog();
         }
 
         private void _ReplacementForLostorDamagedLicense(object sender, EventArgs e)

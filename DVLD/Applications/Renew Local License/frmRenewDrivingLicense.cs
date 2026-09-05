@@ -5,7 +5,7 @@ using Business;
 
 namespace DVLD
 {
-    public class frmRenewDrivingLicense : Form
+    public class frmRenewLocalDrivingLicenseApplication : Form
     {
         private Label   lblTitle;
         private TextBox txtLicenseID;
@@ -15,7 +15,7 @@ namespace DVLD
 
         private clsLicense _license;
 
-        public frmRenewDrivingLicense() { _Build(); }
+        public frmRenewLocalDrivingLicenseApplication() { _Build(); }
 
         private void _Build()
         {

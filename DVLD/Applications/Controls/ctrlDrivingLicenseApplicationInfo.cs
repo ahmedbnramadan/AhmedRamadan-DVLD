@@ -74,8 +74,10 @@ namespace DVLD
             if (_License == null || _License.ID <= 0)
                 return;
 
-            if (ShowLicenseInfo != null)
-                ShowLicenseInfo(this, _License.ID);
+            using (frmShowLicenseInfo frm = new frmShowLicenseInfo(licenseID))
+            {
+                frm.ShowDialog();
+            }
         }
 
         #endregion
