@@ -391,7 +391,7 @@ namespace DVLD
 
         private void _ReplacementForLostorDamagedLicense(object sender, EventArgs e)
         {
-            new frmReplaceLicense().ShowDialog();
+            new frmReplaceLostOrDamagedLicense().ShowDialog();
         }
 
         private void _ReleaseDetainedDrivingLicense(object sender, EventArgs e)
