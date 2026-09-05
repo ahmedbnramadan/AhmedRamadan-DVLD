@@ -94,7 +94,7 @@ namespace DVLD
             // =========================================================
 
             this.Text = "Renew Local Driving License";
-            this.Size = new Size(920, 865);
+            this.Size = new Size(940, 875);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -260,7 +260,7 @@ namespace DVLD
 
             btnRenew = _CreateButton(
                 "Renew",
-                30,
+                772,
                 790,
                 clsGlobal.PrimaryRed);
 
@@ -268,7 +268,7 @@ namespace DVLD
 
             btnClose = _CreateButton(
                 "Close",
-                150,
+                650,
                 790,
                 Color.FromArgb(110, 110, 110));
 
@@ -278,9 +278,9 @@ namespace DVLD
 
             lnkShowLicensesHistory = new LinkLabel
             {
-                Text = "Show Licenses History",
+                Text = "Show Licenses History ",
                 AutoSize = true,
-                Location = new Point(560, 800),
+                Location = new Point(30, 800),
                 Font = new Font(
                     "Microsoft Sans Serif",
                     9.5F,
@@ -291,9 +291,9 @@ namespace DVLD
 
             lnkShowNewLicenseInfo = new LinkLabel
             {
-                Text = "Show New License Info",
+                Text = "Show New License Info ",
                 AutoSize = true,
-                Location = new Point(725, 800),
+                Location = new Point(180, 800),
                 Font = new Font(
                     "Microsoft Sans Serif",
                     9.5F,

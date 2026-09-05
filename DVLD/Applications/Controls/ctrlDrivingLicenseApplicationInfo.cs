@@ -44,11 +44,6 @@ namespace DVLD
 
         #endregion
 
-        #region Events
-
-        public event EventHandler<int> ShowLicenseInfo;
-
-        #endregion
 
         #region Constructor
 

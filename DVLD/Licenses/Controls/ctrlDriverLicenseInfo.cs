@@ -64,7 +64,7 @@ namespace DVLD
         private void InitializeComponents()
         {
             // UserControl
-            this.Size = new Size(830, 350);
+            this.Size = new Size(830, 340);
             this.Font = new Font("Microsoft Sans Serif", 9F);
 
             // Driver License Information

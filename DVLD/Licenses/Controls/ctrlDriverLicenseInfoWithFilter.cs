@@ -54,7 +54,7 @@ namespace DVLD
 
         private void _InitializeComponents()
         {
-            this.Size       = new Size(850, 430);
+            this.Size       = new Size(850, 420);
             this.AutoScroll = true;
             this.Font       = new Font("Microsoft Sans Serif", 9.5F);
             this.BackColor  = Color.FromArgb(240, 242, 248);
