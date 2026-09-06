@@ -416,15 +416,13 @@ namespace DataAccess
             {
                 string query = @"SELECT dl.*, 
                                         l.licenseclass,
-                                        l.licenseid,
                                         l.issuereason,
                                         lc.classname,
                                         d.driverid,
                                         p.firstname + ' ' + p.lastname as drivername,
                                         p.nationalno,
                                         u1.username as detainedbyusername,
-                                        u2.username as releasedbyusername,
-                                        dl.isreleased,
+                                        u2.username as releasedbyusername
                                 FROM detainedlicenses dl
                                 INNER JOIN licenses l ON dl.licenseid = l.licenseid
                                 INNER JOIN licenseclasses lc ON l.licenseclass = lc.licenseclassid

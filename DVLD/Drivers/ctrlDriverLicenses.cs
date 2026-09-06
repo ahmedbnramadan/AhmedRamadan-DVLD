@@ -313,12 +313,6 @@ namespace DVLD
 
             dgvLocal.CellMouseDown +=
                 DgvLocal_CellMouseDown;
-
-            dgvLocal.CellFormatting +=
-                DgvLocal_CellFormatting;
-
-            dgvInternational.CellFormatting +=
-                DgvInternational_CellFormatting;
         }
 
         #endregion
@@ -682,35 +676,6 @@ namespace DVLD
                 DataGridViewContentAlignment.MiddleCenter);
         }
 
-        private void DgvLocal_CellFormatting(
-            object sender,
-            DataGridViewCellFormattingEventArgs e)
-        {
-            if (e.RowIndex < 0)
-                return;
-
-            if (e.Value == null ||
-                e.Value == DBNull.Value)
-                return;
-
-            if (dgvLocal.Columns[
-                    e.ColumnIndex].Name ==
-                "isactive")
-            {
-                bool IsActive =
-                    Convert.ToBoolean(
-                        e.Value);
-
-                e.Value =
-                    IsActive
-                        ? "Yes"
-                        : "No";
-
-                e.FormattingApplied =
-                    true;
-            }
-        }
-
         #endregion
 
         #region International Columns
@@ -763,35 +728,6 @@ namespace DVLD
                 "Is Active",
                 13,
                 DataGridViewContentAlignment.MiddleCenter);
-        }
-
-        private void DgvInternational_CellFormatting(
-            object sender,
-            DataGridViewCellFormattingEventArgs e)
-        {
-            if (e.RowIndex < 0)
-                return;
-
-            if (e.Value == null ||
-                e.Value == DBNull.Value)
-                return;
-
-            if (dgvInternational.Columns[
-                    e.ColumnIndex].Name ==
-                "isactive")
-            {
-                bool IsActive =
-                    Convert.ToBoolean(
-                        e.Value);
-
-                e.Value =
-                    IsActive
-                        ? "Yes"
-                        : "No";
-
-                e.FormattingApplied =
-                    true;
-            }
         }
 
         #endregion
