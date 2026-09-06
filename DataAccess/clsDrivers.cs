@@ -205,32 +205,57 @@ namespace DataAccess
         public static DataTable GetAllDrivers()
         {
             DataTable dt = new DataTable();
+            LastErrorMessage = "";
 
-            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            using (SqlConnection connection =
+                new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
+                string query = @"
+                    SELECT
+                        d.driverid AS DriverID,
+                        d.personid AS PersonID,
+                        p.nationalno AS NationalNo,
+                        d.createddate AS Date,
+                        CASE
+                            WHEN EXISTS
+                            (
+                                SELECT 1
+                                FROM licenses l
+                                WHERE l.driverid = d.driverid
+                                AND l.isactive = 1
+                            )
+                            THEN 'Yes'
+                            ELSE 'No'
+                        END AS ActiveLicense
+                    FROM drivers d
+                    INNER JOIN people p
+                        ON d.personid = p.personid
+                    ORDER BY d.createddate DESC";
 
-                string query = "SELECT * FROM drivers";
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlCommand command =
+                    new SqlCommand(query, connection))
                 {
-
                     try
                     {
                         connection.Open();
-                        using (SqlDataReader reader = command.ExecuteReader())
+
+                        using (SqlDataReader reader =
+                            command.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 dt.Load(reader);
                             }
                         }
-
                     }
                     catch (Exception ex)
                     {
-                        LastErrorMessage = "Error showing drivers : " + ex.Message;
+                        LastErrorMessage =
+                            "Error showing drivers : " + ex.Message;
                     }
                 }
             }
+
             return dt;
         }
 

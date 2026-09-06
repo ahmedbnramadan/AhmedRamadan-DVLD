@@ -362,7 +362,7 @@ namespace DVLD
 
         private void _OpenDriversForm(object sender, EventArgs e)
         {
-            OpenMDIForm<frmListDrivers>();
+            new frmListDrivers().ShowDialog();
         }
 
         private void _OpenUsersForm(object sender, EventArgs e)
