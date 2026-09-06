@@ -729,29 +729,13 @@ namespace DVLD
 
         #region Links
 
-        private void _ShowLicensesHistory(
-            object sender,
-            LinkLabelLinkClickedEventArgs e)
+        private void _ShowLicensesHistory(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            // No valid license = nothing to show.
-            if (_OldLicense == null)
+            if (_OldLicense == null || _OldLicense.DriverInfo == null)
                 return;
 
-            // Put your existing license-history form here.
-            //
-            // Example:
-            //
-            // using (frmShowLicenseHistory frm =
-            //        new frmShowLicenseHistory(_OldLicense.DriverID))
-            // {
-            //     frm.ShowDialog();
-            // }
-
-            MessageBox.Show(
-                "The License History form is not available yet.",
-                "License History",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            new frmShowPersonLicenseHistory(
+                _OldLicense.DriverInfo.PersonID).ShowDialog();
         }
 
         private void _ShowNewLicenseInfo(

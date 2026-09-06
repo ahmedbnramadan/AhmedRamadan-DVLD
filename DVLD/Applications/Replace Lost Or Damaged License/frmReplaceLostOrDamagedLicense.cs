@@ -765,21 +765,14 @@ namespace DVLD
 
         #region Links
 
-        private void _ShowLicensesHistory(
-            object sender,
-            LinkLabelLinkClickedEventArgs e)
+        private void _ShowLicensesHistory(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (_OldLicense == null)
+            if (_OldLicense == null ||
+                _OldLicense.DriverInfo == null)
                 return;
 
-            // Keep this exactly like the Renew form until
-            // your existing License History form is connected.
-
-            MessageBox.Show(
-                "The License History form is not available yet.",
-                "License History",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+            new frmShowPersonLicenseHistory(
+                _OldLicense.DriverInfo.PersonID).ShowDialog();
         }
 
         private void _ShowNewLicenseInfo(

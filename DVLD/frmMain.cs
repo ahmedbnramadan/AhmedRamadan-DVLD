@@ -425,7 +425,7 @@ namespace DVLD
 
         private void _InternationalDrivingLicenseApplications(object sender, EventArgs e)
         {
-            MessageBox.Show("Coming Soon");
+            new frmListInternationalApplications().ShowDialog();
         }
 
         // Detained Licenses
@@ -437,7 +437,7 @@ namespace DVLD
 
         private void _DetainLicense(object sender, EventArgs e)
         {
-            MessageBox.Show("Coming Soon");
+            new frmDetainLicense().ShowDialog();
         }
 
         private void _ReleaseDetainedLicense(object sender, EventArgs e)
