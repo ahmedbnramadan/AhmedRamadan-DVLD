@@ -196,6 +196,7 @@ namespace DVLD.Tests
                 DataPropertyName = "appointmentdate",
                 HeaderText = "Appointment Date",
                 FillWeight = 140,
+                ValueType = typeof(DateTime),
                 SortMode = DataGridViewColumnSortMode.Automatic,
                 DefaultCellStyle = { Format = "dd/MMM/yyyy" }
             });
@@ -207,6 +208,7 @@ namespace DVLD.Tests
                 DataPropertyName = "paidfees",
                 HeaderText = "Paid Fees",
                 FillWeight = 100,
+                ValueType = typeof(decimal),
                 SortMode = DataGridViewColumnSortMode.Automatic,
                 DefaultCellStyle = { Format = "N2", Alignment = DataGridViewContentAlignment.MiddleRight }
             });

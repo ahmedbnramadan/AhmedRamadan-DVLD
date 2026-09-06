@@ -423,7 +423,8 @@ namespace DataAccess
                                         p.firstname + ' ' + p.lastname as drivername,
                                         p.nationalno,
                                         u1.username as detainedbyusername,
-                                        u2.username as releasedbyusername
+                                        u2.username as releasedbyusername,
+                                        dl.isreleased,
                                 FROM detainedlicenses dl
                                 INNER JOIN licenses l ON dl.licenseid = l.licenseid
                                 INNER JOIN licenseclasses lc ON l.licenseclass = lc.licenseclassid
@@ -431,7 +432,7 @@ namespace DataAccess
                                 INNER JOIN people p ON d.personid = p.personid
                                 INNER JOIN users u1 ON dl.createdbyuserid = u1.userid
                                 LEFT JOIN users u2 ON dl.releasedbyuserid = u2.userid
-                                ORDER BY dl.detaindate DESC";
+                                ORDER BY dl.isreleased, dl.detaindate DESC";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {

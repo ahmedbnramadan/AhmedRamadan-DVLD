@@ -544,6 +544,14 @@ namespace DVLD
             _ShowDetails();
         }
 
+        // FIX: this used to read the "DriverID" column and pass a DriverID
+        // straight into frmShowPersonLicenseHistory(int). That form's
+        // constructor contract is a PERSON ID, not a Driver ID - DriverID
+        // and PersonID are two different keys that just happen to look
+        // like plain integers, so passing the wrong one wouldn't throw
+        // an exception, it would just silently open the WRONG person's
+        // license history. Read "PersonID" instead, exactly like
+        // _ShowDetails() already does below.
         private void ctxShowPersonLicenseHistory_Click(
             object sender,
             EventArgs e)
@@ -551,30 +559,30 @@ namespace DVLD
             if (dgv.SelectedRows.Count == 0)
                 return;
 
-            if (!dgv.Columns.Contains("DriverID"))
+            if (!dgv.Columns.Contains("PersonID"))
                 return;
 
             object value =
                 dgv.SelectedRows[0]
-                    .Cells["DriverID"]
+                    .Cells["PersonID"]
                     .Value;
 
             if (value == null ||
                 value == DBNull.Value)
                 return;
 
-            int driverID;
+            int personID;
 
             if (!int.TryParse(
                     value.ToString(),
-                    out driverID))
+                    out personID))
             {
                 return;
             }
 
-            if (driverID > 0)
+            if (personID > 0)
             {
-                new frmShowPersonLicenseHistory(driverID)
+                new frmShowPersonLicenseHistory(personID)
                     .ShowDialog();
             }
         }

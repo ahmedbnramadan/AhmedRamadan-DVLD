@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using Business;
@@ -7,91 +6,70 @@ using Business;
 namespace DVLD
 {
     /// <summary>
-    /// Read-only history of every license (past and present) a driver
-    /// has held. Backed by clsLicense.GetDriverLicenses(DriverID).
+    /// Shows a person's full driving-license history (Local + International).
+    /// Purely a composition of two already-existing, independently reusable
+    /// controls - no license/person logic is duplicated here:
+    ///
+    ///   - ctrlPersonCardWithFilter : finds/displays a person.
+    ///   - ctrlDriverLicenses       : shows that person's licenses.
+    ///
+    /// Two ways to open it:
+    ///
+    ///   new frmShowPersonLicenseHistory().ShowDialog();
+    ///       "Search mode" - filter is visible and focused; the caller
+    ///       doesn't know which person yet, the user looks one up.
+    ///
+    ///   new frmShowPersonLicenseHistory(personID).ShowDialog();
+    ///       "Locked mode" - filter is hidden and the given person is
+    ///       loaded immediately. Use this whenever the caller already
+    ///       knows exactly who they want (e.g. a selected grid row), so
+    ///       the user can't switch to someone else's records mid-view.
     /// </summary>
     public class frmShowPersonLicenseHistory : Form
     {
         #region Controls
 
         private Label lblTitle;
-        private DataGridView dgv;
-        private Label lblCount;
+        private ctrlPersonCardWithFilter ctrlPersonCardWithFilter1;
+        private ctrlDriverLicenses ctrlDriverLicenses1;
         private Button btnClose;
 
         #endregion
 
-        #region Column Setup
+        #region State
 
-        private struct ColumnSetup
-        {
-            public string DataField;
-            public string Header;
-            public DataGridViewContentAlignment Alignment;
-            public int Width;
-            public bool Fill;
-            public string Format;
-
-            public ColumnSetup(
-                string dataField,
-                string header,
-                DataGridViewContentAlignment alignment,
-                int width,
-                bool fill = false,
-                string format = null)
-            {
-                DataField = dataField;
-                Header = header;
-                Alignment = alignment;
-                Width = width;
-                Fill = fill;
-                Format = format;
-            }
-        }
-
-        // Field names must match the aliases/columns returned by
-        // clsLicense.GetDriverLicenses() -> clsLicenses.GetLicensesByDriverID().
-        private static readonly ColumnSetup[] ColumnLayout =
-        {
-            new ColumnSetup("licenseid", "License ID",
-                DataGridViewContentAlignment.MiddleCenter, width: 90),
-
-            new ColumnSetup("classname", "Class",
-                DataGridViewContentAlignment.MiddleLeft, width: 0, fill: true),
-
-            new ColumnSetup("issuedate", "Issue Date",
-                DataGridViewContentAlignment.MiddleCenter, width: 110, format: "d"),
-
-            new ColumnSetup("expirationdate", "Expiration",
-                DataGridViewContentAlignment.MiddleCenter, width: 110, format: "d"),
-
-            new ColumnSetup("issuereason", "Reason",
-                DataGridViewContentAlignment.MiddleCenter, width: 140),
-
-            new ColumnSetup("paidfees", "Fees",
-                DataGridViewContentAlignment.MiddleRight, width: 90, format: "N2"),
-
-            new ColumnSetup("isactive", "Active",
-                DataGridViewContentAlignment.MiddleCenter, width: 70)
-        };
+        // Any value <= 0 means "no specific person - let the user search".
+        // Matches the -1 sentinel convention used everywhere else in DVLD
+        // (see clsPerson(), clsApplication(), etc).
+        private readonly int _personID;
 
         #endregion
 
-        private readonly int _driverID;
+        // ── Constructors ────────────────────────────────────────────────────
 
-        public frmShowPersonLicenseHistory(int driverID)
+        /// <summary>Opens in search mode.</summary>
+        public frmShowPersonLicenseHistory() : this(-1) { }
+
+        /// <summary>
+        /// Opens locked to a specific person.
+        /// </summary>
+        /// <param name="personID">
+        /// The Person ID whose license history to display. Any value
+        /// &lt;= 0 falls back to search mode instead of failing.
+        /// </param>
+        public frmShowPersonLicenseHistory(int personID)
         {
-            _driverID = driverID;
-            _Build();
-            _LoadData();
+            _personID = personID;
+
+            _InitializeComponents();
+            _SetupEvents();
         }
 
-        #region Build
+        // ── Build ────────────────────────────────────────────────────────────
 
-        private void _Build()
+        private void _InitializeComponents()
         {
-            this.Text = "Driving License History";
-            this.Size = new Size(900, 560);
+            this.Text = "License History";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -101,183 +79,132 @@ namespace DVLD
 
             lblTitle = new Label
             {
-                Text = "Driving License History",
-                Font = new Font("Arial", 16F, FontStyle.Bold),
+                Text = "License History",
+                Font = new Font("Arial", 20F, FontStyle.Bold),
                 ForeColor = clsGlobal.PrimaryRed,
-                Dock = DockStyle.Top,
-                Height = 50,
-                TextAlign = ContentAlignment.MiddleCenter
-            };
-
-            dgv = new DataGridView
-            {
-                Location = new Point(20, 65),
-                Size = new Size(840, 400),
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom |
-                         AnchorStyles.Left | AnchorStyles.Right,
-
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                AllowUserToResizeRows = false,
-
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                MultiSelect = false,
-                AutoGenerateColumns = true,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-
-                ColumnHeadersHeight = 34,
-                RowTemplate = new DataGridViewRow { Height = 28 },
-
-                BorderStyle = BorderStyle.FixedSingle,
-                BackgroundColor = Color.White,
-                RowHeadersVisible = false,
-                EnableHeadersVisualStyles = false
-            };
-
-            dgv.ColumnHeadersDefaultCellStyle.BackColor = clsGlobal.GridHeaderBack;
-            dgv.ColumnHeadersDefaultCellStyle.ForeColor = clsGlobal.GridHeaderFore;
-            dgv.ColumnHeadersDefaultCellStyle.Font =
-                new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold);
-            dgv.EnableHeadersVisualStyles = false;
-            dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 248, 255);
-            dgv.CellFormatting += Dgv_CellFormatting;
-
-            lblCount = new Label
-            {
-                Text = "Records: 0",
                 AutoSize = true,
-                Location = new Point(20, ClientSize.Height - 43),
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Left,
-                ForeColor = Color.Gray
+                Location = new Point(330, 15)
+            };
+
+            // Keeps its own default size (850x400) - set that in one place
+            // only, inside the control itself, so we never fight it here.
+            ctrlPersonCardWithFilter1 = new ctrlPersonCardWithFilter
+            {
+                Location = new Point(30, 65)
+            };
+            ctrlPersonCardWithFilter1.PersonLoaded += CtrlPersonCardWithFilter1_PersonLoaded;
+
+            // Keeps its own default size (850x270).
+            ctrlDriverLicenses1 = new ctrlDriverLicenses
+            {
+                Location = new Point(30, ctrlPersonCardWithFilter1.Bottom + 15)
             };
 
             btnClose = new Button
             {
                 Text = "✖  Close",
-                Size = new Size(150, 36),
-                Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Bold),
-                BackColor = Color.FromArgb(192, 50, 50),
+                Size = new Size(150, 38),
+                Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
+                BackColor = clsGlobal.DangerRed,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Cursor = Cursors.Hand,
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+                Cursor = Cursors.Hand
             };
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.Location = new Point(
-                ClientSize.Width - btnClose.Width - 20,
-                ClientSize.Height - btnClose.Height - 18);
-            btnClose.Click += (s, e) => Close();
+                ctrlDriverLicenses1.Right - btnClose.Width,
+                ctrlDriverLicenses1.Bottom + 20);
+            btnClose.Click += (s, e) => this.Close();
 
-            Controls.AddRange(new Control[] { lblTitle, dgv, lblCount, btnClose });
+            this.Controls.AddRange(new Control[]
+            {
+                lblTitle,
+                ctrlPersonCardWithFilter1,
+                ctrlDriverLicenses1,
+                btnClose
+            });
+
+            // Size the form to what we actually built rather than guessing
+            // pixel counts up front - stays correct even if either child
+            // control's own default size changes later.
+            this.ClientSize = new Size(
+                ctrlDriverLicenses1.Right + 30,
+                btnClose.Bottom + 20);
         }
 
-        #endregion
-
-        #region Load
-
-        private void _LoadData()
+        private void _SetupEvents()
         {
-            if (_driverID <= 0)
+            this.Load += FrmShowPersonLicenseHistory_Load;
+            this.Shown += FrmShowPersonLicenseHistory_Shown;
+        }
+
+        // ── Load / Shown ─────────────────────────────────────────────────────
+
+        // Deliberately NOT done in the constructor: the form has no window
+        // handle yet at that point, so a Close() call here (e.g. "person
+        // not found") would not reliably stop a subsequent ShowDialog()
+        // from displaying an empty form afterwards. Same reasoning
+        // frmEditTestType / frmShowPersonInfo already use elsewhere in
+        // this project - keep it consistent.
+        private void FrmShowPersonLicenseHistory_Load(object sender, EventArgs e)
+        {
+            bool locked = _personID > 0;
+
+            ctrlPersonCardWithFilter1.FilterVisible = !locked;
+
+            if (!locked)
             {
-                clsUtil.ShowError("Invalid driver.");
-                Close();
+                ctrlDriverLicenses1.Clear();
                 return;
             }
 
-            DataTable dt = clsLicense.GetDriverLicenses(_driverID);
+            // IMPORTANT: LoadPersonInfo() only fills the card - unlike the
+            // Find button's click handler, it does NOT raise PersonLoaded.
+            // If we relied on that event here, the license panel below
+            // would silently stay empty for every caller that opens this
+            // form pre-locked to a person - i.e. for the entire "locked
+            // mode" half of this feature. So we push the ID down ourselves.
+            ctrlPersonCardWithFilter1.LoadPersonInfo(_personID);
 
-            if (dt == null)
+            clsPerson person = ctrlPersonCardWithFilter1.SelectedPersonInfo;
+
+            if (person == null)
             {
-                dt = new DataTable();
-            }
-
-            dgv.DataSource = dt;
-            lblCount.Text = "Records: " + dt.Rows.Count;
-
-            _ConfigureColumns();
-        }
-
-        private void _ConfigureColumns()
-        {
-            for (int i = 0; i < ColumnLayout.Length; i++)
-                _ApplyColumn(ColumnLayout[i], i);
-
-            // Everything else the query brought back (applicationid,
-            // driverid, notes, createdbyuserid, classfees, activecount)
-            // is internal plumbing, not history the user asked to see.
-            foreach (DataGridViewColumn col in dgv.Columns)
-            {
-                bool isDisplayed = Array.Exists(ColumnLayout, c => c.DataField == col.Name);
-                if (!isDisplayed)
-                    col.Visible = false;
-            }
-        }
-
-        private void _ApplyColumn(ColumnSetup setup, int displayIndex)
-        {
-            if (!dgv.Columns.Contains(setup.DataField))
+                // The card control already showed its own error message
+                // box for this case - nothing useful left to display.
+                // Never trust a caller-supplied ID blindly; re-verify here
+                // instead of assuming it was valid.
+                this.DialogResult = DialogResult.Cancel;
+                this.Close();
                 return;
-
-            DataGridViewColumn column = dgv.Columns[setup.DataField];
-
-            column.HeaderText = setup.Header;
-            column.DisplayIndex = displayIndex;
-            column.DefaultCellStyle.Alignment = setup.Alignment;
-
-            if (setup.Fill)
-            {
-                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            }
-            else
-            {
-                column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                column.Width = setup.Width;
             }
 
-            if (!string.IsNullOrEmpty(setup.Format))
-                column.DefaultCellStyle.Format = setup.Format;
+            ctrlDriverLicenses1.LoadInfoByPersonID(person.ID);
         }
 
-        #endregion
-
-        #region Formatting
-
-        // issuereason and isactive come back from the database as raw
-        // numbers/bits. CellFormatting lets us show human-readable text
-        // without mutating the underlying DataTable.
-        private void Dgv_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        private void FrmShowPersonLicenseHistory_Shown(object sender, EventArgs e)
         {
-            if (e.Value == null || e.RowIndex < 0) return;
-
-            string columnName = dgv.Columns[e.ColumnIndex].Name;
-
-            if (columnName == "issuereason")
+            // Only steal focus for the filter when there is a filter to use -
+            // it's hidden entirely in locked mode. Focusing here (Shown),
+            // not in Load, matches the rest of the project: the control
+            // isn't reliably focusable before the form has actually painted.
+            if (_personID <= 0)
             {
-                short reason = Convert.ToInt16(e.Value);
-                e.Value = _IssueReasonText(reason);
-                e.FormattingApplied = true;
-            }
-            else if (columnName == "isactive")
-            {
-                bool isActive = Convert.ToBoolean(e.Value);
-                e.Value = isActive ? "Yes" : "No";
-                e.FormattingApplied = true;
+                ctrlPersonCardWithFilter1.FocusOnFilter();
             }
         }
 
-        private static string _IssueReasonText(short reason)
+        // ── Events ───────────────────────────────────────────────────────────
+
+        private void CtrlPersonCardWithFilter1_PersonLoaded(object sender, clsPerson person)
         {
-            switch ((clsLicense.enIssueReason)reason)
+            if (person == null)
             {
-                case clsLicense.enIssueReason.FirstTime: return "First Time";
-                case clsLicense.enIssueReason.Renew: return "Renew";
-                case clsLicense.enIssueReason.DamagedReplacement: return "Damaged Replacement";
-                case clsLicense.enIssueReason.LostReplacement: return "Lost Replacement";
-                default: return "Unknown";
+                ctrlDriverLicenses1.Clear();
+                return;
             }
-        }
 
-        #endregion
+            ctrlDriverLicenses1.LoadInfoByPersonID(person.ID);
+        }
     }
-}
+}   

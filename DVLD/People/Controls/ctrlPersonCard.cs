@@ -140,8 +140,14 @@ namespace DVLD
             _Person = clsPerson.Find(PersonID);
             if (_Person == null)
             {
+                // FIX: read the incoming parameter BEFORE resetting state.
+                // ResetPersonInfo() sets the field _PersonID back to -1, so
+                // if the ShowError call ran *after* it (as it originally
+                // did, reading the field instead of the parameter), every
+                // "not found" message would say "ID = -1" no matter which
+                // ID was actually searched for.
+                clsUtil.ShowError($"No Person with ID = {PersonID}.");
                 ResetPersonInfo();
-                clsUtil.ShowError($"No Person with ID = {_PersonID}.");;
                 return;
             }
 
@@ -196,7 +202,7 @@ namespace DVLD
                     using (var ms = new MemoryStream(File.ReadAllBytes(fallbackPath)))
                         defaultImage = Image.FromStream(ms);
                 }
-                catch 
+                catch
                 {
                     // If loading fails, keep defaultImage as null
                 }

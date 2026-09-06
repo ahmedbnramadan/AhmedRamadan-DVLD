@@ -20,9 +20,42 @@ namespace Business
         public int? ReleaseApplicationID { get; set; }
 
         // كائنات الربط (Composition)
-        public clsLicense LicenseInfo { get; set; }
-        public clsUser CreatedByUserInfo { get; set; }
-        public clsUser ReleasedByUserInfo { get; set; }
+        private clsLicense _LicenseInfo;
+        private clsUser _CreatedByUserInfo;
+        private clsUser _ReleasedByUserInfo;
+
+        public clsLicense LicenseInfo
+        {
+            get
+            {
+                if (_LicenseInfo == null)
+                    _LicenseInfo = clsLicense.Find(LicenseID);
+
+                return _LicenseInfo;
+            }
+        }
+
+        public clsUser CreatedByUserInfo
+        {
+            get
+            {
+                if (_CreatedByUserInfo == null)
+                    _CreatedByUserInfo = clsUser.Find(CreatedByUserID);
+
+                return _CreatedByUserInfo;
+            }
+        }
+
+        public clsUser ReleasedByUserInfo
+        {
+            get
+            {
+                if (_ReleasedByUserInfo == null && ReleasedByUserID.HasValue)
+                    _ReleasedByUserInfo = clsUser.Find(ReleasedByUserID.Value);
+
+                return _ReleasedByUserInfo;
+            }
+        }
 
         public clsDetainedLicense()
         {
@@ -58,13 +91,6 @@ namespace Business
             this.ReleaseDate = ReleaseDate;
             this.ReleasedByUserID = ReleasedByUserID;
             this.ReleaseApplicationID = ReleaseApplicationID;
-
-            // ربط الكائنات
-            this.LicenseInfo = clsLicense.Find(this.LicenseID);
-            this.CreatedByUserInfo = clsUser.Find(this.CreatedByUserID);
-            
-            if (this.IsReleased && this.ReleasedByUserID.HasValue)
-                this.ReleasedByUserInfo = clsUser.Find(this.ReleasedByUserID.Value);
 
             Mode = enMode.Update;
         }
