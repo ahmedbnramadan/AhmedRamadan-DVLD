@@ -227,7 +227,7 @@ namespace DataAccess
                                     releasedate = @ReleaseDate,
                                     releasedbyuserid = @ReleasedByUserID,
                                     releaseapplicationid = @ReleaseApplicationID
-                                WHERE detainid = @DetainID";
+                                WHERE detainid = @DetainID AND isreleased = 0";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {

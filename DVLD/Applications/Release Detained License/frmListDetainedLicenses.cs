@@ -14,6 +14,7 @@ namespace DVLD
 
         private Label lblFilterBy;
         private ComboBox cbFilterBy;
+        private ComboBox cbStatus;
         private TextBox txtFilter;
 
         private DataGridView dgv;
@@ -169,6 +170,23 @@ namespace DVLD
                 Size = new Size(220, 23),
                 Visible = false
             };
+
+            cbStatus = new ComboBox();
+            cbStatus.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbStatus.FormattingEnabled = true;
+            cbStatus.Location = txtFilter.Location;
+            cbStatus.Size = txtFilter.Size;
+            cbStatus.Visible = false;
+
+            cbStatus.Items.Add("All");
+            cbStatus.Items.Add("Active");
+            cbStatus.Items.Add("Released");
+
+            cbStatus.SelectedIndex = 0;
+
+            this.Controls.Add(cbStatus);
+
+
             txtFilter.TextChanged += (s, e) => _Filter();
         }
 
