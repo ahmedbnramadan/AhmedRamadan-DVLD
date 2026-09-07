@@ -391,11 +391,11 @@ namespace DVLD
 
         private void _Release(object sender, EventArgs e)
         {
-            if (_detained == null) { clsUtil.ShowWarning("Find a detained record first."); return; }
-            if (_detained.IsReleased) { clsUtil.ShowWarning("This license is already released."); return; }
+            if (_DetainedLicense == null) { clsUtil.ShowWarning("Find a detained record first."); return; }
+            if (_DetainedLicense.IsReleased) { clsUtil.ShowWarning("This license is already released."); return; }
             if (!clsUtil.ConfirmDelete("release this detained license")) return;
 
-            clsLicense license = _detained.LicenseInfo;   // already exposed as a lazy property
+            clsLicense license = _DetainedLicense.LicenseInfo;   // already exposed as a lazy property
             if (license == null)
             {
                 clsUtil.ShowError("The license associated with this record could not be found.");

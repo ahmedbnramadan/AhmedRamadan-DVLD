@@ -205,7 +205,7 @@ namespace DVLD
             ctxShowPersonDetails.Click        += (s, e) => _ShowPersonDetails();
             ctxShowLicenseDetails.Click       += (s, e) => _ShowLicenseDetails();
             ctxShowPersonLicenseHistory.Click += (s, e) => _ShowPersonLicenseHistory();
-            ctxRelease.Click                  += (s, e) => _ReleaseSelected();
+            ctxRelease.Click                  += (s, e) => _Release();
 
             // Recompute right as the menu is about to open, not only on
             // SelectionChanged - the same defensive pattern used for
