@@ -391,50 +391,27 @@ namespace DVLD
 
         private void _Release(object sender, EventArgs e)
         {
-            // Re-validate against the DB, not just against what's cached in
-            // _DetainedLicense - it could have been released by another
-            // user/session since this form loaded it.
-            if (_License == null || _DetainedLicense == null)
+            if (_detained == null) { clsUtil.ShowWarning("Find a detained record first."); return; }
+            if (_detained.IsReleased) { clsUtil.ShowWarning("This license is already released."); return; }
+            if (!clsUtil.ConfirmDelete("release this detained license")) return;
+
+            clsLicense license = _detained.LicenseInfo;   // already exposed as a lazy property
+            if (license == null)
             {
-                clsUtil.ShowWarning("Find a detained license first.");
+                clsUtil.ShowError("The license associated with this record could not be found.");
                 return;
             }
 
-            if (!clsDetainedLicense.IsLicenseDetained(_License.ID))
+            int applicationID = -1;
+            if (license.ReleaseDetained(clsGlobal.CurrentUserID, ref applicationID))
             {
-                clsUtil.ShowWarning("This license is no longer detained.");
-                _UpdateReleaseButtonState();
-                return;
-            }
-
-            if (!clsUtil.ConfirmDelete("release this detained license"))
-                return;
-
-            // Delegate the whole workflow (create release application +
-            // release the detain record) to the business layer.
-            int newApplicationID = -1;
-
-            bool released = _License.ReleaseDetained(
-                clsGlobal.CurrentUserID,
-                ref newApplicationID);
-
-            if (released)
-            {
-                lblApplicationIDValue.Text = newApplicationID.ToString();
-
-                clsUtil.ShowSuccess(
-                    "License released successfully.\n\nApplication ID = " + newApplicationID,
-                    "Released");
-
-                // Lock the form - this detain record can't be released twice.
-                ctrlDriverLicenseInfoWithFilter1.EnableFilter(false);
-                btnRelease.Enabled = false;
-
+                clsUtil.ShowInfo("License released successfully.");
                 this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             else
             {
-                clsUtil.ShowError("Failed to release the license. Please try again.");
+                clsUtil.ShowError("Failed to release license.");
             }
         }
 

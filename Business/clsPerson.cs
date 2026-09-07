@@ -210,7 +210,7 @@ namespace Business
 
         public bool Save()
         {
-            if (this.DateOfBirth > DateTime.Now.AddYears(-18))
+            if (this.DateOfBirth > clsGlobal.MinimumDriverAge)
             {
                 return false;
             }

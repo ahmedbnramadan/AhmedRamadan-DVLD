@@ -342,7 +342,7 @@ namespace DVLD
 
             int LicenseID =
                 _LocalDrivingLicenseApplication
-                    .IssueLicenseFrotTheFristTeim(
+                    .IssueLicenseForTheFirstTime(
                         txtNotes.Text.Trim(),
                         clsGlobal.CurrentUserID);
 

@@ -398,14 +398,16 @@ namespace Business
 
         public clsLicense Renew(string Notes, int CreatedByUserID)
         {
-            clsApplication Application = new clsApplication();
+            clsApplicationType ApplicationType = clsApplicationType.Find(2);
+            if (ApplicationType == null) return null;
 
+            clsApplication Application = new clsApplication();
             Application.ApplicantPersonID = this.DriverInfo.PersonID;
             Application.ApplicationTypeID = 2;
             Application.ApplicationDate = DateTime.Now;
             Application.ApplicationStatus = clsApplication.enApplicationStatus.Completed;
             Application.LastStatusDate = DateTime.Now;
-            Application.PaidFees = clsApplicationType.Find(2).Fees;
+            Application.PaidFees = ApplicationType.Fees;
             Application.CreatedByUserID = CreatedByUserID;
 
             if (!Application.Save())

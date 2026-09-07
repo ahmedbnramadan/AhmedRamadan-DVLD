@@ -279,11 +279,7 @@ namespace DataAccess
             return (rowAffected > 0);
         }
 
-        public static bool UpdateApplicationFees(
-            int ApplicationTypeID,
-            string ApplicationTypeTitle,
-            decimal ApplicationFees
-            )
+        public static bool UpdateApplicationFees(int ApplicationTypeID, decimal ApplicationFees)
         {
             LastErrorMessage = "";
             int rowAffected = 0;
@@ -292,11 +288,12 @@ namespace DataAccess
             {
                 string query = @"
                 UPDATE applicationtypes
-                SET 
-                    applicationfees = @ApplicationFees";
+                SET applicationfees = @ApplicationFees
+                WHERE applicationtypeid = @ApplicationTypeID";
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
+                    command.Parameters.AddWithValue("@ApplicationTypeID", ApplicationTypeID);
                     command.Parameters.AddWithValue("@ApplicationFees", ApplicationFees);
 
                     try

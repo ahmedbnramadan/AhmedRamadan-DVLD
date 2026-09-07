@@ -520,39 +520,28 @@ namespace DVLD
             new frmShowPersonLicenseHistory(personID).ShowDialog();
         }
 
-        private void _ReleaseSelected()
+        private void _Release()
         {
-            int licenseID = _SelectedLicenseID();
+            int id = _SelectedDetainID(); if (id < 0) return;
+            var detained = clsDetainedLicense.Find(id);
+            if (detained == null) return;
+            if (detained.IsReleased) { clsUtil.ShowWarning("This license is already released."); return; }
+            if (!clsUtil.ConfirmDelete("release this detained license")) return;
 
-            if (licenseID <= 0)
-            {
-                clsUtil.ShowWarning("Please select a valid detained license.");
-                return;
-            }
+            clsLicense license = detained.LicenseInfo;
+            if (license == null) { clsUtil.ShowError("Associated license not found."); return; }
 
-            // Defensive re-check: the menu item's Enabled state already
-            // reflects this, but never trust that alone at the moment of
-            // action - the underlying data could have changed since the
-            // grid was last bound (e.g. released from another list/session).
-            if (clsDetainedLicense.FindByLicenseID(licenseID)?.IsReleased != false)
+            int applicationID = -1;
+            if (license.ReleaseDetained(clsGlobal.CurrentUserID, ref applicationID))
             {
-                clsUtil.ShowWarning("This license is not currently detained (or was already released).");
+                clsUtil.ShowInfo("License released successfully.");
                 _LoadData();
-                return;
             }
-
-            // Locked mode: the release form already knows exactly which
-            // license to work with, so the filter inside it is disabled -
-            // the user can't accidentally release a different license.
-            using (var frm = new frmReleaseDetainedLicense(licenseID))
+            else
             {
-                if (frm.ShowDialog() == DialogResult.OK)
-                {
-                    _LoadData();
-                }
+                clsUtil.ShowError("Failed to release license.");
             }
         }
-
         #endregion
 
         #region Grid Events

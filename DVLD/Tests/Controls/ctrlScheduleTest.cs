@@ -1007,25 +1007,26 @@ namespace DVLD.Tests.Controls
         private int? _EnsureRetakeBaseApplicationID()
         {
             if (_Mode == enMode.Update && _ExistingAppointment?.RetakeTestApplicationID != null)
-            {
                 return _ExistingAppointment.RetakeTestApplicationID;
-            }
 
-            // Create a new base application for the retake
-            // Use the same applicant person as the original LDLA
-            var retakeApplication = new clsApplication();
-            retakeApplication.ApplicantPersonID = _Application.ApplicantPersonID;
-            retakeApplication.ApplicationTypeID = _Application.ApplicationTypeID;
-            retakeApplication.PaidFees = 0; // Retake uses existing fees or handled separately
-            retakeApplication.CreatedByUserID = clsGlobal.CurrentUserID;
+            const int RetakeTestApplicationTypeID = 7;
+
+            clsApplicationType retakeType = clsApplicationType.Find(RetakeTestApplicationTypeID);
+            if (retakeType == null)
+                throw new Exception("The 'Retake Test' application type is not configured.");
+
+            var retakeApplication = new clsApplication
+            {
+                ApplicantPersonID = _Application.ApplicantPersonID,
+                ApplicationTypeID = RetakeTestApplicationTypeID,
+                PaidFees          = retakeType.Fees,
+                CreatedByUserID   = _CreatedByUserID
+            };
 
             if (retakeApplication.Save())
-            {
                 return retakeApplication.ApplicationID;
-            }
 
-            throw new Exception(
-                "Failed to create base application for retake test.");
+            throw new Exception("Failed to create base application for retake test.");
         }
 
         #endregion

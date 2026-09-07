@@ -334,7 +334,7 @@ namespace Business
                 this.LicenseClassID);
         }
 
-        public int IssueLicenseFrotTheFristTeim(string Notes, int CreatedByUserID)
+        public int IssueLicenseForTheFirstTime(string Notes, int CreatedByUserID)
         {
             // The application must be a saved local driving license application.
             if (this.LocalDrivingLicenseApplicationID <= 0 || this.ApplicationID <= 0)
