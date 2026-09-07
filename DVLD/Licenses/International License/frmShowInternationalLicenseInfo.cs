@@ -24,7 +24,7 @@ namespace DVLD
         private void _InitializeComponents()
         {
             this.Text = "Driver International License Info";
-            this.Size = new Size(760, 460);
+            this.Size = new Size(760, 390);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -44,13 +44,13 @@ namespace DVLD
             ctrlLicenseInfo = new ctrlInternationalLicenseInfo
             {
                 Location = new Point(20, 65),
-                Size = new Size(700, 320)
+                Size = new Size(700, 220)
             };
 
             btnClose = new Button
             {
                 Text = "Close",
-                Location = new Point(560, 390),
+                Location = new Point(560, 300),
                 Size = new Size(150, 36),
                 Font = new Font("Microsoft Sans Serif", 10F, FontStyle.Bold),
                 BackColor = clsGlobal.DangerRed,

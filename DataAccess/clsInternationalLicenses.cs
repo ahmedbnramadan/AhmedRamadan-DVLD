@@ -475,29 +475,30 @@ namespace DataAccess
         {
             DataTable dt = new DataTable();
 
-            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
+            using (SqlConnection connection =
+                new SqlConnection(clsDataAccessSettings.ConnectionString))
             {
-                string query = @"SELECT il.*, 
-                                        l.licenseclass,
-                                        lc.classname,
-                                        d.driverid,
-                                        p.firstname + ' ' + p.lastname as drivername,
-                                        p.nationalno,
-                                        u.username as createdbyusername
-                                FROM internationallicenses il
-                                INNER JOIN licenses l ON il.issuedusinglocallicenseid = l.licenseid
-                                INNER JOIN licenseclasses lc ON l.licenseclass = lc.licenseclassid
-                                INNER JOIN drivers d ON il.driverid = d.driverid
-                                INNER JOIN people p ON d.personid = p.personid
-                                INNER JOIN users u ON il.createdbyuserid = u.userid
-                                ORDER BY il.issuedate DESC";
+                string query = @"
+                    SELECT
+                        il.internationallicenseid AS InternationalLicenseID,
+                        il.applicationid AS ApplicationID,
+                        il.driverid AS DriverID,
+                        il.issuedusinglocallicenseid AS IssuedUsingLocalLicenseID,
+                        il.issuedate AS IssueDate,
+                        il.expirationdate AS ExpirationDate,
+                        il.isactive AS IsActive
+                    FROM internationallicenses il
+                    ORDER BY il.issuedate DESC";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlCommand command =
+                    new SqlCommand(query, connection))
                 {
                     try
                     {
                         connection.Open();
-                        using (SqlDataReader reader = command.ExecuteReader())
+
+                        using (SqlDataReader reader =
+                            command.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
@@ -507,10 +508,13 @@ namespace DataAccess
                     }
                     catch (Exception ex)
                     {
-                        LastErrorMessage = "Error getting all international licenses: " + ex.Message;
+                        LastErrorMessage =
+                            "Error getting all international licenses: "
+                            + ex.Message;
                     }
                 }
             }
+
             return dt;
         }
 

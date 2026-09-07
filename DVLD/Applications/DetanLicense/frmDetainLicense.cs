@@ -79,7 +79,7 @@ namespace DVLD
 
             lnkShowLicensesHistory = new LinkLabel
             {
-                Text = "Show Licenses History",
+                Text = "Show Licenses History ",
                 AutoSize = true,
                 Location = new Point(30, gbDetainInfo.Bottom + 18),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Underline),
@@ -90,7 +90,7 @@ namespace DVLD
 
             lnkShowLicenseInfo = new LinkLabel
             {
-                Text = "Show License Info",
+                Text = "Show License Info ",
                 AutoSize = true,
                 Location = new Point(220, gbDetainInfo.Bottom + 18),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Underline),
@@ -99,7 +99,7 @@ namespace DVLD
                 TabStop = false
             };
 
-            btnDetain = _CreateButton("🌐  Detain", 640, gbDetainInfo.Bottom + 12, Color.FromArgb(0, 140, 60));
+            btnDetain = _CreateButton("Detain", 640, gbDetainInfo.Bottom + 12, Color.FromArgb(0, 140, 60));
             btnDetain.Enabled = false; // nothing loaded yet - nothing to detain
 
             btnClose = _CreateButton("✖  Close", 770, gbDetainInfo.Bottom + 12, Color.FromArgb(192, 50, 50));

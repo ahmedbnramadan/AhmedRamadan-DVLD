@@ -45,7 +45,7 @@ namespace DVLD
 
         private void _InitializeComponents()
         {
-            this.Size = new Size(700, 320);
+            this.Size = new Size(700, 200);
             this.Font = new Font("Microsoft Sans Serif", 9F);
 
             gbInfo = new GroupBox
@@ -90,7 +90,7 @@ namespace DVLD
             // ── Photo ─────────────────────────────────────────────────
             pbPersonImage = new PictureBox
             {
-                Location = new Point(300, 215),
+                Location = new Point(500, 40),
                 Size = new Size(150, 90),
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BorderStyle = BorderStyle.FixedSingle,

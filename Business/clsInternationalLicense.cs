@@ -4,6 +4,7 @@ using DataAccess;
 
 namespace Business
 {
+    //// it suppose to inherip claApplication (clsInternationalLicense:clsApplication) and to take that in care in Svae method/////
     public class clsInternationalLicense
     {
         public enum enMode 

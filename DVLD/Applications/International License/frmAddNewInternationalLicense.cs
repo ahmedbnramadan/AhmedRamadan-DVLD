@@ -52,7 +52,7 @@ namespace DVLD
         private void _Build()
         {
             this.Text = "International License Application";
-            this.Size = new Size(950, 800);
+            this.Size = new Size(950, 770);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -66,7 +66,7 @@ namespace DVLD
                 Font = new Font("Arial", 18F, FontStyle.Bold),
                 ForeColor = clsGlobal.PrimaryRed,
                 AutoSize = true,
-                Location = new Point(220, 18)
+                Location = new Point(250, 18)
             };
 
             // ── Filter ──────────────────────────────────────────────
@@ -91,7 +91,7 @@ namespace DVLD
 
             btnFind = new Button
             {
-                Text = "🔍 Find",
+                Text = "Find",
                 Location = new Point(310, 61),
                 Size = new Size(80, 26),
                 BackColor = Color.FromArgb(0, 120, 215),
@@ -133,7 +133,7 @@ namespace DVLD
             // ── Links ─────────────────────────────────────────────────
             lnkShowLicenseInfo = new LinkLabel
             {
-                Text = "Show License Info",
+                Text = "Show License Info ",
                 AutoSize = true,
                 Location = new Point(20, gbApplicationInfo.Bottom + 15),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Underline),
@@ -144,7 +144,7 @@ namespace DVLD
 
             lnkShowLicensesHistory = new LinkLabel
             {
-                Text = "Show Licenses History",
+                Text = "Show Licenses History ",
                 AutoSize = true,
                 Location = new Point(180, gbApplicationInfo.Bottom + 15),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Underline),

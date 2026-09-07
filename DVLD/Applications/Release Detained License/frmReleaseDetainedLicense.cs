@@ -111,7 +111,7 @@ namespace DVLD
 
             lnkShowLicensesHistory = new LinkLabel
             {
-                Text = "Show Licenses History",
+                Text = "Show Licenses History ",
                 AutoSize = true,
                 Location = new Point(30, gbDetainInfo.Bottom + 18),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Underline),
@@ -122,7 +122,7 @@ namespace DVLD
 
             lnkShowLicenseInfo = new LinkLabel
             {
-                Text = "Show License Info",
+                Text = "Show License Info ",
                 AutoSize = true,
                 Location = new Point(220, gbDetainInfo.Bottom + 18),
                 Font = new Font("Microsoft Sans Serif", 9.5F, FontStyle.Underline),
