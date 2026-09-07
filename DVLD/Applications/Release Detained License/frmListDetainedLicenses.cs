@@ -69,15 +69,15 @@ namespace DVLD
         // DataAccess query - dl.* + the joined extras).
         private static readonly ColumnSetup[] ColumnLayout =
         {
-            new ColumnSetup("DetainID",             "D ID",            DataGridViewContentAlignment.MiddleCenter, 60),
-            new ColumnSetup("LicenseID",            "L ID",            DataGridViewContentAlignment.MiddleCenter, 60),
-            new ColumnSetup("DetainDate",           "D Date",          DataGridViewContentAlignment.MiddleCenter, 140, "g"),
-            new ColumnSetup("IsReleased",           "Is Released",     DataGridViewContentAlignment.MiddleCenter, 90),
-            new ColumnSetup("FineFees",             "Fine Fees",       DataGridViewContentAlignment.MiddleRight,  100, "N2"),
-            new ColumnSetup("ReleaseDate",          "Release Date",    DataGridViewContentAlignment.MiddleCenter, 140, "g"),
-            new ColumnSetup("NationalNo",           "N.No.",           DataGridViewContentAlignment.MiddleCenter, 100),
-            new ColumnSetup("DriverName",           "Full Name",       DataGridViewContentAlignment.MiddleLeft,   220),
-            new ColumnSetup("ReleaseApplicationID", "Release App.ID",  DataGridViewContentAlignment.MiddleCenter, 110)
+            new ColumnSetup("DetainID",             "Detain ID",            DataGridViewContentAlignment.MiddleCenter, 90),
+            new ColumnSetup("LicenseID",            "License ID",           DataGridViewContentAlignment.MiddleCenter, 95),
+            new ColumnSetup("DriverName",           "Full Name",            DataGridViewContentAlignment.MiddleCenter, 222),
+            new ColumnSetup("NationalNo",           "National.No.",         DataGridViewContentAlignment.MiddleCenter, 135),
+            new ColumnSetup("DetainDate",           "Detain Date",          DataGridViewContentAlignment.MiddleCenter, 150, "g"),
+            new ColumnSetup("FineFees",             "Fine Fees",            DataGridViewContentAlignment.MiddleCenter, 100, "N2"),
+            new ColumnSetup("ReleaseDate",          "Release Date",         DataGridViewContentAlignment.MiddleCenter, 150, "g"),
+            new ColumnSetup("IsReleased",           "Is Released",          DataGridViewContentAlignment.MiddleCenter, 90),
+            new ColumnSetup("ReleaseApplicationID", "Release App.ID",       DataGridViewContentAlignment.MiddleCenter, 110)
         };
 
         #endregion
@@ -280,7 +280,7 @@ namespace DVLD
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Cursor = Cursors.Hand,
-                Location = new Point(FormWidth - 170 - GridMargin, FormHeight - 100)
+                Location = new Point(FormWidth - 170 - GridMargin, FormHeight - 90)
             };
             btnClose.FlatAppearance.BorderSize = 0;
             btnClose.Click += (s, e) => Close();
@@ -311,12 +311,12 @@ namespace DVLD
             for (int i = 0; i < ColumnLayout.Length; i++)
                 _ApplyColumn(ColumnLayout[i], i);
 
-            // Hide anything the query returns that we didn't explicitly lay out
-            // (licenseclass, issuereason, classname, driverid, createdbyuserid,
-            // releasedbyuserid, detainedbyusername, releasedbyusername).
             foreach (DataGridViewColumn col in dgv.Columns)
             {
-                bool isLaidOut = Array.Exists(ColumnLayout, c => c.DataField == col.Name);
+                bool isLaidOut = Array.Exists(
+                    ColumnLayout,
+                    c => string.Equals(c.DataField, col.Name, StringComparison.OrdinalIgnoreCase));
+
                 if (!isLaidOut)
                     col.Visible = false;
             }
