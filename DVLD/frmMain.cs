@@ -449,8 +449,7 @@ namespace DVLD
 
         private void _CurrentUserInfo(object sender, EventArgs e)
         {
-            new frmShowUserInfo(
-                clsGlobal.CurrentUserID).ShowDialog();
+            new frmShowUserInfo(clsGlobal.CurrentUserID).ShowDialog();
         }
 
         private void _ChangePassword(object sender, EventArgs e)
